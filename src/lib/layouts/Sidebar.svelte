@@ -1,6 +1,11 @@
+<script lang="ts">
+    import ThemeToggler from "$lib/components/ThemeToggler.svelte";
+</script>
+
 <aside id="sidebar">
     <section class="title">
         <h1>Chasqui</h1>
+        <ThemeToggler />
     </section>
 
     <section class="new-actions">
@@ -13,7 +18,6 @@
     #sidebar {
         width: 100%;
         min-height: max-content;
-        padding: 20px 20px;
     }
 
     .title {
@@ -32,7 +36,7 @@
 
     .new-actions {
         display: flex;
-        gap: 4px;
+        gap: 8px;
         align-items: center;
     }
 
