@@ -1,8 +1,8 @@
 [package]
 name = "chasqui"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A simple and minimal api client open source alternative"
+authors = ["Diego Salas"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -22,4 +22,5 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
+reqwest = { version = "0.12", features = ["json", "gzip", "brotli", "deflate", "stream"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
