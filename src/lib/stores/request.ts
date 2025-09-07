@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store'
-import type { Request, Response, HeaderKV } from '../types/http'
+import type { Request, Response, HeaderKV } from '$lib/types/http'
 
 export const request = writable<Request>({
     method: 'GET',

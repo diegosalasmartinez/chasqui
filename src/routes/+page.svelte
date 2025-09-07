@@ -1,16 +1,7 @@
 <script lang="ts">
-    import { invoke } from "@tauri-apps/api/core";
-    import Sidebar from "$lib/layouts/Sidebar.svelte";
     import RequestEditor from "$lib/components/RequestEditor.svelte";
-
-    let name = $state("");
-    let greetMsg = $state("");
-
-    async function greet(event: Event) {
-        event.preventDefault();
-        // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-        greetMsg = await invoke("greet", { name });
-    }
+    import ResponseViewer from "$lib/components/ResponseViewer.svelte";
+    import Sidebar from "$lib/layouts/Sidebar.svelte";
 </script>
 
 <main>
@@ -18,18 +9,7 @@
 
     <div class="container">
         <RequestEditor />
-
-        <!--
-        <form class="row" onsubmit={greet}>
-            <input
-                id="greet-input"
-                placeholder="Enter a name..."
-                bind:value={name}
-            />
-            <button type="submit">Greet</button>
-        </form>
-        <p>{greetMsg}</p>
-        -->
+        <ResponseViewer />
     </div>
 </main>
 
@@ -45,9 +25,5 @@
     .container {
         width: 100%;
         padding: 20px 20px;
-    }
-
-    #greet-input {
-        margin-right: 5px;
     }
 </style>

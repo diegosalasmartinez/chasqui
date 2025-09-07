@@ -9,7 +9,6 @@
     async function onSend() {
         try {
             response.set(null);
-            console.log("[DIEGO] req", req);
             const res = await sendRequest(req);
             response.set(res);
         } catch (err) {

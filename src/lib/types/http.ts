@@ -16,3 +16,9 @@ export type Response = {
     duration_ms: number
     size_bytes: number
 }
+
+export type HistoryItem = {
+    at_ms: number
+    request: Request
+    response: Response
+}
