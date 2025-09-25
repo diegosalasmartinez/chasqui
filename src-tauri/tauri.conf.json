@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "chasqui",
-        "width": 800,
-        "height": 600
+        "title": "Chasqui",
+        "fullscreen": false,
+        "maximized": true,
+        "resizable": true,
+        "decorations": true,
+        "visible": true
       }
     ],
     "security": {
