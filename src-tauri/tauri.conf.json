@@ -27,7 +27,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "identifier": "com.diegosalas.chasqui",
     "publisher": "Diego Salas",
     "shortDescription": "A minimal open-source Postman alternative",
     "longDescription": "Chasqui is a lightweight API client built with Tauri, Rust and Svelte.",
