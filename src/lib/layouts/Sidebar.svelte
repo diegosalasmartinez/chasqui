@@ -1,5 +1,7 @@
 <script lang="ts">
+    import { selectNewRequest } from "$lib/stores/request";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
+    import SavedApis from "$lib/components/SavedApis.svelte";
 </script>
 
 <aside id="sidebar">
@@ -9,9 +11,13 @@
     </section>
 
     <section class="new-actions">
-        <button id="new-request">New Request</button>
+        <button id="new-request" on:click={() => selectNewRequest()}>
+            New Request
+        </button>
         <button id="new-dropdown">+</button>
     </section>
+
+    <SavedApis />
 </aside>
 
 <style>

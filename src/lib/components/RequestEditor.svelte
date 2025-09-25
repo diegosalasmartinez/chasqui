@@ -1,19 +1,24 @@
 <script lang="ts">
-    import { request, response, setHeader } from "$lib/stores/request";
-    import { sendRequest } from "$lib/services/tauriBridge";
+    import {
+        request,
+        currentApi,
+        updateRequest,
+        setCurrentApiName,
+    } from "$lib/stores/request";
+    import SaveSvg from "$lib/assets/icons/save.svg?raw";
     import type { Request } from "$lib/types/http";
+    import { saveApi, sendRequest } from "$lib/use-cases/api";
 
-    let req: Request;
-    $: request.subscribe((v) => (req = v));
+    $: id = $currentApi?.id as string | undefined;
+    $: name = $currentApi?.name ?? "New request";
+    $: req = $request as Request;
+
+    async function onSave() {
+        saveApi(id, name, req);
+    }
 
     async function onSend() {
-        try {
-            response.set(null);
-            const res = await sendRequest(req);
-            response.set(res);
-        } catch (err) {
-            console.error(err);
-        }
+        sendRequest(req);
     }
 
     // Ctrl/Cmd + Enter
@@ -25,14 +30,52 @@
             onSend();
         }
     }
+
+    function onMethodChange(method: Request["method"]) {
+        updateRequest((r) => ({ ...r, method }));
+    }
+
+    function onUrlInput(url: string) {
+        updateRequest((r) => ({ ...r, url }));
+    }
+
+    function onInsecureToggle(insecure: boolean) {
+        updateRequest((r) => ({ ...r, insecure }));
+    }
+
+    function onNameInput(v: string) {
+        if ($currentApi) setCurrentApiName(v);
+    }
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <form on:submit|preventDefault={onSend} on:keydown={onKeyDown}>
+    <span>current id: {id ?? "(unsaved)"}</span>
+
+    <div
+        style="width: 100%; display: flex; margin-bottom: 10px; font-size: 18px;"
+    >
+        <div style="flex: 1; width: 100%;">
+            <input
+                class="ghost"
+                bind:value={name}
+                on:input={(e) =>
+                    onNameInput((e.target as HTMLInputElement).value)}
+            />
+        </div>
+
+        <button class="ghost sm" on:click|preventDefault={() => onSave()}>
+            {@html SaveSvg}
+        </button>
+    </div>
+
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
         <select
             bind:value={req.method}
-            on:change={() => request.set({ ...req })}
+            on:change={(e) =>
+                onMethodChange(
+                    (e.target as HTMLSelectElement).value as Request["method"],
+                )}
         >
             {#each ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"] as m}
                 <option value={m}>{m}</option>
@@ -43,7 +86,7 @@
             style="flex:1"
             placeholder="https://api.example.com/endpoint"
             bind:value={req.url}
-            on:input={() => request.set({ ...req })}
+            on:input={(e) => onUrlInput((e.target as HTMLInputElement).value)}
         />
 
         <button type="submit">Send</button>
@@ -54,7 +97,8 @@
             <input
                 type="checkbox"
                 bind:checked={req.insecure}
-                on:change={() => request.set({ ...req })}
+                on:change={(e) =>
+                    onInsecureToggle((e.target as HTMLInputElement).checked)}
             />
             Insecure TLS (dev)
         </label>

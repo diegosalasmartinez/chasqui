@@ -22,3 +22,9 @@ export type HistoryItem = {
     request: Request
     response: Response
 }
+
+export type Api = {
+    id?: string
+    name: string
+    request: Request
+}
