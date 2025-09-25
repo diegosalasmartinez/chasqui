@@ -31,3 +31,10 @@ pub struct HistoryItem {
     pub request: Request,
     pub response: Response,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Api {
+    pub id: String,
+    pub name: String,
+    pub request: Request,
+}

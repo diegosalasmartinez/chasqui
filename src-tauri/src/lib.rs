@@ -1,21 +1,18 @@
-mod app_state;
 mod commands;
 mod core;
 
-use std::sync::Mutex;
-use tauri::{Builder, Manager};
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    Builder::default()
+    tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .setup(|app| {
-            app.manage(Mutex::new(app_state::AppStateInner::default()));
-            Ok(())
-        })
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
+            commands::http::create_api,
+            commands::http::save_api,
+            commands::http::delete_api,
             commands::http::send_request,
-            commands::http::list_history
+            commands::http::list_history,
+            commands::http::list_apis
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

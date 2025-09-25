@@ -1,32 +1,124 @@
-use crate::app_state::AppState;
 use crate::core::{
     http_client,
-    models::{HistoryItem, Request, Response},
+    models::{Api, HistoryItem, Request, Response},
 };
-use tauri::State;
+use serde_json::{json, Value};
+use tauri::AppHandle;
+use tauri_plugin_store::StoreExt;
+use uuid::Uuid;
 
 #[tauri::command]
-pub async fn send_request(state: State<'_, AppState>, input: Request) -> Result<Response, String> {
-    let out = http_client::send(&input).await?;
+pub async fn create_api(app: AppHandle, name: String, request: Request) -> Result<Api, String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("apis").unwrap_or(json!([]));
+    let mut requests: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
 
-    // Short lock to mute state
-    {
-        let mut st = state.lock().unwrap();
-        st.history.push(HistoryItem {
+    let record = Api {
+        id: Uuid::new_v4().to_string(),
+        name,
+        request,
+    };
+    requests.push(record.clone());
+    store.set("apis", serde_json::to_value(&requests).unwrap());
+    store.save().map_err(|e| e.to_string())?;
+
+    Ok(record.clone())
+}
+
+#[tauri::command]
+pub async fn save_api(
+    app: AppHandle,
+    id: String,
+    name: Option<String>,
+    request: Option<Request>,
+) -> Result<Api, String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("apis").unwrap_or(json!([]));
+    let mut requests: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
+
+    let updated: Api = {
+        let record = requests
+            .iter_mut()
+            .find(|r| r.id == id)
+            .ok_or_else(|| "Request not found".to_string())?;
+
+        if let Some(new_name) = name {
+            record.name = new_name;
+        }
+        if let Some(new_req) = request {
+            record.request = new_req;
+        }
+
+        record.clone()
+    };
+
+    let updated_json = serde_json::to_value(&requests).map_err(|e| e.to_string())?;
+    store.set("apis", updated_json);
+    store.save().map_err(|e| e.to_string())?;
+
+    Ok(updated)
+}
+
+#[tauri::command]
+pub async fn delete_api(app: AppHandle, id: String) -> Result<(), String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("apis").unwrap_or(json!([]));
+    let mut requests: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
+
+    let before = requests.len();
+    requests.retain(|r| r.id != id);
+
+    if requests.len() == before {
+        return Err("Request not found".into());
+    }
+
+    // Persist changes
+    let updated_json = serde_json::to_value(&requests).map_err(|e| e.to_string())?;
+    store.set("apis", updated_json);
+    store.save().map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn send_request(app: AppHandle, request: Request) -> Result<Response, String> {
+    let out = http_client::send(&request).await?;
+
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("history").unwrap_or(json!([]));
+    let mut hist: Vec<HistoryItem> = serde_json::from_value(val).unwrap_or_default();
+
+    hist.insert(
+        0,
+        HistoryItem {
             at_ms: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
                 .as_millis(),
-            request: input.clone(),
+            request: request,
             response: out.clone(),
-        });
-    }
+        },
+    );
+    store.set("history", serde_json::to_value(&hist).unwrap());
+    store.save().map_err(|e| e.to_string())?;
 
     Ok(out)
 }
 
 #[tauri::command]
-pub fn list_history(state: State<'_, AppState>) -> Result<Vec<HistoryItem>, String> {
-    let st = state.lock().unwrap();
-    Ok(st.history.clone())
+pub fn list_history(app: AppHandle) -> Result<Vec<HistoryItem>, String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("history").unwrap_or(json!([]));
+    let hist: Vec<HistoryItem> = serde_json::from_value(val).unwrap_or_default();
+
+    Ok(hist)
+}
+
+#[tauri::command]
+pub fn list_apis(app: AppHandle) -> Result<Vec<Api>, String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("apis").unwrap_or(json!([]));
+    let apis: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
+
+    Ok(apis)
 }
