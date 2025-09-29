@@ -30,7 +30,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 20px;
+        margin-top: 0px;
         margin-bottom: 30px;
     }
 

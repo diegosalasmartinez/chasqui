@@ -25,11 +25,11 @@
         grid-template-columns: 300px minmax(0, 1fr);
         column-gap: 20px;
         min-height: 100dvh;
-        padding: 20px 20px;
+        padding: 20px;
     }
 
     .container {
         width: 100%;
-        padding: 20px 20px;
+        padding: 10px 20px;
     }
 </style>
