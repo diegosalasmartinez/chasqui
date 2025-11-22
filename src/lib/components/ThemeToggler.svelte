@@ -13,6 +13,6 @@
     };
 </script>
 
-<button class="ghost" on:click={() => setTheme(isDark ? "light" : "dark")}>
+<button class="ghost" onclick={() => setTheme(isDark ? "light" : "dark")}>
     {@html isDark ? SunSvg : MoonSvg}
 </button>

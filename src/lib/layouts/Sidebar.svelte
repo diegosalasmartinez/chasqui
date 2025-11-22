@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { selectNewRequest } from "$lib/stores/request";
+    import { requestStore } from "$lib/stores/request.svelte";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
     import SavedApis from "$lib/components/SavedApis.svelte";
 </script>
@@ -11,7 +11,10 @@
     </section>
 
     <section class="new-actions">
-        <button id="new-request" on:click={() => selectNewRequest()}>
+        <button
+            id="new-request"
+            onclick={() => requestStore.selectNewRequest()}
+        >
             New Request
         </button>
         <button id="new-dropdown">+</button>
@@ -31,7 +34,8 @@
         justify-content: space-between;
         align-items: center;
         margin-top: 0px;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        color: var(--text-primary);
     }
 
     .title h1 {
@@ -48,5 +52,6 @@
 
     #new-request {
         flex: 1;
+        background: var(--blue);
     }
 </style>

@@ -1,12 +1,12 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { listApis } from "$lib/use-cases/api";
-    import ResponseViewer from "$lib/components/ResponseViewer.svelte";
-    import RequestEditor from "$lib/components/RequestEditor.svelte";
+    import { requestService } from "$lib/services/request.service";
+    import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
+    import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
 
     onMount(async () => {
-        await listApis();
+        await requestService.listApis();
     });
 </script>
 
@@ -30,6 +30,6 @@
 
     .container {
         width: 100%;
-        padding: 10px 20px;
+        padding: 0px 20px 20px 20px;
     }
 </style>

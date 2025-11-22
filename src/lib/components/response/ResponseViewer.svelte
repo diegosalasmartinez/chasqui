@@ -1,31 +1,38 @@
 <script lang="ts">
-    import { response } from "$lib/stores/request";
-    import { copyToClipboard } from "$lib/utils/common";
     import CopySvg from "$lib/assets/icons/copy.svg?raw";
+    import type { Response } from "$lib/types/http";
+    import { copyToClipboard } from "$lib/utils/common";
+    import { requestStore } from "$lib/stores/request.svelte";
+    import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
-    import ResponseStats from "./ResponseStats.svelte";
 
-    let pretty = "";
-    let rawBody = "";
-    let activeTab: "body" | "headers" = "body";
+    let activeTab = $state<"body" | "headers">("body");
 
-    // Prettify if body is JSON
-    $: if ($response) {
+    const getPrettyBody = (res: Response | null) => {
         try {
-            const buf = new Uint8Array($response.body as any);
-            rawBody = new TextDecoder().decode(buf);
-            pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
-        } catch {
-            pretty = rawBody;
-        }
-    }
+            const buf = new Uint8Array(res?.body as any);
+            const rawBody = new TextDecoder().decode(buf);
+            const pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
 
-    $: headersPretty = $response
-        ? JSON.stringify($response.headers ?? {}, null, 2)
-        : "";
+            return pretty || rawBody;
+        } catch {
+            return "";
+        }
+    };
+
+    const getPrettyHeaders = (res: Response | null) => {
+        if (!res) return "";
+        return JSON.stringify(res.headers ?? {}, null, 2);
+    };
+
+    const { response, bodyPretty, headersPretty } = $derived.by(() => ({
+        response: requestStore.response,
+        bodyPretty: getPrettyBody(requestStore.response),
+        headersPretty: getPrettyHeaders(requestStore.response),
+    }));
 </script>
 
-{#if $response}
+{#if response}
     <section class="response_section">
         <div class="header">
             <div class="tabs" role="tablist" aria-label="Response content">
@@ -49,17 +56,17 @@
                 <button
                     class="copy-btn"
                     title="Copy"
-                    on:click={() =>
+                    onclick={() =>
                         copyToClipboard(
-                            activeTab === "body"
-                                ? rawBody || pretty
-                                : headersPretty,
+                            activeTab === "body" ? bodyPretty : headersPretty,
                         )}
                 >
                     {@html CopySvg}
                 </button>
                 <pre class="code"><code
-                        >{activeTab === "body" ? pretty : headersPretty}</code
+                        >{activeTab === "body"
+                            ? bodyPretty
+                            : headersPretty}</code
                     ></pre>
             </div>
         </div>

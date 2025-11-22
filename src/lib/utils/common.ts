@@ -1,3 +1,15 @@
+export const clickOutside = (node: HTMLElement, cb: () => void) => {
+    const onDocClick = (e: MouseEvent) => {
+        if (!node.contains(e.target as Node)) cb();
+    };
+
+    document.addEventListener("click", onDocClick, true);
+    return {
+        destroy: () =>
+            document.removeEventListener("click", onDocClick, true),
+    };
+}
+
 export const copyToClipboard = async (txt: string) => {
     try {
         await navigator.clipboard.writeText(txt);
@@ -21,3 +33,4 @@ export const fmtMs = (ms?: number) =>
         : ms < 1000
             ? `${ms} ms`
             : `${(ms / 1000).toFixed(2)} s`;
+

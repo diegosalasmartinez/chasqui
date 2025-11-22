@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { response } from "$lib/stores/request";
+    import { requestStore } from "$lib/stores/request.svelte";
     import { fmtMs, fmtBytes } from "$lib/utils/common";
 
     const statusTint = (code?: number) => {
@@ -9,20 +9,22 @@
         if (code >= 400 && code < 500) return "warn";
         return "err";
     };
+
+    let response = $derived(requestStore.response);
 </script>
 
-{#if $response}
+{#if response}
     <div class="stats">
-        <span class="badge {statusTint($response.status)}">
-            Status: {$response.status}
+        <span class="badge {statusTint(response.status)}">
+            Status: {response.status}
         </span>
         <span class="dot">•</span>
         <span class="pill">
-            {fmtMs($response.duration_ms)}
+            {fmtMs(response.duration_ms)}
         </span>
         <span class="dot">•</span>
         <span class="pill">
-            {fmtBytes($response.size_bytes)}
+            {fmtBytes(response.size_bytes)}
         </span>
     </div>
 {/if}

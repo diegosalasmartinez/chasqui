@@ -9,7 +9,7 @@
     class="tab {isActive ? 'active' : ''}"
     aria-selected={isActive}
     tabindex={isActive ? 0 : -1}
-    on:click={() => onClick()}
+    onclick={() => onClick()}
 >
     {text}
 </button>
@@ -22,15 +22,15 @@
         border-radius: 0;
         padding: 8px 12px;
         font-size: 13px;
-        color: var(--fg);
+        color: var(--text-primary);
         cursor: pointer;
     }
 
     .tab:hover {
-        color: var(--fg-hover);
+        color: var(--text-primary-hover);
     }
 
     .tab.active {
-        border-bottom: 1px solid var(--fg-hover);
+        border-bottom: 1px solid var(--text-primary-hover);
     }
 </style>

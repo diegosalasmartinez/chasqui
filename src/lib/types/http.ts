@@ -1,7 +1,7 @@
 export type HeaderKV = { key: string; value: string }
 
 export type Request = {
-    method: string
+    method: HttpMethod
     url: string
     headers: HeaderKV[]
     body?: string
@@ -28,3 +28,5 @@ export type Api = {
     name: string
     request: Request
 }
+
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
