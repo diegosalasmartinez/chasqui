@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
-    import { requestService } from "$lib/services/request.service";
+    import { apiStore } from "$lib/stores/api.svelte";
     import HttpMethodSelector from "$lib/components/request-form/HttpMethodSelector.svelte";
     import InsecureToggle from "$lib/components/request-form/InsecureToggle.svelte";
     import SaveButton from "$lib/components/request-form/SaveButton.svelte";
@@ -8,19 +7,8 @@
     import UrlInput from "$lib/components/request-form/UrlInput.svelte";
     import SendButton from "./SendButton.svelte";
 
-    const { currentApi, request } = $derived.by(() => ({
-        currentApi: requestStore.currentApi,
-        request: requestStore.request,
-    }));
-
-    const displayName = $derived(currentApi?.name ?? "Untitled Request");
-
-    async function onSave() {
-        await requestService.saveApi(currentApi?.id, displayName, request);
-    }
-
     async function onSend() {
-        await requestService.sendRequest(request);
+        await apiStore.sendRequest();
     }
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -44,7 +32,7 @@
 >
     <div class="header-bar">
         <NameField />
-        <SaveButton {onSave} />
+        <SaveButton />
         <SendButton />
     </div>
 

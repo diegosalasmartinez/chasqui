@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import { fmtMs, fmtBytes } from "$lib/utils/common";
 
     const statusTint = (code?: number) => {
@@ -10,7 +10,7 @@
         return "err";
     };
 
-    let response = $derived(requestStore.response);
+    let response = $derived(apiStore.currentResponse);
 </script>
 
 {#if response}

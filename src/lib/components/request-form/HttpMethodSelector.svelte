@@ -1,13 +1,13 @@
 <script lang="ts">
     import { clickOutside } from "$lib/utils/common";
     import { COLORS, METHODS } from "$lib/constants/http.constants";
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import type { HttpMethod } from "$lib/types/http";
 
     let open = $state(false);
     let highlighted = $state(0);
 
-    const method = $derived(requestStore.request.method);
+    const method = $derived(apiStore.api?.request.method);
 
     $effect(() => {
         highlighted = Math.max(0, METHODS.indexOf(method as HttpMethod));
@@ -22,7 +22,13 @@
     }
 
     function choose(m: HttpMethod) {
-        requestStore.updateRequest((r) => ({ ...r, method: m }));
+        apiStore.updateApi((a) => ({
+            ...a,
+            request: {
+                ...a.request,
+                method: m,
+            },
+        }));
         closeMenu();
     }
 </script>
@@ -39,7 +45,7 @@
         aria-haspopup="listbox"
         aria-expanded={open}
         onclick={toggleOpen}
-        style:color={COLORS[method]}
+        style:color={method ? COLORS[method] : COLORS.GET}
     >
         <span class="method-text">{method}</span>
         <svg class="chevron" class:open viewBox="0 0 20 20" aria-hidden="true">

@@ -1,16 +1,19 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
 </script>
 
 <input
     class="url-input"
     type="url"
     placeholder="https://api.example.com/endpoint"
-    value={requestStore.request.url}
+    value={apiStore.api?.request.url}
     oninput={(e) =>
-        requestStore.updateRequest((r) => ({
-            ...r,
-            url: (e.target as HTMLInputElement).value,
+        apiStore.updateApi((a) => ({
+            ...a,
+            request: {
+                ...a.request,
+                url: (e.target as HTMLInputElement).value,
+            },
         }))}
 />
 

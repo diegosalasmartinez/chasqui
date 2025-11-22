@@ -1,16 +1,15 @@
 <script lang="ts">
     import { COLORS } from "$lib/constants/http.constants";
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import type { Api } from "$lib/types/http";
 
     const onSelectApi = (api: Api) => {
-        requestStore.currentApi = api;
-        requestStore.response = null;
+        apiStore.selectApi(api);
     };
 </script>
 
 <section id="saved-requests">
-    {#each requestStore.savedApis as req}
+    {#each apiStore.savedApis as req}
         <button class="saved-request" onclick={() => onSelectApi(req)}>
             <span class="method" style:color={COLORS[req.request.method]}>
                 {req.request.method}

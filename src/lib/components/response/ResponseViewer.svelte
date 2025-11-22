@@ -2,7 +2,7 @@
     import CopySvg from "$lib/assets/icons/copy.svg?raw";
     import type { Response } from "$lib/types/http";
     import { copyToClipboard } from "$lib/utils/common";
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
 
@@ -26,9 +26,9 @@
     };
 
     const { response, bodyPretty, headersPretty } = $derived.by(() => ({
-        response: requestStore.response,
-        bodyPretty: getPrettyBody(requestStore.response),
-        headersPretty: getPrettyHeaders(requestStore.response),
+        response: apiStore.currentResponse,
+        bodyPretty: getPrettyBody(apiStore.currentResponse),
+        headersPretty: getPrettyHeaders(apiStore.currentResponse),
     }));
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
     import SavedApis from "$lib/components/SavedApis.svelte";
 </script>
@@ -11,10 +11,7 @@
     </section>
 
     <section class="new-actions">
-        <button
-            id="new-request"
-            onclick={() => requestStore.selectNewRequest()}
-        >
+        <button id="new-request" onclick={() => apiStore.selectNewRequest()}>
             New Request
         </button>
         <button id="new-dropdown">+</button>

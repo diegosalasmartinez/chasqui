@@ -1,12 +1,12 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { requestService } from "$lib/services/request.service";
+    import { apiStore } from "$lib/stores/api.svelte";
     import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
 
     onMount(async () => {
-        await requestService.listApis();
+        await apiStore.listApis();
     });
 </script>
 
@@ -14,8 +14,14 @@
     <Sidebar />
 
     <div class="container">
-        <RequestEditor />
-        <ResponseViewer />
+        {#if apiStore.api}
+            <RequestEditor />
+            <ResponseViewer />
+        {:else}
+            <section>
+                <h2>Welcome home</h2>
+            </section>
+        {/if}
     </div>
 </main>
 

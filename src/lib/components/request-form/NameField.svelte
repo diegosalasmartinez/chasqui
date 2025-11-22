@@ -1,12 +1,10 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
 
     let isEditingName = $state(false);
     let nameInputRef = $state<HTMLInputElement>();
 
-    const displayName = $derived(
-        requestStore.currentApi?.name ?? "Untitled Request",
-    );
+    const displayName = $derived(apiStore.api?.name ?? "New Request");
 
     function startEditingName() {
         isEditingName = true;
@@ -19,7 +17,11 @@
 
     function handleNameInput(e: Event) {
         const value = (e.target as HTMLInputElement).value;
-        requestStore.setCurrentApiName(value);
+
+        apiStore.updateApi((a) => ({
+            ...a,
+            name: value,
+        }));
     }
 
     function handleNameKeyDown(e: KeyboardEvent) {

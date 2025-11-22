@@ -1,16 +1,19 @@
 <script lang="ts">
-    import { requestStore } from "$lib/stores/request.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
 </script>
 
 <div class="options-bar">
     <label class="checkbox-label">
         <input
             type="checkbox"
-            checked={requestStore.request.insecure}
+            checked={apiStore.api?.request.insecure}
             onchange={(e) =>
-                requestStore.updateRequest((r) => ({
-                    ...r,
-                    insecure: (e.target as HTMLInputElement).checked,
+                apiStore.updateApi((a) => ({
+                    ...a,
+                    request: {
+                        ...a.request,
+                        insecure: (e.target as HTMLInputElement).checked,
+                    },
                 }))}
         />
         <span>Allow insecure TLS (development only)</span>
