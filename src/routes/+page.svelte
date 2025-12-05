@@ -1,9 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { apiStore } from "$lib/stores/api.svelte";
-    import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
+    import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
+    import ToastContainer from "$lib/ui/ToastContainer.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
+    import LeftPanel from "$lib/layouts/LeftPanel.svelte";
 
     onMount(async () => {
         await apiStore.listApis();
@@ -12,30 +14,37 @@
 
 <main>
     <Sidebar />
+    <LeftPanel />
 
-    <div class="container">
+    <section class="main-panel">
         {#if apiStore.api}
             <RequestEditor />
-            <ResponseViewer />
+
+            {#if apiStore.currentResponse}
+                <ResponseViewer />
+            {:else}
+                <section>
+                    <h2>No response yet</h2>
+                </section>
+            {/if}
         {:else}
-            <section>
-                <h2>Welcome home</h2>
-            </section>
+            <h2>Welcome home</h2>
         {/if}
-    </div>
+    </section>
+
+    <ToastContainer />
 </main>
 
 <style>
     main {
         display: grid;
-        grid-template-columns: 300px minmax(0, 1fr);
-        column-gap: 20px;
+        grid-template-columns: 60px 230px minmax(0, 1fr);
         min-height: 100dvh;
-        padding: 20px;
     }
 
-    .container {
-        width: 100%;
-        padding: 0px 20px 20px 20px;
+    .main-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        min-height: 100dvh;
     }
 </style>

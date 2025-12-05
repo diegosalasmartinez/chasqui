@@ -158,7 +158,7 @@
 
     .item:hover,
     .item.active {
-        background: var(--surface-hover);
+        background: var(--hover);
     }
 
     .method-badge {

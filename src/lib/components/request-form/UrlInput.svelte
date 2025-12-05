@@ -22,7 +22,6 @@
         flex: 1;
         height: 40px;
         padding: 0.625rem 1rem;
-        margin-right: 10px;
         border-radius: 0;
         border-top-right-radius: 0.375rem;
         border-bottom-right-radius: 0.375rem;

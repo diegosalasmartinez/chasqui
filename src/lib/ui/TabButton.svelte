@@ -5,6 +5,7 @@
 </script>
 
 <button
+    type="button"
     role="tab"
     class="tab {isActive ? 'active' : ''}"
     aria-selected={isActive}
@@ -27,10 +28,12 @@
     }
 
     .tab:hover {
-        color: var(--text-primary-hover);
+        /*color: var(--text-primary-hover);*/
+        color: var(--blue);
     }
 
     .tab.active {
-        border-bottom: 1px solid var(--text-primary-hover);
+        /*border-bottom: 1px solid var(--text-primary-hover);*/
+        border-bottom: 1px solid var(--blue);
     }
 </style>

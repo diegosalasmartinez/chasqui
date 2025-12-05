@@ -33,7 +33,7 @@
 </script>
 
 {#if response}
-    <section class="response_section">
+    <section class="response">
         <div class="header">
             <div class="tabs" role="tablist" aria-label="Response content">
                 <TabButton
@@ -74,14 +74,8 @@
 {/if}
 
 <style>
-    .response_section {
+    .response {
         padding: 14px 0;
-    }
-
-    .tabs {
-        display: inline-flex;
-        gap: 4px;
-        margin-top: 6px;
     }
 
     .header {
@@ -98,6 +92,7 @@
 
     .code {
         background: var(--surface);
+        color: white;
         padding: 12px;
         border-radius: 10px;
         max-height: 360px;
@@ -112,7 +107,7 @@
 
     .code-wrapper {
         position: relative;
-        max-width: 100%;
+        width: 100%;
         display: inline-block;
     }
 

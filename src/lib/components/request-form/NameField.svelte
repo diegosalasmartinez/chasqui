@@ -4,7 +4,7 @@
     let isEditingName = $state(false);
     let nameInputRef = $state<HTMLInputElement>();
 
-    const displayName = $derived(apiStore.api?.name ?? "New Request");
+    const displayName = $derived(apiStore.api?.name);
 
     function startEditingName() {
         isEditingName = true;
@@ -65,8 +65,6 @@
 <style>
     .name-container {
         display: flex;
-        align-items: center;
-        gap: 0.75rem;
         flex: 1;
         min-width: 0;
     }
@@ -74,24 +72,24 @@
     .name-display {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0 0.75rem;
+        gap: 12px;
+        padding: 0 12px;
         border: none;
         background: transparent;
         cursor: pointer;
-        border-radius: 0.375rem;
+        border-radius: 6px;
         transition: background 0.15s ease;
         min-width: 0;
-        height: 40px;
+        height: 30px;
     }
 
     .name-display:hover {
-        background: var(--surface-hover);
+        background: var(--hover);
     }
 
     .name-display h1 {
         margin: 0;
-        font-size: 1.25rem;
+        font-size: 16px;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
@@ -105,12 +103,12 @@
         outline: none;
         flex: 1;
         min-width: 200px;
-        height: 40px;
+        height: 30px;
     }
 
     .edit-icon {
-        width: 1rem;
-        height: 1rem;
+        width: 16px;
+        height: 16px;
         opacity: 0.5;
         transition: opacity 0.15s ease;
         flex-shrink: 0;

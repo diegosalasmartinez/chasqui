@@ -1,17 +1,63 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct HeaderKV {
+pub struct KeyValuePair {
     pub key: String,
     pub value: String,
+    pub enabled: bool,
+}
+
+pub type HeaderKV = KeyValuePair;
+pub type QueryParam = KeyValuePair;
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(tag = "type")]
+pub enum AuthConfig {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "bearer")]
+    Bearer { token: String },
+    #[serde(rename = "basic")]
+    Basic { username: String, password: String },
+    #[serde(rename = "api-key")]
+    ApiKey {
+        key: String,
+        value: String,
+        #[serde(rename = "addTo")]
+        add_to: AddToLocation,
+    },
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum AddToLocation {
+    Header,
+    Query,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(tag = "type")]
+pub enum RequestBody {
+    #[serde(rename = "none")]
+    None,
+    #[serde(rename = "json")]
+    Json { content: String },
+    #[serde(rename = "text")]
+    Text { content: String },
+    #[serde(rename = "form-data")]
+    FormData { data: Vec<KeyValuePair> },
+    #[serde(rename = "x-www-form-urlencoded")]
+    XWwwFormUrlencoded { data: Vec<KeyValuePair> },
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Request {
     pub method: String,
     pub url: String,
+    pub params: Vec<QueryParam>,
     pub headers: Vec<HeaderKV>,
-    pub body: Option<String>,
+    pub auth: AuthConfig,
+    pub body: RequestBody,
     pub timeout_ms: Option<u64>,
     pub insecure: bool,
 }

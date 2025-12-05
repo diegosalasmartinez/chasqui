@@ -1,20 +1,35 @@
 import type { Request } from '$lib/types/http'
-import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge } from "$lib/infra/tauri";
+import { toastStore } from '$lib/stores/toast.svelte';
+import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge } from "$lib/infra/tauri";
 
 class ApiService {
     async saveApi(name: string, req: Request) {
         try {
-            return await createApiBridge(name, req);
+            const response = await createApiBridge(name, req);
+            toastStore.info("API saved successfully")
+            return response;
         } catch (err) {
-            console.error(err);
+            toastStore.error("Error: " + err)
         }
     }
 
     async updateApi(id: string, name: string, req: Request) {
         try {
-            return await updateApiBridge(id, name, req);
+            const response = await updateApiBridge(id, name, req);
+            toastStore.info("API updated successfully")
+            return response;
         } catch (err) {
-            console.error(err);
+            toastStore.error("Error: " + err)
+        }
+    }
+
+    async deleteApi(id: string) {
+        try {
+            const response = await deleteApiBridge(id)
+            toastStore.info("API deleted successfully")
+            return response;
+        } catch (err) {
+            toastStore.error("Error: " + err)
         }
     }
 
@@ -22,16 +37,15 @@ class ApiService {
         try {
             return await sendRequestBridge(req);
         } catch (err) {
-            console.error(err);
+            toastStore.error("Error processing the request: " + err)
         }
-
     }
 
     async listApis() {
         try {
             return await listApisBridge();
         } catch (err) {
-            console.error(err);
+            toastStore.error("Error loading APIs: " + err)
             return []
         }
     }

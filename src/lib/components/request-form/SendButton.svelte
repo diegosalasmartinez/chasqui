@@ -10,8 +10,4 @@
     .send-btn {
         background: var(--blue);
     }
-    .icon :global(svg) {
-        width: 1rem;
-        height: 1rem;
-    }
 </style>

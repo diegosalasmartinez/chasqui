@@ -1,54 +1,33 @@
 <script lang="ts">
-    import { apiStore } from "$lib/stores/api.svelte";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
-    import SavedApis from "$lib/components/SavedApis.svelte";
+    // TODO: update logo
 </script>
 
 <aside id="sidebar">
-    <section class="title">
-        <h1>Chasqui</h1>
-        <ThemeToggler />
-    </section>
-
-    <section class="new-actions">
-        <button id="new-request" onclick={() => apiStore.selectNewRequest()}>
-            New Request
-        </button>
-        <button id="new-dropdown">+</button>
-    </section>
-
-    <SavedApis />
+    <div class="logo">c</div>
+    <ThemeToggler />
 </aside>
 
 <style>
     #sidebar {
-        width: 100%;
         min-height: max-content;
-    }
-
-    .title {
+        width: 100%;
+        height: 100%;
+        padding: 10px 20px;
+        background: var(--bg-darker);
+        border: 0.5px solid var(--border);
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        margin-top: 0px;
-        margin-bottom: 20px;
-        color: var(--text-primary);
+        justify-content: space-between;
     }
 
-    .title h1 {
+    .logo {
         padding: 0;
         margin: 0;
-        font-size: 32px;
-    }
-
-    .new-actions {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
-    #new-request {
-        flex: 1;
-        background: var(--blue);
+        font-size: 28px;
+        font-weight: 500;
+        color: var(--text-primary);
+        height: 40px;
     }
 </style>

@@ -14,7 +14,7 @@
     {/if}
     <button
         type="button"
-        class="save-btn icon"
+        class="save-btn ghost"
         onclick={() => onSave()}
         title="Save request"
     >
@@ -25,11 +25,6 @@
 <style>
     .save-btn-container {
         position: relative;
-    }
-
-    .icon :global(svg) {
-        width: 1rem;
-        height: 1rem;
     }
 
     .unsaved-changes {
