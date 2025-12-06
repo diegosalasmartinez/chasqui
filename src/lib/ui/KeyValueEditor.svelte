@@ -45,16 +45,23 @@
 </script>
 
 <div class="kv-editor">
-    {#if items.length > 0}
+    <div class="kv-table">
         <div class="kv-header">
+            <div class="col-checkbox"></div>
             <div class="col-key">KEY</div>
             <div class="col-value">VALUE</div>
-            <div class="col-checkbox"></div>
             <div class="col-actions"></div>
         </div>
 
         {#each items as item, i}
             <div class="kv-row" class:disabled={!item.enabled}>
+                <div class="col-checkbox">
+                    <input
+                        type="checkbox"
+                        checked={item.enabled}
+                        onchange={() => toggleEnabled(i)}
+                    />
+                </div>
                 <div class="col-key">
                     <input
                         type="text"
@@ -80,17 +87,10 @@
                         disabled={!item.enabled}
                     />
                 </div>
-                <div class="col-checkbox">
-                    <input
-                        type="checkbox"
-                        checked={item.enabled}
-                        onchange={() => toggleEnabled(i)}
-                    />
-                </div>
                 <div class="col-actions">
                     <button
                         type="button"
-                        class="btn-remove ghost"
+                        class="btn-remove"
                         onclick={() => removeRow(i)}
                         aria-label="Remove row"
                     >
@@ -107,7 +107,7 @@
                 </div>
             </div>
         {/each}
-    {/if}
+    </div>
 
     <button type="button" class="btn-add" onclick={addRow}>
         <svg
@@ -127,29 +127,49 @@
     .kv-editor {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
         font-size: 14px;
+    }
+
+    .kv-table {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--bg);
     }
 
     .kv-header {
         display: grid;
-        grid-template-columns: 1fr 1fr 40px 40px;
-        gap: 8px;
+        grid-template-columns: 32px 1fr 1fr 32px;
+        gap: 0;
         padding: 8px 0;
         font-size: 11px;
         font-weight: 600;
         color: var(--text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .kv-header div {
+        border: none !important;
+        padding-left: 10px;
     }
 
     .kv-row {
         display: grid;
-        grid-template-columns: 1fr 1fr 40px 40px;
-        gap: 8px;
-        padding: 0;
-        border-radius: 4px;
-        transition: background 0.15s ease;
+        grid-template-columns: 32px 1fr 1fr 32px;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.1s ease;
+    }
+
+    .kv-row:last-child {
+        border-bottom: none;
+    }
+
+    .kv-row:hover {
+        background: var(--hover);
     }
 
     .kv-row.disabled {
@@ -160,41 +180,46 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0 8px;
+        border-right: 1px solid var(--border);
     }
 
     .col-checkbox input[type="checkbox"] {
         cursor: pointer;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
+        margin: 0;
     }
 
     .col-key,
     .col-value {
         display: flex;
         align-items: center;
+        padding: 0;
+    }
+
+    .col-key {
+        border-right: 1px solid var(--border);
+    }
+
+    .col-value {
+        border-right: 1px solid var(--border);
     }
 
     .kv-input {
         width: 100%;
-        padding: 6px 10px;
-        background: var(--bg);
-        border-radius: 4px;
-        border: 1px solid var(--border);
-        box-shadow: none;
+        padding: 8px 12px;
+        background: transparent;
+        border: none;
         font-size: 13px;
-        transition: all 0.15s ease;
-    }
-
-    .kv-input:hover,
-    .kv-input:active,
-    .kv-input:focus {
-        background: var(--surface);
-        border: 1px solid var(--border);
+        color: var(--text-primary);
+        box-shadow: none;
+        transition: background 0.1s ease;
     }
 
     .kv-input:focus {
         outline: none;
-        border-color: var(--accent);
+        background: var(--bg-darker);
     }
 
     .kv-input:disabled {
@@ -202,10 +227,16 @@
         opacity: 0.6;
     }
 
+    .kv-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
     .col-actions {
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0 8px;
     }
 
     .btn-remove {
@@ -213,24 +244,28 @@
         align-items: center;
         justify-content: center;
         padding: 4px;
+        border: none;
+        background: transparent;
         border-radius: 4px;
-        opacity: 0.6;
+        opacity: 0;
         transition: all 0.15s ease;
         color: var(--text-secondary);
+        cursor: pointer;
     }
 
     .kv-row:hover .btn-remove {
-        opacity: 1;
+        opacity: 0.6;
     }
 
     .btn-remove:hover {
-        color: #ef4444;
-        background: rgba(239, 68, 68, 0.1);
+        opacity: 1 !important;
+        color: var(--red);
+        background: var(--red-hover);
     }
 
     .btn-remove svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
     }
 
     .btn-add {
@@ -240,7 +275,6 @@
         gap: 8px;
         width: 100%;
         padding: 10px 0;
-        margin-top: 4px;
         background: transparent;
         border: 1px dashed var(--border);
         border-radius: 6px;
@@ -253,12 +287,13 @@
 
     .btn-add:hover {
         background: var(--hover);
-        border-color: var(--accent);
-        color: var(--accent);
+        border-color: var(--blue);
+        color: var(--blue);
     }
 
     .btn-add svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
     }
 </style>
+

@@ -129,6 +129,6 @@
     .tab-content {
         background: var(--bg);
         flex: 1;
-        padding: 10px 20px;
+        padding: 15px;
     }
 </style>

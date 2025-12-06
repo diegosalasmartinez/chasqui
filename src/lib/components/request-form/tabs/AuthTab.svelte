@@ -70,7 +70,6 @@
                 <label>
                     <span class="label-text">Token</span>
                     <input
-                        type="password"
                         class="auth-input"
                         placeholder="Enter bearer token"
                         value={auth.token}
@@ -97,7 +96,6 @@
                 <label>
                     <span class="label-text">Password</span>
                     <input
-                        type="password"
                         class="auth-input"
                         placeholder="Enter password"
                         value={auth.password}
@@ -124,7 +122,6 @@
                 <label>
                     <span class="label-text">Value</span>
                     <input
-                        type="password"
                         class="auth-input"
                         placeholder="Enter API key value"
                         value={auth.value}
@@ -161,7 +158,7 @@
 
 <style>
     .tab-content {
-        padding: 16px;
+        padding: 0 5px;
     }
 
     .auth-type-selector {
@@ -180,23 +177,13 @@
     .auth-input {
         width: 100%;
         padding: 8px 12px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        color: var(--text-primary);
         font-size: 14px;
         transition: all 0.15s ease;
     }
 
-    .auth-select:focus,
-    .auth-input:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: var(--background);
-    }
-
-    .auth-input {
-        font-family: "SF Mono", "Monaco", "Consolas", monospace;
+    .auth-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.5;
     }
 
     .auth-form {
@@ -206,7 +193,7 @@
     }
 
     .empty-state {
-        padding: 32px;
+        padding-top: 10px;
         text-align: center;
         color: var(--text-secondary);
         font-size: 14px;

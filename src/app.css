@@ -37,6 +37,10 @@ select {
     outline: none;
 }
 
+input {
+    height: 40px;
+}
+
 input::placeholder {
     color: var(--text-secondary);
 }
@@ -97,24 +101,29 @@ button:active {
 
 select {
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
 
     height: 40px;
     padding: 0.6em 2.2em 0.6em 1.2em;
 
+    background-color: var(--bg-darker);
+    color: var(--text-primary);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+
     background-image: var(--select-icon);
     background-repeat: no-repeat;
-    background-position: right 0.9rem center;
-    background-size: 1rem 1rem;
+    background-position: right 8px center;
+    background-size: 20px;
+
+    box-shadow: none;
 }
 
-select:hover {
-    border-color: var(--border);
-}
-
-select:focus {
-    border-color: var(--border);
+select:hover,
+select:focus,
+select:active {
+    background-color: var(--hover);
+    filter: brightness(1.5);
 }
 
 .tabs {
