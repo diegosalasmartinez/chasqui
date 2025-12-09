@@ -74,6 +74,7 @@ button.ghost {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: auto;
     padding: 10px;
 }
 
@@ -123,11 +124,9 @@ select:hover,
 select:focus,
 select:active {
     background-color: var(--hover);
-    filter: brightness(1.5);
 }
 
 .tabs {
     display: inline-flex;
     gap: 4px;
-    margin-top: 6px;
 }

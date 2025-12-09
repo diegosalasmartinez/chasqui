@@ -23,8 +23,6 @@
         height: 40px;
         padding: 0.625rem 1rem;
         border-radius: 0;
-        border-top-right-radius: 0.375rem;
-        border-bottom-right-radius: 0.375rem;
         font-size: 0.9375rem;
         transition: all 0.15s ease;
     }

@@ -162,7 +162,7 @@
     }
 
     .auth-type-selector {
-        margin-bottom: 24px;
+        margin-bottom: 16px;
     }
 
     .label-text {

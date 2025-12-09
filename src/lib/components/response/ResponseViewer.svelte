@@ -74,20 +74,20 @@
 {/if}
 
 <style>
-    .response {
-        padding: 14px 0;
-    }
-
     .header {
+        background: var(--bg-darker);
+        border-bottom: 0.5px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 8px;
+        padding: 0 10px;
     }
 
     .panel {
         margin-top: 10px;
+        padding: 5px 10px;
     }
 
     .code {

@@ -30,10 +30,10 @@
     .unsaved-changes {
         position: absolute;
         background: var(--orange);
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 100%;
-        top: -2px;
+        top: 0px;
         left: -2px;
     }
 </style>

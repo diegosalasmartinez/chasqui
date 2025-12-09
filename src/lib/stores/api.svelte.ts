@@ -1,7 +1,7 @@
 import { apiService } from '$lib/services/api.service'
 import type { Response, Api } from '$lib/types/http'
 
-const draftApi: Api = {
+const createDraftApi = (): Api => ({
     name: "New Request",
     request: {
         method: 'GET',
@@ -12,18 +12,20 @@ const draftApi: Api = {
         body: { type: 'none' },
         insecure: false,
     }
-}
+})
+
+const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 class ApiStore {
     savedApis = $state<Api[]>([])
     private currentApi = $state<Api | null>(null)
     currentResponse = $state<Response | null>(null)
-    private draftApi = $state<Api>({ ...structuredClone(draftApi) })
     private unsavedChanges = $state(new Map<string, Api>())
 
     get api(): Api | null {
-        // First, check if there is any pending changes
-        if (this.currentApi?.id) {
+        if (!this.currentApi) return null
+
+        if (this.currentApi.id) {
             const pending = this.unsavedChanges.get(this.currentApi.id)
             if (pending) return pending
         }
@@ -32,21 +34,21 @@ class ApiStore {
     }
 
     get hasUnsavedChanges(): boolean {
-        if (!this.currentApi?.id) return false
+        if (!this.currentApi) return false
+        if (!this.currentApi.id) return true
         return this.unsavedChanges.has(this.currentApi.id)
     }
 
     updateApi(mutator: (a: Api) => Api) {
-        if (this.currentApi?.id) {
-            // Save changes in memory, instead of the current api
-            const current = this.api
-            if (!current) return;
+        const current = this.api
+        if (!current) return
 
-            const updated = mutator(current)
-            this.setUnsaved(this.currentApi.id, updated);
+        const updated = mutator(deepClone(current))
+
+        if (current.id) {
+            this.setUnsaved(current.id, updated)
         } else {
-            // If this a new api, we updated it directly
-            this.draftApi = mutator(this.draftApi)
+            this.currentApi = updated
         }
     }
 
@@ -63,75 +65,78 @@ class ApiStore {
     }
 
     selectNewRequest() {
-        this.currentApi = structuredClone(draftApi)
+        this.currentApi = createDraftApi()
         this.currentResponse = null
     }
 
     selectApi(api: Api) {
-        // Current changes are stored in memory
         this.currentApi = api
         this.currentResponse = null
     }
 
     async upsertApi() {
-        if (!this.api) return;
-        const { id, name, request } = this.api;
+        if (!this.api) return
+
+        const { id, name, request } = this.api
 
         if (id) {
-            const apiUpdated = await apiService.updateApi(id, name, request);
+            const apiUpdated = await apiService.updateApi(id, name, request)
             if (apiUpdated) {
-                this.replaceApi(apiUpdated);
-                if (apiUpdated.id) this.deleteUnsaved(apiUpdated.id);
+                this.replaceApi(apiUpdated)
+                this.deleteUnsaved(apiUpdated.id!)
                 this.currentApi = apiUpdated
             }
         } else {
-            const apiCreated = await apiService.saveApi(name, request);
+            const apiCreated = await apiService.saveApi(name, request)
             if (apiCreated) {
-                this.addApi(apiCreated);
+                this.addApi(apiCreated)
                 this.currentApi = apiCreated
             }
         }
     }
 
     async deleteApi(api: Api) {
-        if (!api.id) return;
+        if (!api.id) return
 
-        await apiService.deleteApi(api.id);
+        await apiService.deleteApi(api.id)
         this.removeApi(api.id)
+
+        if (this.currentApi?.id === api.id) {
+            this.currentApi = null
+            this.currentResponse = null
+        }
     }
 
     async sendRequest() {
-        if (!this.api) return;
-        const { request } = this.api;
+        if (!this.api) return
 
-        this.currentResponse = null;
+        const { request } = this.api
+        this.currentResponse = null
+
         const response = await apiService.sendRequest(request)
         if (response) {
-            this.currentResponse = response;
+            this.currentResponse = response
         }
     }
 
     duplicateApi(api: Api) {
-        const duplicated: Api = structuredClone({
-            ...api,
+        this.currentApi = {
+            ...deepClone(api),
             id: undefined,
             name: `${api.name} (Copy)`,
-        });
-
-        this.addApi(duplicated);
-        this.selectApi(duplicated);
+        }
+        this.currentResponse = null
     }
 
     async listApis() {
-        const apis = await apiService.listApis();
-        console.log('[DIEGO] apis', apis)
-        this.savedApis = apis;
+        const apis = await apiService.listApis()
+        this.savedApis = apis
     }
 
-    // Map helpers
     private setUnsaved(id: string, api: Api) {
         this.unsavedChanges = new Map(this.unsavedChanges).set(id, api)
     }
+
     private deleteUnsaved(id: string) {
         const newMap = new Map(this.unsavedChanges)
         newMap.delete(id)

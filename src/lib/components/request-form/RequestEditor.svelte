@@ -60,26 +60,28 @@
     <div class="header-bar">
         <NameField />
         <SaveButton />
-        <SendButton />
     </div>
 
     <div class="request-bar">
         <HttpMethodSelector />
         <UrlInput />
+        <SendButton />
     </div>
 
     <!--
     <InsecureToggle />
     -->
 
-    <div class="tabs" role="tablist" aria-label="Response content">
-        {#each tabs as tab}
-            <TabButton
-                text={tab.title}
-                isActive={activeTab === tab.key}
-                onClick={() => (activeTab = tab.key)}
-            />
-        {/each}
+    <div class="tabs-container">
+        <div class="tabs" role="tablist" aria-label="Response content">
+            {#each tabs as tab}
+                <TabButton
+                    text={tab.title}
+                    isActive={activeTab === tab.key}
+                    onClick={() => (activeTab = tab.key)}
+                />
+            {/each}
+        </div>
     </div>
 
     <div class="tab-content">
@@ -111,7 +113,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 10px;
+        /*margin-bottom: 10px;*/
         gap: 5px;
         height: 40px;
     }
@@ -120,6 +122,10 @@
         margin: 0 10px;
         display: flex;
         align-items: center;
+    }
+
+    .tabs-container {
+        border-bottom: 0.5px solid var(--border);
     }
 
     .tabs {

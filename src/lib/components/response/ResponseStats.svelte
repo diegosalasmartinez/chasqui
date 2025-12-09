@@ -16,7 +16,7 @@
 {#if response}
     <div class="stats">
         <span class="badge {statusTint(response.status)}">
-            Status: {response.status}
+            {response.status}
         </span>
         <span class="dot">•</span>
         <span class="pill">
@@ -44,35 +44,28 @@
 
     .badge {
         font-size: 12px;
-        padding: 2px 12px;
-        border-radius: 10px;
+        font-weight: 500;
         margin-right: 6px;
-        border: 1px solid red;
-        background: #f8fafc;
     }
 
     .badge.ok {
-        background: #6bdd9a;
-        border-color: #43a86f;
-        color: #10301e;
+        color: #6bdd9a;
     }
+
     .badge.info {
-        background: #eff6ff;
-        border-color: #bfdbfe;
-        color: #1e3a8a;
+        color: #eff6ff;
     }
+
     .badge.warn {
-        background: #fff7ed;
-        border-color: #fed7aa;
-        color: #7c2d12;
+        color: #fff7ed;
     }
+
     .badge.err {
-        background: #fef2f2;
-        border-color: #fecaca;
-        color: #7f1d1d;
+        color: #fef2f2;
     }
 
     .pill {
+        color: var(--text-primary);
         font-size: 12px;
         padding: 4px 6px;
     }
