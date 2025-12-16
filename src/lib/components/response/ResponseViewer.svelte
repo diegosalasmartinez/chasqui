@@ -1,79 +1,76 @@
 <script lang="ts">
     import CopySvg from "$lib/assets/icons/copy.svg?raw";
     import type { Response } from "$lib/types/http";
-    import { copyToClipboard } from "$lib/utils/common";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { copyToClipboard } from "$lib/utils/common";
+    import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
 
     let activeTab = $state<"body" | "headers">("body");
-
-    const getPrettyBody = (res: Response | null) => {
-        try {
-            const buf = new Uint8Array(res?.body as any);
-            const rawBody = new TextDecoder().decode(buf);
-            const pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
-
-            return pretty || rawBody;
-        } catch {
-            return "";
-        }
-    };
 
     const getPrettyHeaders = (res: Response | null) => {
         if (!res) return "";
         return JSON.stringify(res.headers ?? {}, null, 2);
     };
 
-    const { response, bodyPretty, headersPretty } = $derived.by(() => ({
-        response: apiStore.currentResponse,
-        bodyPretty: getPrettyBody(apiStore.currentResponse),
+    const { headersPretty } = $derived.by(() => ({
         headersPretty: getPrettyHeaders(apiStore.currentResponse),
     }));
+
+    const body = $derived(apiStore.currentResponse?.body);
 </script>
 
-{#if response}
-    <section class="response">
-        <div class="header">
-            <div class="tabs" role="tablist" aria-label="Response content">
-                <TabButton
-                    text="Body"
-                    isActive={activeTab === "body"}
-                    onClick={() => (activeTab = "body")}
-                />
-                <TabButton
-                    text="Headers"
-                    isActive={activeTab === "headers"}
-                    onClick={() => (activeTab = "headers")}
-                />
+{#if apiStore.currentResponse}
+    {#if apiStore.currentResponseLoading}
+        <ResponseLoading />
+    {:else}
+        <section class="response">
+            <div class="header">
+                <div class="tabs" role="tablist" aria-label="Response content">
+                    <TabButton
+                        text="Body"
+                        isActive={activeTab === "body"}
+                        onClick={() => (activeTab = "body")}
+                    />
+                    <TabButton
+                        text="Headers"
+                        isActive={activeTab === "headers"}
+                        onClick={() => (activeTab = "headers")}
+                    />
+                </div>
+
+                <ResponseStats />
             </div>
 
-            <ResponseStats />
-        </div>
-
-        <div role="tabpanel" class="panel">
-            <div class="code-wrapper">
-                <button
-                    class="copy-btn"
-                    title="Copy"
-                    onclick={() =>
-                        copyToClipboard(
-                            activeTab === "body" ? bodyPretty : headersPretty,
-                        )}
-                >
-                    {@html CopySvg}
-                </button>
-                <pre class="code"><code
-                        >{activeTab === "body"
-                            ? bodyPretty
-                            : headersPretty}</code
-                    ></pre>
+            <div role="tabpanel" class="panel">
+                {#if activeTab === "body"}
+                    <div class="code-wrapper">
+                        <button
+                            class="copy-btn"
+                            title="Copy"
+                            onclick={() => copyToClipboard(body)}
+                        >
+                            {@html CopySvg}
+                        </button>
+                        <pre class="code"><code>{body}</code></pre>
+                    </div>
+                {:else}
+                    <div>{headersPretty}</div>
+                {/if}
             </div>
-        </div>
-    </section>
+        </section>
+    {/if}
 {/if}
 
 <style>
+    .response {
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
     .header {
         background: var(--bg-darker);
         border-bottom: 0.5px solid var(--border);
@@ -83,11 +80,23 @@
         gap: 12px;
         margin-bottom: 8px;
         padding: 0 10px;
+        flex: 0 0 auto;
     }
 
     .panel {
-        margin-top: 10px;
         padding: 5px 10px;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .code-wrapper {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        position: relative;
     }
 
     .code {
@@ -103,12 +112,6 @@
 
     pre {
         margin: 0;
-    }
-
-    .code-wrapper {
-        position: relative;
-        width: 100%;
-        display: inline-block;
     }
 
     .copy-btn {

@@ -243,6 +243,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        height: auto;
         padding: 4px;
         border: none;
         background: transparent;
@@ -296,4 +297,3 @@
         height: 16px;
     }
 </style>
-

@@ -10,13 +10,27 @@ export const clickOutside = (node: HTMLElement, cb: () => void) => {
     };
 }
 
-export const copyToClipboard = async (txt: string) => {
+export const copyToClipboard = async (txt?: string) => {
+    if (!txt) return;
+
     try {
         await navigator.clipboard.writeText(txt);
     } catch {
         // Do nothing
     }
 };
+
+export const bodyPrettify = (body: Uint8Array | number[] | undefined) => {
+    try {
+        const buf = new Uint8Array(body as any);
+        const rawBody = new TextDecoder().decode(buf);
+        const pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
+
+        return pretty || rawBody;
+    } catch {
+        return "";
+    }
+}
 
 export const fmtBytes = (n?: number) =>
     typeof n !== "number"

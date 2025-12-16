@@ -1,5 +1,6 @@
 import { apiService } from '$lib/services/api.service'
 import type { Response, Api } from '$lib/types/http'
+import { bodyPrettify } from '$lib/utils/common'
 
 const createDraftApi = (): Api => ({
     name: "New Request",
@@ -18,9 +19,12 @@ const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 class ApiStore {
     savedApis = $state<Api[]>([])
+    savedApisLoading = $state<boolean>(false)
     private currentApi = $state<Api | null>(null)
-    currentResponse = $state<Response | null>(null)
     private unsavedChanges = $state(new Map<string, Api>())
+    currentResponse = $state<Response | null>(null)
+    currentResponseLoading = $state<boolean>(false)
+    private lastResponses = $state(new Map<string, Response>())
 
     get api(): Api | null {
         if (!this.currentApi) return null
@@ -71,6 +75,14 @@ class ApiStore {
 
     selectApi(api: Api) {
         this.currentApi = api
+        if (api.id) {
+            const lastResponse = this.lastResponses.get(api.id)
+            if (lastResponse) {
+                this.currentResponse = lastResponse
+                return
+            }
+        }
+
         this.currentResponse = null
     }
 
@@ -109,14 +121,30 @@ class ApiStore {
 
     async sendRequest() {
         if (!this.api) return
+        this.currentResponseLoading = true;
 
         const { request } = this.api
         this.currentResponse = null
 
-        const response = await apiService.sendRequest(request)
-        if (response) {
+        const responseRaw = await apiService.sendRequest(request)
+        if (responseRaw) {
+            const response: Response = {
+                status: responseRaw.status,
+                headers: responseRaw.headers,
+                body: bodyPrettify(responseRaw.body),
+                at_ms: responseRaw.at_ms,
+                duration_ms: responseRaw.duration_ms,
+                size_bytes: responseRaw.size_bytes
+            }
             this.currentResponse = response
+
+            if (this.api.id) {
+                const map = new Map(this.lastResponses)
+                map.set(this.api.id, response)
+                this.lastResponses = map
+            }
         }
+        this.currentResponseLoading = false;
     }
 
     duplicateApi(api: Api) {

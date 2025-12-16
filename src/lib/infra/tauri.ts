@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Request, Response, Api } from '$lib/types/http'
+import type { Request, Api, ResponseRaw } from '$lib/types/http'
 
 export async function listApisBridge(): Promise<Api[]> {
     return await invoke('list_apis') as Api[]
@@ -17,7 +17,7 @@ export async function deleteApiBridge(id: string) {
     return await invoke('delete_api', { id }) as any
 }
 
-export async function sendRequestBridge(request: Request): Promise<Response> {
-    return await invoke('send_request', { request }) as Response
+export async function sendRequestBridge(request: Request): Promise<ResponseRaw> {
+    return await invoke('send_request', { request }) as ResponseRaw
 }
 

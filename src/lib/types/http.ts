@@ -55,22 +55,31 @@ export type Request = {
     insecure: boolean
 }
 
-export type Response = {
+export type ResponseRaw = {
     status: number
     headers: HeaderKV[]
     body: Uint8Array | number[]
+    at_ms: number
     duration_ms: number
     size_bytes: number
 }
 
-export type HistoryItem = {
+export type Response = {
+    status: number
+    headers: HeaderKV[]
+    body: string
     at_ms: number
-    request: Request
-    response: Response
+    duration_ms: number
+    size_bytes: number
 }
 
 export type Api = {
     id?: string
     name: string
     request: Request
+}
+
+export type HistoryItem = {
+    api: Api
+    response: Response
 }
