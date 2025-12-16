@@ -1,11 +1,10 @@
 <script lang="ts">
-    import CopySvg from "$lib/assets/icons/copy.svg?raw";
     import { apiStore } from "$lib/stores/api.svelte";
-    import { copyToClipboard } from "$lib/utils/common";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import ResponseHeaders from "$lib/components/response/ResponseHeaders.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
+    import JsonViewer from "../JsonViewer.svelte";
 
     let activeTab = $state<"body" | "headers">("body");
 
@@ -37,18 +36,7 @@
 
             <div role="tabpanel" class="panel">
                 {#if activeTab === "body"}
-                    <div class="code-wrapper">
-                        <button
-                            class="copy-btn"
-                            title="Copy"
-                            onclick={() => {
-                                copyToClipboard(body ?? "");
-                            }}
-                        >
-                            {@html CopySvg}
-                        </button>
-                        <pre class="code"><code>{body}</code></pre>
-                    </div>
+                    <JsonViewer value={body} />
                 {:else}
                     <ResponseHeaders headers={headers ?? []} />
                 {/if}
@@ -83,44 +71,5 @@
         min-height: 0;
         display: flex;
         flex-direction: column;
-    }
-
-    .code-wrapper {
-        flex: 1;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
-
-    .code {
-        background: var(--surface);
-        color: white;
-        padding: 12px;
-        border-radius: 10px;
-        overflow: auto;
-        white-space: pre;
-        tab-size: 2;
-    }
-
-    pre {
-        margin: 0;
-    }
-
-    .copy-btn {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: none;
-        border: none;
-        border-radius: 6px;
-        padding: 4px 6px;
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-    }
-
-    .code-wrapper:hover .copy-btn {
-        display: block;
     }
 </style>
