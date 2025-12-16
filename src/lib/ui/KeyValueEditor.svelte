@@ -202,10 +202,6 @@
         border-right: 1px solid var(--border);
     }
 
-    .col-value {
-        border-right: 1px solid var(--border);
-    }
-
     .kv-input {
         width: 100%;
         padding: 8px 12px;

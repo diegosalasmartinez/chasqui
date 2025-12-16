@@ -1,24 +1,16 @@
 <script lang="ts">
     import CopySvg from "$lib/assets/icons/copy.svg?raw";
-    import type { Response } from "$lib/types/http";
     import { apiStore } from "$lib/stores/api.svelte";
     import { copyToClipboard } from "$lib/utils/common";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
+    import ResponseHeaders from "$lib/components/response/ResponseHeaders.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
 
     let activeTab = $state<"body" | "headers">("body");
 
-    const getPrettyHeaders = (res: Response | null) => {
-        if (!res) return "";
-        return JSON.stringify(res.headers ?? {}, null, 2);
-    };
-
-    const { headersPretty } = $derived.by(() => ({
-        headersPretty: getPrettyHeaders(apiStore.currentResponse),
-    }));
-
     const body = $derived(apiStore.currentResponse?.body);
+    const headers = $derived(apiStore.currentResponse?.headers);
 </script>
 
 {#if apiStore.currentResponse}
@@ -49,14 +41,16 @@
                         <button
                             class="copy-btn"
                             title="Copy"
-                            onclick={() => copyToClipboard(body)}
+                            onclick={() => {
+                                copyToClipboard(body ?? "");
+                            }}
                         >
                             {@html CopySvg}
                         </button>
                         <pre class="code"><code>{body}</code></pre>
                     </div>
                 {:else}
-                    <div>{headersPretty}</div>
+                    <ResponseHeaders headers={headers ?? []} />
                 {/if}
             </div>
         </section>
@@ -104,7 +98,6 @@
         color: white;
         padding: 12px;
         border-radius: 10px;
-        max-height: 360px;
         overflow: auto;
         white-space: pre;
         tab-size: 2;

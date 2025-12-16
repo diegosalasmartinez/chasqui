@@ -1,3 +1,5 @@
+import { toastStore } from "$lib/stores/toast.svelte";
+
 export const clickOutside = (node: HTMLElement, cb: () => void) => {
     const onDocClick = (e: MouseEvent) => {
         if (!node.contains(e.target as Node)) cb();
@@ -10,11 +12,10 @@ export const clickOutside = (node: HTMLElement, cb: () => void) => {
     };
 }
 
-export const copyToClipboard = async (txt?: string) => {
-    if (!txt) return;
-
+export const copyToClipboard = async (txt: string, message?: string) => {
     try {
         await navigator.clipboard.writeText(txt);
+        toastStore.info(message ?? 'Copied to your clipboard!');
     } catch {
         // Do nothing
     }
