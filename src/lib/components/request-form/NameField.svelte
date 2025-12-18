@@ -97,8 +97,8 @@
     }
 
     .name-input {
-        padding: 0 0.75rem;
-        font-size: 1.25rem;
+        padding: 0 11.35px;
+        font-size: 16px;
         font-weight: 600;
         outline: none;
         flex: 1;
