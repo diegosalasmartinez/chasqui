@@ -1,7 +1,8 @@
 <script lang="ts">
     import { apiStore } from "$lib/stores/api.svelte";
-    import KeyValueEditor from "$lib/ui/KeyValueEditor.svelte";
     import type { BodyType, RequestBody } from "$lib/types/http";
+    import KeyValueEditor from "$lib/ui/KeyValueEditor.svelte";
+    import JsonEditor from "$lib/components/JsonEditor.svelte";
 
     const body = $derived(apiStore.api?.request.body);
 
@@ -34,31 +35,23 @@
 
     function updateContent(content: string) {
         if (!body) return;
-
         if (body.type === "json" || body.type === "text") {
             apiStore.updateApi((a) => ({
                 ...a,
-                request: {
-                    ...a.request,
-                    body: { ...body, content },
-                },
+                request: { ...a.request, body: { ...body, content } },
             }));
         }
     }
 
     function updateFormData(data: any[]) {
         if (!body) return;
-
         if (
             body.type === "form-data" ||
             body.type === "x-www-form-urlencoded"
         ) {
             apiStore.updateApi((a) => ({
                 ...a,
-                request: {
-                    ...a.request,
-                    body: { ...body, data },
-                },
+                request: { ...a.request, body: { ...body, data } },
             }));
         }
     }
@@ -90,18 +83,14 @@
 
         <div class="body-content">
             {#if body.type === "json"}
-                <div class="editor-wrapper">
-                    <textarea
-                        class="code-editor"
-                        placeholder={JSON.stringify({ key: "value" })}
-                        value={body.content}
-                        oninput={(e) =>
-                            updateContent(
-                                (e.target as HTMLTextAreaElement).value,
-                            )}
-                        spellcheck="false"
-                    ></textarea>
-                </div>
+                {#key apiStore.api?.id ?? `${apiStore.api?.request.method}:${apiStore.api?.request.url}`}
+                    <!--
+                        The action mounts Monaco when this div exists.
+                        The {#key ...} forces the DOM to be recreated when the request changes,
+                        which triggers Monaco cleanup and a fresh mount.
+                      -->
+                    <JsonEditor />
+                {/key}
             {:else if body.type === "text"}
                 <div class="editor-wrapper">
                     <textarea
