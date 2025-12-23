@@ -109,6 +109,16 @@
                 minimap: { enabled: false },
                 formatOnPaste: true,
                 formatOnType: true,
+                scrollBeyondLastLine: false, // Prevent extra scroll space
+                scrollbar: {
+                    vertical: "auto", // Only show when needed
+                    horizontal: "auto",
+                    alwaysConsumeMouseWheel: false,
+                },
+                lineNumbersMinChars: 4, // Reduce line number column width
+                glyphMargin: false, // Remove extra glyph margin
+                folding: false, // Remove folding margin
+                contextmenu: false, // Disable right-click menu
             });
 
             // Create a model for the editor content (Monaco stores content in models).
@@ -181,4 +191,22 @@
     });
 </script>
 
-<div class="container" style="height: 100%; width: 100%;" use:monacoJson></div>
+<div class="container" use:monacoJson></div>
+
+<style>
+    .container {
+        height: 100%;
+        width: 100%;
+        background: var(--bg-darker);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        padding: 15px 0px;
+    }
+
+    .container :global(.monaco-editor),
+    .container :global(.monaco-editor-background),
+    .container :global(.margin) {
+        background: var(--bg-darker) !important;
+    }
+</style>
