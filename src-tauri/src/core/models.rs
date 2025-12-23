@@ -67,6 +67,7 @@ pub struct Response {
     pub status: u16,
     pub headers: Vec<HeaderKV>,
     pub body: Vec<u8>,
+    pub at_ms: u128,
     pub duration_ms: u128,
     pub size_bytes: usize,
 }

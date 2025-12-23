@@ -6,7 +6,6 @@ class HistoryStore {
 
     addItem(api: Api, response: Response) {
         this.history.push({
-            at_ms: Date.now(),
             api,
             response
         });

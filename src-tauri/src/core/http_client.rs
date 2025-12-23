@@ -49,6 +49,10 @@ pub async fn send(input: &Request) -> Result<Response, String> {
     let method = reqwest::Method::from_bytes(input.method.as_bytes())
         .map_err(|e| format!("Invalid HTTP method: {}", e))?;
 
+    let at_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
     let start = std::time::Instant::now();
     let mut req = client.request(method, url);
 
@@ -83,6 +87,7 @@ pub async fn send(input: &Request) -> Result<Response, String> {
         status,
         headers: hdrs,
         body: bytes.to_vec(),
+        at_ms,
         duration_ms: duration,
         size_bytes: bytes.len(),
     })
