@@ -1,34 +1,63 @@
 <script lang="ts">
     import { COLORS } from "$lib/constants/http.constants";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { folderStore } from "$lib/stores/folder.svelte";
+    import type { MenuItem } from "$lib/types/menu";
     import type { Api } from "$lib/types/http";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
+    import FolderItem from "./FolderItem.svelte";
+
+    // APIs without a folder (root level)
+    const rootApis = $derived(apiStore.savedApis.filter((a) => !a.folder_id));
 
     function onSelectApi(api: Api) {
         apiStore.selectApi(api);
     }
 
+    async function moveApiToFolder(api: Api, folderId: string) {
+        const updated = await folderStore.moveApi(api.id!, folderId);
+        if (updated) {
+            apiStore.savedApis = apiStore.savedApis.map((a) =>
+                a.id === api.id ? updated : a,
+            );
+            folderStore.expand(folderId);
+        }
+    }
+
     function getMenuItems(api: Api) {
-        return [
+        const items: MenuItem[] = [
             {
                 label: "Duplicate",
-                onClick: () => {
-                    apiStore.duplicateApi(api);
-                },
-            },
-            {
-                label: "Delete",
-                danger: true,
-                onClick: () => {
-                    apiStore.deleteApi(api);
-                },
+                onClick: () => apiStore.duplicateApi(api),
             },
         ];
+
+        // Add "Move to [folder]" options for each folder
+        for (const folder of folderStore.folders) {
+            items.push({
+                label: `Move to ${folder.name}`,
+                onClick: () => moveApiToFolder(api, folder.id),
+            });
+        }
+
+        items.push({
+            label: "Delete",
+            danger: true,
+            onClick: () => apiStore.deleteApi(api),
+        });
+
+        return items;
     }
 </script>
 
 <section id="saved-requests">
-    {#each apiStore.savedApis as req}
+    <!-- Folders -->
+    {#each folderStore.tree as folder}
+        <FolderItem {folder} apis={apiStore.savedApis} />
+    {/each}
+
+    <!-- Root-level APIs (no folder) -->
+    {#each rootApis as req}
         <button
             class="saved-request {req.id === apiStore.api?.id ? 'active' : ''}"
             onclick={() => onSelectApi(req)}

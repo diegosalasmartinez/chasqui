@@ -73,9 +73,16 @@ export type Response = {
     size_bytes: number
 }
 
+export type Folder = {
+    id: string
+    name: string
+    parent_id?: string
+}
+
 export type Api = {
     id?: string
     name: string
+    folder_id?: string
     request: Request
 }
 

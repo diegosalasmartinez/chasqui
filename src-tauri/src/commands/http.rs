@@ -8,21 +8,27 @@ use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
 #[tauri::command]
-pub async fn create_api(app: AppHandle, name: String, request: Request) -> Result<Api, String> {
+pub async fn create_api(
+    app: AppHandle,
+    name: String,
+    request: Request,
+    folder_id: Option<String>,
+) -> Result<Api, String> {
     let store = app.store("db.json").map_err(|e| e.to_string())?;
     let val: Value = store.get("apis").unwrap_or(json!([]));
-    let mut requests: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
+    let mut apis: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
 
     let record = Api {
         id: Uuid::new_v4().to_string(),
         name,
+        folder_id,
         request,
     };
-    requests.push(record.clone());
-    store.set("apis", serde_json::to_value(&requests).unwrap());
+    apis.push(record.clone());
+    store.set("apis", serde_json::to_value(&apis).unwrap());
     store.save().map_err(|e| e.to_string())?;
 
-    Ok(record.clone())
+    Ok(record)
 }
 
 #[tauri::command]
@@ -121,4 +127,28 @@ pub fn list_apis(app: AppHandle) -> Result<Vec<Api>, String> {
     let apis: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
 
     Ok(apis)
+}
+
+#[tauri::command]
+pub async fn move_api(
+    app: AppHandle,
+    id: String,
+    folderId: Option<String>,
+) -> Result<Api, String> {
+    let store = app.store("db.json").map_err(|e| e.to_string())?;
+    let val: Value = store.get("apis").unwrap_or(json!([]));
+    let mut apis: Vec<Api> = serde_json::from_value(val).unwrap_or_default();
+
+    let api = apis
+        .iter_mut()
+        .find(|a| a.id == id)
+        .ok_or_else(|| "API not found".to_string())?;
+
+    api.folder_id = folderId;
+    let updated = api.clone();
+
+    store.set("apis", serde_json::to_value(&apis).unwrap());
+    store.save().map_err(|e| e.to_string())?;
+
+    Ok(updated)
 }

@@ -89,7 +89,7 @@ class ApiStore {
     async upsertApi() {
         if (!this.api) return
 
-        const { id, name, request } = this.api
+        const { id, name, request, folder_id } = this.api
 
         if (id) {
             const apiUpdated = await apiService.updateApi(id, name, request)
@@ -99,7 +99,7 @@ class ApiStore {
                 this.currentApi = apiUpdated
             }
         } else {
-            const apiCreated = await apiService.saveApi(name, request)
+            const apiCreated = await apiService.saveApi(name, request, folder_id)
             if (apiCreated) {
                 this.addApi(apiCreated)
                 this.currentApi = apiCreated

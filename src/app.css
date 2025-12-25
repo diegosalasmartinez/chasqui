@@ -76,6 +76,12 @@ button.ghost {
     align-items: center;
     height: auto;
     padding: 10px;
+    border: 0;
+    opacity: 0.6;
+}
+
+button.ghost:hover {
+    opacity: 1;
 }
 
 button.icon {

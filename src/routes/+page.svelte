@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { folderStore } from "$lib/stores/folder.svelte";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
     import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
@@ -10,7 +11,7 @@
     import Sidebar from "$lib/layouts/Sidebar.svelte";
 
     onMount(async () => {
-        await apiStore.listApis();
+        await Promise.all([apiStore.listApis(), folderStore.load()]);
     });
 </script>
 

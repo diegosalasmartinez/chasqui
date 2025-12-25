@@ -1,13 +1,7 @@
 <script lang="ts">
     import DotsSvg from "$lib/assets/icons/dots.svg?raw";
+    import type { MenuItem } from "$lib/types/menu";
     import { clickOutside } from "$lib/utils/common";
-
-    interface MenuItem {
-        label: string;
-        icon?: string;
-        onClick: () => void;
-        danger?: boolean;
-    }
 
     interface Props {
         items: MenuItem[];
