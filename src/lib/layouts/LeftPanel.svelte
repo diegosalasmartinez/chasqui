@@ -8,13 +8,11 @@
     const menuItems = [
         {
             label: "New Request",
-            onClick: () => apiStore.selectNewRequest(),
+            onClick: () => apiStore.createApi(),
         },
         {
             label: "New Folder",
-            onClick: async () => {
-                await folderStore.create("New Folder");
-            },
+            onClick: () => folderStore.create("New Folder"),
         },
     ];
 </script>
@@ -26,7 +24,7 @@
         <div class="actions-right">
             <button
                 class="ghost icon-btn"
-                onclick={() => apiStore.selectNewRequest()}
+                onclick={() => apiStore.createApi()}
                 title="New Request"
             >
                 {@html AddSvg}

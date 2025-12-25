@@ -12,7 +12,7 @@ pub async fn create_api(
     app: AppHandle,
     name: String,
     request: Request,
-    folder_id: Option<String>,
+    folderId: Option<String>,
 ) -> Result<Api, String> {
     let store = app.store("db.json").map_err(|e| e.to_string())?;
     let val: Value = store.get("apis").unwrap_or(json!([]));
@@ -21,7 +21,7 @@ pub async fn create_api(
     let record = Api {
         id: Uuid::new_v4().to_string(),
         name,
-        folder_id,
+        folder_id: folderId,
         request,
     };
     apis.push(record.clone());

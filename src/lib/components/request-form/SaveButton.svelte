@@ -2,9 +2,8 @@
     import SaveSvg from "$lib/assets/icons/save.svg?raw";
     import { apiStore } from "$lib/stores/api.svelte";
 
-    // Update or save api
     async function onSave() {
-        await apiStore.upsertApi();
+        await apiStore.saveApi();
     }
 </script>
 

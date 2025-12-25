@@ -1,18 +1,15 @@
 import { apiService } from '$lib/services/api.service'
-import type { Response, Api } from '$lib/types/http'
+import type { Response, Api, Request } from '$lib/types/http'
 import { bodyPrettify } from '$lib/utils/common'
 
-const createDraftApi = (): Api => ({
-    name: "New Request",
-    request: {
-        method: 'GET',
-        url: 'https://httpbin.org/get',
-        params: [],
-        headers: [],
-        auth: { type: 'none' },
-        body: { type: 'none' },
-        insecure: false,
-    }
+const defaultRequest = (): Request => ({
+    method: 'GET',
+    url: '',
+    params: [],
+    headers: [],
+    auth: { type: 'none' },
+    body: { type: 'none' },
+    insecure: false,
 })
 
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
@@ -38,22 +35,16 @@ class ApiStore {
     }
 
     get hasUnsavedChanges(): boolean {
-        if (!this.currentApi) return false
-        if (!this.currentApi.id) return true
+        if (!this.currentApi?.id) return false
         return this.unsavedChanges.has(this.currentApi.id)
     }
 
     updateApi(mutator: (a: Api) => Api) {
         const current = this.api
-        if (!current) return
+        if (!current?.id) return
 
         const updated = mutator(deepClone(current))
-
-        if (current.id) {
-            this.setUnsaved(current.id, updated)
-        } else {
-            this.currentApi = updated
-        }
+        this.setUnsaved(current.id, updated)
     }
 
     private addApi(newApi: Api) {
@@ -68,9 +59,14 @@ class ApiStore {
         this.savedApis = this.savedApis.filter(e => e.id !== id)
     }
 
-    selectNewRequest() {
-        this.currentApi = createDraftApi()
-        this.currentResponse = null
+    async createApi(folderId?: string) {
+        const apiCreated = await apiService.createApi("New Request", defaultRequest(), folderId)
+        if (apiCreated) {
+            this.addApi(apiCreated)
+            this.currentApi = apiCreated
+            this.currentResponse = null
+        }
+        return apiCreated
     }
 
     selectApi(api: Api) {
@@ -86,24 +82,16 @@ class ApiStore {
         this.currentResponse = null
     }
 
-    async upsertApi() {
-        if (!this.api) return
+    async saveApi() {
+        if (!this.api?.id) return
 
-        const { id, name, request, folder_id } = this.api
+        const { id, name, request } = this.api
 
-        if (id) {
-            const apiUpdated = await apiService.updateApi(id, name, request)
-            if (apiUpdated) {
-                this.replaceApi(apiUpdated)
-                this.deleteUnsaved(apiUpdated.id!)
-                this.currentApi = apiUpdated
-            }
-        } else {
-            const apiCreated = await apiService.saveApi(name, request, folder_id)
-            if (apiCreated) {
-                this.addApi(apiCreated)
-                this.currentApi = apiCreated
-            }
+        const apiUpdated = await apiService.updateApi(id, name, request)
+        if (apiUpdated) {
+            this.replaceApi(apiUpdated)
+            this.deleteUnsaved(apiUpdated.id!)
+            this.currentApi = apiUpdated
         }
     }
 
@@ -147,13 +135,17 @@ class ApiStore {
         this.currentResponseLoading = false;
     }
 
-    duplicateApi(api: Api) {
-        this.currentApi = {
-            ...deepClone(api),
-            id: undefined,
-            name: `${api.name} (Copy)`,
+    async duplicateApi(api: Api) {
+        const duplicated = await apiService.createApi(
+            `${api.name} (Copy)`,
+            deepClone(api.request),
+            api.folder_id
+        )
+        if (duplicated) {
+            this.addApi(duplicated)
+            this.currentApi = duplicated
+            this.currentResponse = null
         }
-        this.currentResponse = null
     }
 
     async listApis() {

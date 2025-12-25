@@ -6,8 +6,8 @@ export async function listApisBridge(): Promise<Api[]> {
     return await invoke('list_apis') as Api[]
 }
 
-export async function createApiBridge(name: string, request: Request, folder_id?: string): Promise<Api> {
-    return await invoke('create_api', { name, request, folder_id }) as Api
+export async function createApiBridge(name: string, request: Request, folderId?: string): Promise<Api> {
+    return await invoke('create_api', { name, request, folderId }) as Api
 }
 
 export async function updateApiBridge(id: string, name: string, request: Request): Promise<Api> {

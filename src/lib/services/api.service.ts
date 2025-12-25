@@ -3,10 +3,10 @@ import { toastStore } from '$lib/stores/toast.svelte';
 import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge } from "$lib/infra/tauri";
 
 class ApiService {
-    async saveApi(name: string, req: Request, folderId?: string) {
+    async createApi(name: string, req: Request, folderId?: string) {
         try {
             const response = await createApiBridge(name, req, folderId);
-            toastStore.info("API saved successfully")
+            toastStore.info("Request created")
             return response;
         } catch (err) {
             toastStore.error("Error: " + err)

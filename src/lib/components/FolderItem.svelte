@@ -56,21 +56,8 @@
         }
     }
 
-    function createRequestInFolder() {
-        const newApi = {
-            name: "New Request",
-            folder_id: folder.id,
-            request: {
-                method: "GET" as const,
-                url: "",
-                params: [],
-                headers: [],
-                auth: { type: "none" as const },
-                body: { type: "none" as const },
-                insecure: false,
-            },
-        };
-        apiStore.selectApi(newApi);
+    async function createRequestInFolder() {
+        await apiStore.createApi(folder.id);
         folderStore.expand(folder.id);
     }
 
@@ -330,5 +317,7 @@
     .method {
         font-size: 11px;
         font-weight: 600;
+        width: 30px;
+        text-align: left;
     }
 </style>
