@@ -1,54 +1,69 @@
 <script lang="ts">
     import { COLORS } from "$lib/constants/http.constants";
-    import { apiStore } from "$lib/stores/api.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
+    import { dragStore } from "$lib/stores/drag.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
     import type { MenuItem } from "$lib/types/menu";
     import type { Api } from "$lib/types/http";
+    import FolderItem from "$lib/components/FolderItem.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
-    import FolderItem from "./FolderItem.svelte";
 
     // APIs without a folder (root level)
     const rootApis = $derived(apiStore.savedApis.filter((a) => !a.folder_id));
+    const showDropHighlight = $derived(dragStore.isHoveringRoot());
 
     function onSelectApi(api: Api) {
         apiStore.selectApi(api);
     }
 
-    async function moveApiToFolder(api: Api, folderId: string) {
-        const updated = await folderStore.moveApi(api.id!, folderId);
-        if (updated) {
-            apiStore.savedApis = apiStore.savedApis.map((a) =>
-                a.id === api.id ? updated : a,
-            );
-            folderStore.expand(folderId);
-        }
-    }
-
-    function getMenuItems(api: Api) {
-        const items: MenuItem[] = [
+    function getMenuItems(api: Api): MenuItem[] {
+        return [
             {
                 label: "Duplicate",
                 onClick: () => apiStore.duplicateApi(api),
             },
+            {
+                label: "Delete",
+                danger: true,
+                onClick: () => apiStore.deleteApi(api),
+            },
         ];
+    }
 
-        // Add "Move to [folder]" options for each folder
-        for (const folder of folderStore.folders) {
-            items.push({
-                label: `Move to ${folder.name}`,
-                onClick: () => moveApiToFolder(api, folder.id),
-            });
+    // Mouse-based drag handlers
+    function handleMouseDown(e: MouseEvent, api: Api) {
+        if (!api.id || e.button !== 0) return;
+        const target = e.currentTarget as HTMLElement;
+        dragStore.startDrag(api.id, target, e);
+    }
+
+    async function handleMouseUp() {
+        if (!dragStore.draggingApiId || !dragStore.isHoveringRoot()) return;
+
+        const apiId = dragStore.draggingApiId;
+
+        // Don't move if already at root
+        const api = apiStore.savedApis.find((a) => a.id === apiId);
+        if (!api?.folder_id) {
+            return;
         }
 
-        items.push({
-            label: "Delete",
-            danger: true,
-            onClick: () => apiStore.deleteApi(api),
-        });
+        // Move to root (no folder)
+        const updated = await folderStore.moveApi(apiId, undefined);
+        if (updated) {
+            apiStore.savedApis = apiStore.savedApis.map((a) =>
+                a.id === apiId ? updated : a,
+            );
+        }
+    }
 
-        return items;
+    // Global mouseup to end drag
+    function handleGlobalMouseUp() {
+        dragStore.endDrag();
     }
 </script>
+
+<svelte:window onmouseup={handleGlobalMouseUp} />
 
 <section id="saved-requests">
     <!-- Folders -->
@@ -56,24 +71,47 @@
         <FolderItem {folder} apis={apiStore.savedApis} />
     {/each}
 
-    <!-- Root-level APIs (no folder) -->
-    {#each rootApis as req}
-        <button
-            class="saved-request {req.id === apiStore.api?.id ? 'active' : ''}"
-            onclick={() => onSelectApi(req)}
-        >
-            <div class="request-info">
-                <span class="method" style:color={COLORS[req.request.method]}>
-                    {req.request.method}
-                </span>
-                <span class="name">{req.name}</span>
-            </div>
+    <!-- Root drop zone -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <div
+        class="root-drop-zone"
+        class:drag-over={showDropHighlight}
+        data-drop-zone="root"
+        onmouseup={handleMouseUp}
+        role="list"
+    >
+        <!-- Root-level APIs (no folder) -->
+        {#each rootApis as req}
+            <button
+                class="saved-request {req.id === apiStore.api?.id
+                    ? 'active'
+                    : ''}"
+                class:dragging={dragStore.draggingApiId === req.id}
+                onmousedown={(e) => handleMouseDown(e, req)}
+                onclick={() => onSelectApi(req)}
+            >
+                <div class="request-info">
+                    <span
+                        class="method"
+                        style:color={COLORS[req.request.method]}
+                    >
+                        {req.request.method}
+                    </span>
+                    <span class="name">{req.name}</span>
+                </div>
 
-            {#if req.id === apiStore.api?.id}
-                <ContextMenu items={getMenuItems(req)} />
-            {/if}
-        </button>
-    {/each}
+                {#if req.id === apiStore.api?.id}
+                    <ContextMenu items={getMenuItems(req)} />
+                {/if}
+            </button>
+        {/each}
+
+        {#if rootApis.length === 0 && dragStore.draggingApiId}
+            <div class="drop-hint" class:visible={showDropHighlight}>
+                Drop here to move to root
+            </div>
+        {/if}
+    </div>
 </section>
 
 <style>
@@ -83,15 +121,40 @@
         width: 100%;
         display: flex;
         flex-direction: column;
+        flex: 1;
+    }
+
+    .root-drop-zone {
+        flex: 1;
+        min-height: 40px;
+        border-radius: 8px;
+        border: 2px dashed transparent;
+        transition: all 0.15s ease;
+    }
+
+    .root-drop-zone.drag-over {
+        border-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 10%, transparent);
     }
 
     .saved-request {
+        width: 100%;
         background: transparent;
         box-shadow: none;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding-right: 0;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .saved-request:active {
+        cursor: grabbing;
+    }
+
+    .saved-request.dragging {
+        opacity: 0.5;
     }
 
     .saved-request.active,
@@ -108,5 +171,18 @@
     .method {
         font-size: 11px;
         font-weight: 600;
+    }
+
+    .drop-hint {
+        padding: 12px;
+        text-align: center;
+        color: var(--text-tertiary);
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    .drop-hint.visible {
+        opacity: 1;
     }
 </style>

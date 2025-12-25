@@ -90,3 +90,7 @@ export type HistoryItem = {
     api: Api
     response: Response
 }
+
+export type FolderNode = Folder & {
+    children: FolderNode[]
+}

@@ -1,8 +1,9 @@
 <script lang="ts">
     import { COLORS } from "$lib/constants/http.constants";
+    import type { Api, FolderNode } from "$lib/types/http";
+    import { dragStore } from "$lib/stores/drag.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
-    import { folderStore, type FolderNode } from "$lib/stores/folder.svelte";
-    import type { Api } from "$lib/types/http";
+    import { folderStore } from "$lib/stores/folder.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
 
     type Props = {
@@ -19,6 +20,7 @@
 
     const isExpanded = $derived(folderStore.isExpanded(folder.id));
     const folderApis = $derived(apis.filter((a) => a.folder_id === folder.id));
+    const showDropHighlight = $derived(dragStore.isHoveringFolder(folder.id));
 
     function toggle() {
         folderStore.toggleExpanded(folder.id);
@@ -72,51 +74,46 @@
         folderStore.expand(folder.id);
     }
 
-    async function moveApiTo(api: Api, folderId?: string) {
-        const updated = await folderStore.moveApi(api.id!, folderId);
+    // Mouse-based drag handlers
+    function handleMouseDown(e: MouseEvent, api: Api) {
+        if (!api.id || e.button !== 0) return;
+        const target = e.currentTarget as HTMLElement;
+        dragStore.startDrag(api.id, target, e);
+    }
+
+    async function handleMouseUp() {
+        if (!dragStore.draggingApiId || !dragStore.isHoveringFolder(folder.id))
+            return;
+
+        const apiId = dragStore.draggingApiId;
+
+        // Don't move if already in this folder
+        const api = apis.find((a) => a.id === apiId);
+        if (api?.folder_id === folder.id) {
+            return;
+        }
+
+        const updated = await folderStore.moveApi(apiId, folder.id);
         if (updated) {
             apiStore.savedApis = apiStore.savedApis.map((a) =>
-                a.id === api.id ? updated : a,
+                a.id === apiId ? updated : a,
             );
-            if (folderId) {
-                folderStore.expand(folderId);
-            }
+            folderStore.expand(folder.id);
         }
     }
 
     function getApiMenuItems(api: Api) {
-        const items: Array<{
-            label: string;
-            onClick: () => void;
-            danger?: boolean;
-        }> = [
+        return [
             {
                 label: "Duplicate",
                 onClick: () => apiStore.duplicateApi(api),
             },
             {
-                label: "Move to root",
-                onClick: () => moveApiTo(api, undefined),
+                label: "Delete",
+                danger: true,
+                onClick: () => apiStore.deleteApi(api),
             },
         ];
-
-        // Add move options for other folders
-        for (const f of folderStore.folders) {
-            if (f.id !== folder.id) {
-                items.push({
-                    label: `Move to ${f.name}`,
-                    onClick: () => moveApiTo(api, f.id),
-                });
-            }
-        }
-
-        items.push({
-            label: "Delete",
-            danger: true,
-            onClick: () => apiStore.deleteApi(api),
-        });
-
-        return items;
     }
 
     function getFolderMenuItems() {
@@ -145,7 +142,14 @@
 </script>
 
 <div class="folder-item" style:--depth={depth}>
-    <div class="folder-header">
+    <div
+        class="folder-header"
+        class:drag-over={showDropHighlight}
+        data-folder-id={folder.id}
+        onmouseup={handleMouseUp}
+        role="button"
+        tabindex="0"
+    >
         <button class="folder-toggle" onclick={toggle}>
             <span class="chevron">{isExpanded ? "▼" : "▶"}</span>
         </button>
@@ -172,8 +176,7 @@
     {#if isExpanded}
         <div class="folder-children">
             {#each folder.children as child}
-                <svelte:self folder={child} {apis} depth={depth + 1}
-                ></svelte:self>
+                <svelte:self folder={child} {apis} depth={depth + 1} />
             {/each}
 
             {#each folderApis as api}
@@ -181,6 +184,8 @@
                     class="api-item {api.id === apiStore.api?.id
                         ? 'active'
                         : ''}"
+                    class:dragging={dragStore.draggingApiId === api.id}
+                    onmousedown={(e) => handleMouseDown(e, api)}
                     onclick={() => onSelectApi(api)}
                 >
                     <div class="request-info">
@@ -218,14 +223,26 @@
         padding-bottom: 7.5px;
         padding-left: calc(15px + var(--depth) * 12px);
         padding-right: 0;
-        border: 1px solid transparent;
+        border: 2px dashed transparent;
         font-size: 12.5px;
         color: var(--text-secondary);
+        transition: all 0.15s ease;
     }
 
-    .folder-header:hover {
+    .folder-header:hover:not(.drag-over) {
         background: var(--hover);
         border-color: var(--border);
+        border-style: solid;
+    }
+
+    .folder-header.drag-over {
+        background: color-mix(
+            in srgb,
+            var(--accent) 15%,
+            transparent
+        ) !important;
+        border-color: var(--accent) !important;
+        border-style: dashed !important;
     }
 
     .folder-toggle {
@@ -287,6 +304,16 @@
         background: transparent;
         box-shadow: none;
         font-size: 12.5px;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .api-item:active {
+        cursor: grabbing;
+    }
+
+    .api-item.dragging {
+        opacity: 0.5;
     }
 
     .api-item.active,

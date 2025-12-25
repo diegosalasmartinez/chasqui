@@ -59,10 +59,6 @@ input:hover {
     border-color: var(--border);
 }
 
-input.ghost:hover {
-    color: var(--text-primary-hover);
-}
-
 button {
     cursor: pointer;
     height: 40px;
@@ -135,4 +131,14 @@ select:active {
 .tabs {
     display: inline-flex;
     gap: 4px;
+}
+
+/* Global dragging state */
+body.is-dragging {
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+body.is-dragging * {
+    cursor: grabbing !important;
 }

@@ -1,9 +1,5 @@
 import { folderService } from '$lib/services/folder.service'
-import type { Folder } from '$lib/types/http'
-
-export type FolderNode = Folder & {
-    children: FolderNode[]
-}
+import type { Folder, FolderNode } from '$lib/types/http'
 
 class FolderStore {
     folders = $state<Folder[]>([])
