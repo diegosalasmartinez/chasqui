@@ -17,5 +17,5 @@
 </script>
 
 {#if params}
-    <KeyValueEditor items={params} onUpdate={updateParams} />
+    <KeyValueEditor items={params} onUpdate={updateParams} enableVariables />
 {/if}

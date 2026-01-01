@@ -21,5 +21,6 @@
         items={headers}
         onUpdate={updateHeaders}
         placeholder={{ key: "Header", value: "Value" }}
+        enableVariables
     />
 {/if}

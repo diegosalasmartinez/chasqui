@@ -2,17 +2,20 @@
     import type { KeyValuePair } from "$lib/types/http";
     import PlusIcon from "$lib/ui/icons/PlusIcon.svelte";
     import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
+    import VariableInput from "$lib/ui/VariableInput.svelte";
 
     interface Props {
         items: KeyValuePair[];
         onUpdate: (items: KeyValuePair[]) => void;
         placeholder?: { key: string; value: string };
+        enableVariables?: boolean;
     }
 
     let {
         items,
         onUpdate,
         placeholder = { key: "Key", value: "Value" },
+        enableVariables = false,
     }: Props = $props();
 
     function addRow() {
@@ -76,18 +79,29 @@
                     />
                 </div>
                 <div class="col-value">
-                    <input
-                        type="text"
-                        class="kv-input"
-                        placeholder={placeholder.value}
-                        value={item.value}
-                        oninput={(e) =>
-                            updateValue(
-                                i,
-                                (e.target as HTMLInputElement).value,
-                            )}
-                        disabled={!item.enabled}
-                    />
+                    {#if enableVariables}
+                        <VariableInput
+                            class="kv-input"
+                            placeholder={placeholder.value}
+                            value={item.value}
+                            disabled={!item.enabled}
+                            oninput={(e) =>
+                                updateValue(i, e.currentTarget.value)}
+                        />
+                    {:else}
+                        <input
+                            type="text"
+                            class="kv-input"
+                            placeholder={placeholder.value}
+                            value={item.value}
+                            oninput={(e) =>
+                                updateValue(
+                                    i,
+                                    (e.target as HTMLInputElement).value,
+                                )}
+                            disabled={!item.enabled}
+                        />
+                    {/if}
                 </div>
                 <div class="col-actions">
                     <button
@@ -182,14 +196,15 @@
         display: flex;
         align-items: center;
         padding: 0;
+        width: 100%;
     }
 
     .col-key {
         border-right: 1px solid var(--border);
     }
 
-    .kv-input {
-        width: 100%;
+    :global(.kv-input) {
+        width: 100% !important;
         padding: 8px 12px;
         background: transparent;
         border: none;
@@ -199,17 +214,17 @@
         transition: background 0.1s ease;
     }
 
-    .kv-input:focus {
+    :global(.kv-input:focus) {
         outline: none;
         background: var(--bg-darker);
     }
 
-    .kv-input:disabled {
+    :global(.kv-input:disabled) {
         cursor: not-allowed;
         opacity: 0.6;
     }
 
-    .kv-input::placeholder {
+    :global(.kv-input::placeholder) {
         color: var(--text-secondary);
         opacity: 0.5;
     }

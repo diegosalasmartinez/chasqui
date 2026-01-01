@@ -1,6 +1,7 @@
 <script lang="ts">
     import { apiStore } from "$lib/stores/api.svelte";
     import type { AuthType, AuthConfig } from "$lib/types/http";
+    import VariableInput from "$lib/ui/VariableInput.svelte";
 
     const auth = $derived(apiStore.api?.request.auth);
 
@@ -69,14 +70,12 @@
             {#if auth.type === "bearer"}
                 <label>
                     <span class="label-text">Token</span>
-                    <input
+                    <VariableInput
                         class="auth-input"
                         placeholder="Enter bearer token"
                         value={auth.token}
                         oninput={(e) =>
-                            updateAuth({
-                                token: (e.target as HTMLInputElement).value,
-                            })}
+                            updateAuth({ token: e.currentTarget.value })}
                     />
                 </label>
             {:else if auth.type === "basic"}
@@ -95,14 +94,12 @@
                 </label>
                 <label>
                     <span class="label-text">Password</span>
-                    <input
+                    <VariableInput
                         class="auth-input"
                         placeholder="Enter password"
                         value={auth.password}
                         oninput={(e) =>
-                            updateAuth({
-                                password: (e.target as HTMLInputElement).value,
-                            })}
+                            updateAuth({ password: e.currentTarget.value })}
                     />
                 </label>
             {:else if auth.type === "api-key"}
@@ -121,14 +118,12 @@
                 </label>
                 <label>
                     <span class="label-text">Value</span>
-                    <input
+                    <VariableInput
                         class="auth-input"
                         placeholder="Enter API key value"
                         value={auth.value}
                         oninput={(e) =>
-                            updateAuth({
-                                value: (e.target as HTMLInputElement).value,
-                            })}
+                            updateAuth({ value: e.currentTarget.value })}
                     />
                 </label>
                 <label>
@@ -174,14 +169,18 @@
     }
 
     .auth-select,
-    .auth-input {
+    :global(.auth-input) {
         width: 100%;
+    }
+
+    .auth-select,
+    :global(.auth-input) {
         padding: 8px 12px;
         font-size: 14px;
         transition: all 0.15s ease;
     }
 
-    .auth-input::placeholder {
+    :global(.auth-input)::placeholder {
         color: var(--text-secondary);
         opacity: 0.5;
     }
