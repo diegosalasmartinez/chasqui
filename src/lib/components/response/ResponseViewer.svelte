@@ -51,6 +51,9 @@
         display: flex;
         flex-direction: column;
         min-height: 0;
+        border-top: 0.5px solid var(--border);
+        border-right: 0.5px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
     }
 
     .header {

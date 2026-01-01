@@ -12,6 +12,9 @@
         gap: 12px;
         color: var(--text-primary);
         font-weight: 400;
+        border-top: 0.5px solid var(--border);
+        border-right: 0.5px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
     }
 
     .spinner {

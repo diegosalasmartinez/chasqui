@@ -90,11 +90,11 @@
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0.5rem 0.5rem 0.75rem;
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.875rem;
-        min-width: 110px;
+        font-size: 12px;
+        min-width: 100px;
         border-radius: 0;
         border-top-left-radius: 0.375rem;
         border-bottom-left-radius: 0.375rem;
@@ -159,7 +159,7 @@
         padding: 0.25rem 0.5rem;
         border-radius: 0.25rem;
         font-weight: 600;
-        font-size: 0.8125rem;
+        font-size: 12px;
         color: white;
         text-align: center;
         letter-spacing: 0.025em;

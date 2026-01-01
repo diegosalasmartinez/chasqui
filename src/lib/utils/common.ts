@@ -49,3 +49,20 @@ export const fmtMs = (ms?: number) =>
             ? `${ms} ms`
             : `${(ms / 1000).toFixed(2)} s`;
 
+/**
+ * Substitutes {{var_name}} placeholders in a string with values from a Map
+ */
+export const substituteVariables = (text: string, variables: Map<string, string>): string => {
+    return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+        const value = variables.get(varName);
+        return value !== undefined ? value : match;
+    });
+};
+
+/**
+ * Extracts all {{var_name}} variable references from a string
+ */
+export const extractVariables = (text: string): string[] => {
+    const matches = text.match(/\{\{(\w+)\}\}/g) || [];
+    return matches.map(m => m.slice(2, -2));
+};

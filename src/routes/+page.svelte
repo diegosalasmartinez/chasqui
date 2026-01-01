@@ -12,6 +12,7 @@
     import ToastContainer from "$lib/ui/ToastContainer.svelte";
     import LeftPanel from "$lib/layouts/LeftPanel.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
+    import Header from "$lib/layouts/Header.svelte";
 
     onMount(async () => {
         await Promise.all([
@@ -22,53 +23,63 @@
     });
 </script>
 
-<main>
-    <Sidebar />
-    <LeftPanel />
+<div class="app-layout">
+    <Header />
+    <main>
+        <Sidebar />
+        <LeftPanel />
 
-    <section
-        class="main-panel"
-        class:single-column={sidebarStore.isEnvironments || !apiStore.api}
-    >
-        {#if sidebarStore.isEnvironments}
-            {#if environmentStore.selected}
-                <EnvEditor />
+        <section
+            class="main-panel"
+            class:single-column={sidebarStore.isEnvironments || !apiStore.api}
+        >
+            {#if sidebarStore.isEnvironments}
+                {#if environmentStore.selected}
+                    <EnvEditor />
+                {:else}
+                    <div class="empty-panel">
+                        <p>Select an environment to edit variables</p>
+                    </div>
+                {/if}
+            {:else if apiStore.api}
+                <RequestEditor />
+
+                {#if apiStore.currentResponse}
+                    <ResponseViewer />
+                {:else if apiStore.currentResponseLoading}
+                    <ResponseLoading />
+                {:else}
+                    <NoResponse />
+                {/if}
             {:else}
                 <div class="empty-panel">
-                    <p>Select an environment to edit variables</p>
+                    <p>Select a request or create a new one</p>
                 </div>
             {/if}
-        {:else if apiStore.api}
-            <RequestEditor />
-
-            {#if apiStore.currentResponse}
-                <ResponseViewer />
-            {:else if apiStore.currentResponseLoading}
-                <ResponseLoading />
-            {:else}
-                <NoResponse />
-            {/if}
-        {:else}
-            <div class="empty-panel">
-                <p>Select a request or create a new one</p>
-            </div>
-        {/if}
-    </section>
+        </section>
+    </main>
 
     <ToastContainer />
-</main>
+</div>
 
 <style>
+    .app-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+    }
+
     main {
         display: grid;
         grid-template-columns: 60px 230px minmax(0, 1fr);
-        min-height: 100dvh;
+        flex: 1;
+        min-height: 0;
     }
 
     .main-panel {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        min-height: 100dvh;
+        min-height: 0;
     }
 
     .main-panel.single-column {

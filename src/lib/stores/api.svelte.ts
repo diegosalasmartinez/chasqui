@@ -1,6 +1,8 @@
 import { apiService } from '$lib/services/api.service'
 import type { Response, Api, Request } from '$lib/types/http'
 import { bodyPrettify } from '$lib/utils/common'
+import { applyVariableSubstitution } from '$lib/utils/variables'
+import { environmentStore } from '$lib/stores/environment.svelte'
 
 const defaultRequest = (): Request => ({
     method: 'GET',
@@ -114,7 +116,11 @@ class ApiStore {
         const { request } = this.api
         this.currentResponse = null
 
-        const responseRaw = await apiService.sendRequest(request)
+        // Apply variable substitution from selected environment
+        const variables = environmentStore.variablesMap
+        const substitutedRequest = applyVariableSubstitution(request, variables)
+
+        const responseRaw = await apiService.sendRequest(substitutedRequest)
         if (responseRaw) {
             const response: Response = {
                 status: responseRaw.status,

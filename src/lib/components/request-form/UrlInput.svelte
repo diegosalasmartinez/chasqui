@@ -4,7 +4,6 @@
 
 <input
     class="url-input"
-    type="url"
     placeholder="https://api.example.com/endpoint"
     value={apiStore.api?.request.url}
     oninput={(e) =>
@@ -21,9 +20,9 @@
     .url-input {
         flex: 1;
         height: 40px;
-        padding: 0.625rem 1rem;
+        padding: 6px 12px;
         border-radius: 0;
-        font-size: 0.9375rem;
+        font-size: 13px;
         transition: all 0.15s ease;
     }
 
