@@ -1,18 +1,17 @@
 <script lang="ts">
-    import { COLORS } from "$lib/constants/http.constants";
     import type { Api, FolderNode } from "$lib/types/http";
+    import { COLORS } from "$lib/constants/http.constants";
+    import { folderStore } from "$lib/stores/folder.svelte";
     import { dragStore } from "$lib/stores/drag.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
-    import { folderStore } from "$lib/stores/folder.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
 
     type Props = {
         folder: FolderNode;
         apis: Api[];
-        depth?: number;
     };
 
-    let { folder, apis, depth = 0 }: Props = $props();
+    let { folder, apis }: Props = $props();
 
     let isEditing = $state(false);
     let editName = $state(folder.name);
@@ -128,7 +127,7 @@
     }
 </script>
 
-<div class="folder-item" style:--depth={depth}>
+<div class="folder-item">
     <div
         class="folder-header"
         class:drag-over={showDropHighlight}
@@ -163,7 +162,7 @@
     {#if isExpanded}
         <div class="folder-children">
             {#each folder.children as child}
-                <svelte:self folder={child} {apis} depth={depth + 1} />
+                <svelte:self folder={child} {apis} />
             {/each}
 
             {#each folderApis as api}
@@ -206,10 +205,7 @@
         width: 100%;
         height: 40px;
         border-radius: 8px;
-        padding-top: 7.5px;
-        padding-bottom: 7.5px;
-        padding-left: calc(15px + var(--depth) * 12px);
-        padding-right: 0;
+        padding: 7.5px 0 7.5px 8px;
         border: 2px dashed transparent;
         font-size: 12.5px;
         color: var(--text-secondary);
@@ -278,6 +274,26 @@
 
     .folder-children {
         width: 100%;
+        position: relative;
+        margin-left: 16px;
+        padding-left: 12px;
+        border-left: 1px solid var(--border);
+        max-width: -webkit-fill-available;
+    }
+
+    /* Connector line for nested folders */
+    .folder-children > :global(.folder-item) {
+        position: relative;
+    }
+
+    .folder-children > :global(.folder-item)::before {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 20px;
+        width: 10px;
+        height: 1px;
+        background: var(--border);
     }
 
     .api-item {
@@ -286,13 +302,24 @@
         align-items: center;
         width: 100%;
         padding: 6px 8px;
-        padding-left: calc(32px + var(--depth) * 12px);
+        padding-left: 12px;
         padding-right: 0;
         background: transparent;
         box-shadow: none;
         font-size: 12.5px;
         cursor: grab;
         user-select: none;
+        position: relative;
+    }
+
+    .api-item::before {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        width: 10px;
+        height: 1px;
+        background: var(--border);
     }
 
     .api-item:active {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import SaveSvg from "$lib/assets/icons/save.svg?raw";
+    import SaveIcon from "$lib/ui/icons/SaveIcon.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
 
     async function onSave() {
@@ -17,7 +17,7 @@
         onclick={() => onSave()}
         title="Save request"
     >
-        {@html SaveSvg}
+        <SaveIcon />
     </button>
 </div>
 

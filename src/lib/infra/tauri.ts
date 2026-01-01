@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Request, Api, ResponseRaw, Folder } from '$lib/types/http'
+import type { Request, Api, ResponseRaw, Folder, Environment, EnvVariable } from '$lib/types/http'
 
 // API bridges
 export async function listApisBridge(): Promise<Api[]> {
@@ -45,3 +45,19 @@ export async function deleteFolderBridge(id: string): Promise<void> {
     return await invoke('delete_folder', { id })
 }
 
+// Environment bridges
+export async function listEnvironmentsBridge(): Promise<Environment[]> {
+    return await invoke('list_environments') as Environment[]
+}
+
+export async function createEnvironmentBridge(name: string, workspaceId?: string): Promise<Environment> {
+    return await invoke('create_environment', { name, workspaceId }) as Environment
+}
+
+export async function updateEnvironmentBridge(id: string, name?: string, variables?: EnvVariable[]): Promise<Environment> {
+    return await invoke('update_environment', { id, name, variables }) as Environment
+}
+
+export async function deleteEnvironmentBridge(id: string): Promise<void> {
+    return await invoke('delete_environment', { id })
+}

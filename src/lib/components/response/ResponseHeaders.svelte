@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CopySvg from "$lib/assets/icons/copy.svg?raw";
+    import CopyIcon from "$lib/ui/icons/CopyIcon.svelte";
     import type { HeaderKV } from "$lib/types/http";
     import { copyToClipboard } from "$lib/utils/common";
 
@@ -27,7 +27,7 @@
                     title="Copy value"
                     onclick={() => copyToClipboard(header.value)}
                 >
-                    {@html CopySvg}
+                    <CopyIcon size={14} />
                 </button>
             </div>
         </div>
@@ -124,10 +124,5 @@
         opacity: 1 !important;
         color: var(--blue);
         background: var(--hover);
-    }
-
-    .copy-btn :global(svg) {
-        width: 14px;
-        height: 14px;
     }
 </style>

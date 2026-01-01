@@ -94,3 +94,16 @@ export type HistoryItem = {
 export type FolderNode = Folder & {
     children: FolderNode[]
 }
+
+export type EnvVariable = {
+    key: string
+    value: string
+    initial_value?: string
+}
+
+export type Environment = {
+    id: string
+    name: string
+    workspace_id?: string
+    variables: EnvVariable[]
+}

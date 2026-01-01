@@ -1,5 +1,7 @@
 <script lang="ts">
     import type { KeyValuePair } from "$lib/types/http";
+    import PlusIcon from "$lib/ui/icons/PlusIcon.svelte";
+    import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
 
     interface Props {
         items: KeyValuePair[];
@@ -94,15 +96,7 @@
                         onclick={() => removeRow(i)}
                         aria-label="Remove row"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-                            />
-                        </svg>
+                        <CloseIcon size={14} />
                     </button>
                 </div>
             </div>
@@ -110,15 +104,7 @@
     </div>
 
     <button type="button" class="btn-add" onclick={addRow}>
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-        >
-            <path
-                d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-            />
-        </svg>
+        <PlusIcon size={16} />
         <span>Add {items.length === 0 ? placeholder.key : "Row"}</span>
     </button>
 </div>
@@ -260,11 +246,6 @@
         background: var(--red-hover);
     }
 
-    .btn-remove svg {
-        width: 14px;
-        height: 14px;
-    }
-
     .btn-add {
         display: flex;
         align-items: center;
@@ -286,10 +267,5 @@
         background: var(--hover);
         border-color: var(--blue);
         color: var(--blue);
-    }
-
-    .btn-add svg {
-        width: 16px;
-        height: 16px;
     }
 </style>

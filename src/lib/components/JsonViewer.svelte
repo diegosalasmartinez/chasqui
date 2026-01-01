@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CopySvg from "$lib/assets/icons/copy.svg?raw";
+    import CopyIcon from "$lib/ui/icons/CopyIcon.svelte";
     import { copyToClipboard } from "$lib/utils/common";
 
     export let value: unknown;
@@ -58,7 +58,7 @@
         title="Copy"
         onclick={() => copyToClipboard(formatted.text)}
     >
-        {@html CopySvg}
+        <CopyIcon size={14} />
     </button>
     <pre class="code"><code
             >{#if formatted.isJson}{@html highlighted}{:else}{formatted.text}{/if}</code
@@ -121,11 +121,6 @@
         font-size: 14px;
         line-height: 1;
         transition: background 0.2s;
-    }
-
-    .copy-btn :global(svg) {
-        width: 14px;
-        height: 14px;
     }
 
     .copy-btn:hover {

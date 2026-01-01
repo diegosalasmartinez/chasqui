@@ -95,3 +95,20 @@ pub struct Api {
     pub folder_id: Option<String>,
     pub request: Request,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EnvVariable {
+    pub key: String,
+    pub value: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub initial_value: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Environment {
+    pub id: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
+    pub variables: Vec<EnvVariable>,
+}

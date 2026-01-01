@@ -1,6 +1,6 @@
 <script lang="ts">
-    import SunSvg from "$lib/assets/icons/sun.svg?raw";
-    import MoonSvg from "$lib/assets/icons/moon.svg?raw";
+    import SunIcon from "$lib/ui/icons/SunIcon.svelte";
+    import MoonIcon from "$lib/ui/icons/MoonIcon.svelte";
 
     $: current = document.documentElement.dataset.theme || "dark";
     $: isDark = current === "dark";
@@ -14,5 +14,9 @@
 </script>
 
 <button class="ghost" onclick={() => setTheme(isDark ? "light" : "dark")}>
-    {@html isDark ? SunSvg : MoonSvg}
+    {#if isDark}
+        <SunIcon />
+    {:else}
+        <MoonIcon />
+    {/if}
 </button>

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import SendSvg from "$lib/assets/icons/send.svg?raw";
+    import SendIcon from "$lib/ui/icons/SendIcon.svelte";
 </script>
 
 <button type="submit" class="send-btn icon" title="Send request">
-    {@html SendSvg}
+    <SendIcon />
 </button>
 
 <style>

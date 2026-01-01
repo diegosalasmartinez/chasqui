@@ -53,11 +53,6 @@
             title="Click to edit name"
         >
             <h1>{displayName}</h1>
-            <svg class="edit-icon" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-                />
-            </svg>
         </button>
     {/if}
 </div>
@@ -76,6 +71,7 @@
         padding: 0 12px;
         border: none;
         background: transparent;
+        opacity: 100% !important;
         cursor: pointer;
         border-radius: 6px;
         transition: background 0.15s ease;
@@ -104,17 +100,5 @@
         flex: 1;
         min-width: 200px;
         height: 30px;
-    }
-
-    .edit-icon {
-        width: 16px;
-        height: 16px;
-        opacity: 0.5;
-        transition: opacity 0.15s ease;
-        flex-shrink: 0;
-    }
-
-    .name-display:hover .edit-icon {
-        opacity: 0.85;
     }
 </style>

@@ -1,12 +1,12 @@
 <script lang="ts">
-    import SendSvg from "$lib/assets/icons/send.svg?raw";
+    import SendIcon from "$lib/ui/icons/SendIcon.svelte";
 </script>
 
 <section class="no-response">
     <div>
         <h2>
             Hit the send button
-            {@html SendSvg}
+            <SendIcon />
         </h2>
         <h4>And start making your requests!</h4>
     </div>

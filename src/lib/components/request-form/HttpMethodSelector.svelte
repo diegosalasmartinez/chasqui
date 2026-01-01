@@ -3,6 +3,7 @@
     import { COLORS, METHODS } from "$lib/constants/http.constants";
     import { apiStore } from "$lib/stores/api.svelte";
     import type { HttpMethod } from "$lib/types/http";
+    import ChevronIcon from "$lib/ui/icons/ChevronIcon.svelte";
 
     let open = $state(false);
     let highlighted = $state(0);
@@ -48,16 +49,9 @@
         style:color={method ? COLORS[method] : COLORS.GET}
     >
         <span class="method-text">{method}</span>
-        <svg class="chevron" class:open viewBox="0 0 20 20" aria-hidden="true">
-            <path
-                d="M5.5 7.5l4.5 4.5 4.5-4.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            />
-        </svg>
+        <span class="chevron" class:open>
+            <ChevronIcon size={16} />
+        </span>
     </button>
 
     {#if open}
@@ -112,8 +106,7 @@
     }
 
     .chevron {
-        width: 1rem;
-        height: 1rem;
+        display: flex;
         transition: transform 0.2s ease;
     }
 

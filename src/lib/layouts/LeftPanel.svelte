@@ -1,11 +1,14 @@
 <script lang="ts">
-    import { apiStore } from "$lib/stores/api.svelte";
+    import { environmentStore } from "$lib/stores/environment.svelte";
+    import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
+    import { apiStore } from "$lib/stores/api.svelte";
+    import EnvList from "$lib/components/environment/EnvList.svelte";
     import SavedApis from "$lib/components/SavedApis.svelte";
-    import AddSvg from "$lib/assets/icons/add.svg?raw";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
+    import AddIcon from "$lib/ui/icons/AddIcon.svelte";
 
-    const menuItems = [
+    const collectionMenuItems = [
         {
             label: "New Request",
             onClick: () => apiStore.createApi(),
@@ -15,25 +18,53 @@
             onClick: () => folderStore.create("New Folder"),
         },
     ];
+
+    const environmentMenuItems = [
+        {
+            label: "New Environment",
+            onClick: () => environmentStore.create(),
+        },
+    ];
+
+    const title = $derived(
+        sidebarStore.isCollections ? "Collections" : "Environments",
+    );
+    const menuItems = $derived(
+        sidebarStore.isCollections ? collectionMenuItems : environmentMenuItems,
+    );
+
+    function handleAdd() {
+        if (sidebarStore.isCollections) {
+            apiStore.createApi();
+        } else {
+            environmentStore.create();
+        }
+    }
 </script>
 
 <aside id="left-panel">
-    <section class="new-actions">
-        <span>Collections</span>
+    <section class="header">
+        <span>{title}</span>
 
         <div class="actions-right">
             <button
                 class="ghost icon-btn"
-                onclick={() => apiStore.createApi()}
-                title="New Request"
+                onclick={handleAdd}
+                title={sidebarStore.isCollections
+                    ? "New Request"
+                    : "New Environment"}
             >
-                {@html AddSvg}
+                <AddIcon />
             </button>
             <ContextMenu items={menuItems} />
         </div>
     </section>
 
-    <SavedApis />
+    {#if sidebarStore.isCollections}
+        <SavedApis />
+    {:else}
+        <EnvList />
+    {/if}
 </aside>
 
 <style>
@@ -45,9 +76,11 @@
         border-right: 0.5px solid var(--border);
         border-top: 0.5px solid var(--border);
         border-bottom: 0.5px solid var(--border);
+        display: flex;
+        flex-direction: column;
     }
 
-    .new-actions {
+    .header {
         height: 50px;
         background: var(--bg-darker);
         padding: 15px 6px 15px 20px;

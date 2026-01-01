@@ -1,5 +1,5 @@
 <script lang="ts">
-    import DotsSvg from "$lib/assets/icons/dots.svg?raw";
+    import DotsIcon from "$lib/ui/icons/DotsIcon.svelte";
     import type { MenuItem } from "$lib/types/menu";
     import { clickOutside } from "$lib/utils/common";
 
@@ -37,7 +37,7 @@
         aria-label="More options"
         aria-expanded={open}
     >
-        {@html DotsSvg}
+        <DotsIcon />
     </button>
 
     {#if open}
