@@ -205,6 +205,7 @@
 
     :global(.kv-input) {
         width: 100% !important;
+        border-radius: 0 !important;
         padding: 8px 12px;
         background: transparent;
         border: none;

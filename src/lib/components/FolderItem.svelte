@@ -206,7 +206,7 @@
         height: 40px;
         border-radius: 8px;
         padding: 7.5px 0 7.5px 8px;
-        border: 2px dashed transparent;
+        border: 1px dashed transparent;
         font-size: 12.5px;
         color: var(--text-secondary);
         transition: all 0.15s ease;

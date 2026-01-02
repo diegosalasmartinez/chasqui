@@ -5,7 +5,7 @@
 
 <VariableInput
     class="url-input"
-    placeholder="https://api.example.com/endpoint"
+    placeholder="Enter URL"
     value={apiStore.api?.request.url || ""}
     oninput={(e) =>
         apiStore.updateApi((a) => ({
@@ -19,15 +19,22 @@
 
 <style>
     :global(.url-input) {
+        background: var(--surface);
+        color: var(--text-primary);
         flex: 1;
         height: 40px;
-        padding: 6px 12px;
+        padding: 8px 12px;
         border-radius: 0;
         font-size: 13px;
         transition: all 0.15s ease;
+        border: 1px solid transparent;
     }
 
     :global(.url-input:focus) {
         outline: none;
+    }
+
+    :global(.url-input:hover) {
+        border: 1px solid var(--border);
     }
 </style>

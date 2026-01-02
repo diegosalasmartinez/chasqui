@@ -1,5 +1,6 @@
 <script lang="ts">
     import { environmentStore } from "$lib/stores/environment.svelte";
+    import { tick } from "svelte";
 
     interface Props {
         value: string;
@@ -17,26 +18,15 @@
         oninput
     }: Props = $props();
 
-    let inputRef: HTMLInputElement | null = $state(null);
+    let editorRef: HTMLDivElement | null = $state(null);
     let showAutocomplete = $state(false);
     let autocompleteIndex = $state(0);
     let autocompletePrefix = $state("");
     let autocompleteStartIndex = $state(0);
-    let cursorPosition = $state(0);
     let dropdownPosition = $state({ top: 0, left: 0, width: 0 });
 
     const variables = $derived(environmentStore.variablesMap);
     const variableNames = $derived(Array.from(variables.keys()));
-
-    function updateDropdownPosition() {
-        if (!inputRef) return;
-        const rect = inputRef.getBoundingClientRect();
-        dropdownPosition = {
-            top: rect.bottom + window.scrollY,
-            left: rect.left + window.scrollX,
-            width: rect.width
-        };
-    }
 
     const filteredVars = $derived.by(() => {
         if (!showAutocomplete) return [];
@@ -44,6 +34,65 @@
         if (prefix === "") return variableNames;
         return variableNames.filter(v => v.toLowerCase().startsWith(prefix));
     });
+
+    function getTextContent(): string {
+        if (!editorRef) return "";
+        return editorRef.innerText || "";
+    }
+
+    function getCursorPosition(): number {
+        const selection = window.getSelection();
+        if (!selection || !editorRef || selection.rangeCount === 0) return 0;
+
+        const range = selection.getRangeAt(0);
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(editorRef);
+        preCaretRange.setEnd(range.startContainer, range.startOffset);
+        return preCaretRange.toString().length;
+    }
+
+    function setCursorPosition(pos: number) {
+        if (!editorRef) return;
+
+        const selection = window.getSelection();
+        if (!selection) return;
+
+        let currentPos = 0;
+        const walker = document.createTreeWalker(editorRef, NodeFilter.SHOW_TEXT, null);
+        let node: Text | null;
+
+        while ((node = walker.nextNode() as Text | null)) {
+            const nodeLength = node.length;
+            if (currentPos + nodeLength >= pos) {
+                const range = document.createRange();
+                range.setStart(node, pos - currentPos);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                return;
+            }
+            currentPos += nodeLength;
+        }
+    }
+
+    function renderContent(text: string): string {
+        if (!text) return "";
+        return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+            const exists = variables.has(varName);
+            const cls = exists ? "var-resolved" : "var-unresolved";
+            return `<span class="${cls}">{{${varName}}}</span>`;
+        });
+    }
+
+    function updateDropdownPosition() {
+        if (!editorRef) return;
+        const rect = editorRef.getBoundingClientRect();
+        dropdownPosition = {
+            top: rect.bottom,
+            left: rect.left,
+            width: rect.width
+        };
+    }
 
     function checkAutocomplete(text: string, pos: number) {
         const beforeCursor = text.slice(0, pos);
@@ -58,50 +107,87 @@
         }
     }
 
-    function handleInput(e: Event & { currentTarget: HTMLInputElement }) {
-        const pos = e.currentTarget.selectionStart || 0;
-        cursorPosition = pos;
-        checkAutocomplete(e.currentTarget.value, pos);
+    function handleInput() {
+        const text = getTextContent();
+        const pos = getCursorPosition();
+
+        // Re-render to fix any styling issues from contenteditable
+        if (editorRef) {
+            const rendered = renderContent(text);
+            if (editorRef.innerHTML !== rendered) {
+                editorRef.innerHTML = rendered;
+                setCursorPosition(pos);
+            }
+        }
+
+        // Emit event with fake input target
+        if (oninput) {
+            const event = new Event("input", { bubbles: true }) as Event & { currentTarget: HTMLInputElement };
+            Object.defineProperty(event, "currentTarget", {
+                value: { value: text },
+                writable: false
+            });
+            oninput(event);
+        }
+
+        checkAutocomplete(text, pos);
         autocompleteIndex = 0;
-        oninput?.(e);
     }
 
     function handleKeydown(e: KeyboardEvent) {
-        if (!showAutocomplete || filteredVars.length === 0) return;
+        if (showAutocomplete && filteredVars.length > 0) {
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                autocompleteIndex = (autocompleteIndex + 1) % filteredVars.length;
+                return;
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                autocompleteIndex = (autocompleteIndex - 1 + filteredVars.length) % filteredVars.length;
+                return;
+            } else if (e.key === "Enter" || e.key === "Tab") {
+                e.preventDefault();
+                insertVariable(filteredVars[autocompleteIndex]);
+                return;
+            } else if (e.key === "Escape") {
+                showAutocomplete = false;
+                return;
+            }
+        }
 
-        if (e.key === "ArrowDown") {
+        // Prevent Enter from creating new lines
+        if (e.key === "Enter") {
             e.preventDefault();
-            autocompleteIndex = (autocompleteIndex + 1) % filteredVars.length;
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            autocompleteIndex = (autocompleteIndex - 1 + filteredVars.length) % filteredVars.length;
-        } else if (e.key === "Enter" || e.key === "Tab") {
-            e.preventDefault();
-            insertVariable(filteredVars[autocompleteIndex]);
-        } else if (e.key === "Escape") {
-            showAutocomplete = false;
         }
     }
 
-    function insertVariable(varName: string) {
-        if (!inputRef) return;
+    async function insertVariable(varName: string) {
+        if (!editorRef) return;
 
-        const before = value.slice(0, autocompleteStartIndex);
-        const after = value.slice(cursorPosition);
+        const text = getTextContent();
+        const pos = getCursorPosition();
+        const before = text.slice(0, autocompleteStartIndex);
+        const after = text.slice(pos);
         const newValue = `${before}{{${varName}}}${after}`;
+        const newPos = before.length + varName.length + 4;
 
-        inputRef.value = newValue;
-        const event = new Event("input", { bubbles: true }) as Event & { currentTarget: HTMLInputElement };
-        Object.defineProperty(event, "currentTarget", { value: inputRef });
-        oninput?.(event);
+        // Update the content
+        editorRef.innerHTML = renderContent(newValue);
+
+        // Emit the change
+        if (oninput) {
+            const event = new Event("input", { bubbles: true }) as Event & { currentTarget: HTMLInputElement };
+            Object.defineProperty(event, "currentTarget", {
+                value: { value: newValue },
+                writable: false
+            });
+            oninput(event);
+        }
 
         showAutocomplete = false;
 
-        const newPos = before.length + varName.length + 4;
-        setTimeout(() => {
-            inputRef?.setSelectionRange(newPos, newPos);
-            inputRef?.focus();
-        }, 0);
+        await tick();
+        setCursorPosition(newPos);
+        editorRef?.focus();
     }
 
     function handleBlur() {
@@ -111,24 +197,58 @@
     }
 
     function handleClick() {
-        const pos = inputRef?.selectionStart || 0;
-        cursorPosition = pos;
-        checkAutocomplete(value, pos);
+        const text = getTextContent();
+        const pos = getCursorPosition();
+        checkAutocomplete(text, pos);
     }
+
+    function handlePaste(e: ClipboardEvent) {
+        e.preventDefault();
+        const text = e.clipboardData?.getData("text/plain") || "";
+        document.execCommand("insertText", false, text);
+    }
+
+    // Sync external value changes to editor
+    $effect(() => {
+        if (editorRef && value !== getTextContent()) {
+            const pos = getCursorPosition();
+            editorRef.innerHTML = renderContent(value);
+            // Try to restore cursor position
+            if (document.activeElement === editorRef) {
+                setCursorPosition(Math.min(pos, value.length));
+            }
+        }
+    });
+
+    // Re-render when variables change (to update resolved/unresolved status)
+    $effect(() => {
+        // Access variables to create dependency
+        const _ = variables.size;
+        if (editorRef && value) {
+            const pos = getCursorPosition();
+            editorRef.innerHTML = renderContent(value);
+            if (document.activeElement === editorRef) {
+                setCursorPosition(Math.min(pos, value.length));
+            }
+        }
+    });
 </script>
 
-<input
-    bind:this={inputRef}
-    type="text"
-    class={className}
-    {placeholder}
-    {value}
-    {disabled}
+<div
+    bind:this={editorRef}
+    class="{className} variable-input"
+    class:disabled
+    contenteditable={!disabled}
+    role="textbox"
+    aria-placeholder={placeholder}
+    data-placeholder={placeholder}
+    spellcheck="false"
     oninput={handleInput}
     onkeydown={handleKeydown}
     onblur={handleBlur}
     onclick={handleClick}
-/>
+    onpaste={handlePaste}
+></div>
 
 {#if showAutocomplete && filteredVars.length > 0}
     <ul class="autocomplete-list" style="top: {dropdownPosition.top}px; left: {dropdownPosition.left}px; width: {dropdownPosition.width}px;">
@@ -149,6 +269,37 @@
 {/if}
 
 <style>
+    :global(.variable-input) {
+        cursor: text;
+        white-space: pre;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    :global(.variable-input:empty::before) {
+        content: attr(data-placeholder);
+        color: var(--text-secondary);
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    :global(.variable-input:focus) {
+        outline: none;
+    }
+
+    :global(.variable-input.disabled) {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    :global(.variable-input .var-resolved) {
+        color: var(--orange);
+    }
+
+    :global(.variable-input .var-unresolved) {
+        color: var(--red);
+    }
+
     .autocomplete-list {
         position: fixed;
         z-index: 1000;
@@ -165,8 +316,8 @@
 
     .autocomplete-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 12px;
         width: 100%;
         padding: 6px 10px;
         background: transparent;
@@ -186,12 +337,12 @@
     .var-name {
         color: var(--orange);
         font-weight: 500;
+        flex-shrink: 0;
     }
 
     .var-value {
         color: var(--text-secondary);
         font-size: 11px;
-        max-width: 150px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
