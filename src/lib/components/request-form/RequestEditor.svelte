@@ -99,7 +99,6 @@
 
 <style>
     form {
-        border-top: 0.5px solid var(--border);
         border-right: 0.5px solid var(--border);
         border-bottom: 0.5px solid var(--border);
         background: var(--bg-darker);

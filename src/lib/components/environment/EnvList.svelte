@@ -130,12 +130,12 @@
         opacity: 0;
     }
 
-    .env-item:hover :global(.menu-trigger),
+    .env-item.selected :global(.menu-trigger),
     .env-item :global(.menu-trigger.open) {
         opacity: 0.6;
     }
 
-    .env-item :global(.menu-trigger:hover),
+    .env-item.selected :global(.menu-trigger:hover),
     .env-item :global(.menu-trigger.open) {
         opacity: 1;
     }

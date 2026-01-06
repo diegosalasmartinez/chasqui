@@ -4,8 +4,8 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
     import EnvList from "$lib/components/environment/EnvList.svelte";
-    import SavedApis from "$lib/components/SavedApis.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
+    import ApiList from "$lib/components/ApiList.svelte";
     import AddIcon from "$lib/ui/icons/AddIcon.svelte";
 
     const collectionMenuItems = [
@@ -61,7 +61,7 @@
     </section>
 
     {#if sidebarStore.isCollections}
-        <SavedApis />
+        <ApiList />
     {:else}
         <EnvList />
     {/if}
@@ -74,7 +74,6 @@
         width: 100%;
         color: var(--text-secondary);
         border-right: 0.5px solid var(--border);
-        border-top: 0.5px solid var(--border);
         border-bottom: 0.5px solid var(--border);
         display: flex;
         flex-direction: column;

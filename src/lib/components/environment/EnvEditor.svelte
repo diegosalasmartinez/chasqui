@@ -10,7 +10,10 @@
     function addRow() {
         if (!env) return;
         const newVar: EnvVariable = { key: "", value: "" };
-        environmentStore.updateLocal(env.id, undefined, [...env.variables, newVar]);
+        environmentStore.updateLocal(env.id, undefined, [
+            ...env.variables,
+            newVar,
+        ]);
     }
 
     function updateKey(index: number, key: string) {
@@ -19,7 +22,11 @@
         const variable = updated[index];
         // Set initial_value when key is first set
         if (!variable.initial_value && variable.value) {
-            updated[index] = { ...variable, key, initial_value: variable.value };
+            updated[index] = {
+                ...variable,
+                key,
+                initial_value: variable.value,
+            };
         } else {
             updated[index] = { ...variable, key };
         }
@@ -42,7 +49,10 @@
     function updateInitialValue(index: number, initial_value: string) {
         if (!env) return;
         const updated = [...env.variables];
-        updated[index] = { ...updated[index], initial_value: initial_value || undefined };
+        updated[index] = {
+            ...updated[index],
+            initial_value: initial_value || undefined,
+        };
         environmentStore.updateLocal(env.id, undefined, updated);
     }
 
@@ -63,7 +73,10 @@
     }
 
     function hasChanged(variable: EnvVariable): boolean {
-        return !!variable.initial_value && variable.value !== variable.initial_value;
+        return (
+            !!variable.initial_value &&
+            variable.value !== variable.initial_value
+        );
     }
 </script>
 
@@ -85,7 +98,10 @@
                     </div>
 
                     {#each env.variables as variable, i}
-                        <div class="kv-row" class:changed={hasChanged(variable)}>
+                        <div
+                            class="kv-row"
+                            class:changed={hasChanged(variable)}
+                        >
                             <div class="col-key">
                                 <input
                                     type="text"
@@ -107,7 +123,10 @@
                                     placeholder="Initial value"
                                     value={variable.initial_value || ""}
                                     oninput={(e) =>
-                                        updateInitialValue(i, e.currentTarget.value)}
+                                        updateInitialValue(
+                                            i,
+                                            e.currentTarget.value,
+                                        )}
                                     autocomplete="off"
                                     autocorrect="off"
                                     autocapitalize="off"
@@ -155,7 +174,11 @@
 
                 <button type="button" class="btn-add" onclick={addRow}>
                     <PlusIcon size={16} />
-                    <span>Add {env.variables.length === 0 ? "Variable" : "Row"}</span>
+                    <span
+                        >Add {env.variables.length === 0
+                            ? "Variable"
+                            : "Row"}</span
+                    >
                 </button>
             </div>
         </div>
@@ -168,12 +191,12 @@
         display: flex;
         flex-direction: column;
         background: var(--bg);
-        border-top: 0.5px solid var(--border);
     }
 
     .editor-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--border);
+        height: 50px;
+        padding: 12px 20px;
+        border-bottom: 0.5px solid var(--border);
         display: flex;
         align-items: baseline;
         gap: 12px;
@@ -205,7 +228,7 @@
     }
 
     .kv-table {
-        border: 1px solid var(--border);
+        border: 0.5px solid var(--border);
         border-radius: 6px;
         overflow: hidden;
         background: var(--bg);
@@ -221,7 +244,7 @@
         color: var(--text-secondary);
         text-transform: uppercase;
         background: var(--bg);
-        border-bottom: 1px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
     }
 
     .kv-header div {
@@ -233,7 +256,7 @@
         display: grid;
         grid-template-columns: 0.8fr 1fr 1fr 60px;
         gap: 0;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
         transition: background 0.1s ease;
     }
 
@@ -251,7 +274,7 @@
         display: flex;
         align-items: center;
         padding: 0;
-        border-right: 1px solid var(--border);
+        border-right: 0.5px solid var(--border);
     }
 
     .kv-input {

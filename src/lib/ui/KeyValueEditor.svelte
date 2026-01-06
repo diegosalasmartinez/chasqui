@@ -132,7 +132,7 @@
     }
 
     .kv-table {
-        border: 1px solid var(--border);
+        border: 0.5px solid var(--border);
         border-radius: 6px;
         overflow: hidden;
         background: var(--bg);
@@ -148,7 +148,7 @@
         color: var(--text-secondary);
         text-transform: uppercase;
         background: var(--bg);
-        border-bottom: 1px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
     }
 
     .kv-header div {
@@ -160,7 +160,7 @@
         display: grid;
         grid-template-columns: 32px 1fr 1fr 32px;
         gap: 0;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
         transition: background 0.1s ease;
     }
 
@@ -181,7 +181,7 @@
         align-items: center;
         justify-content: center;
         padding: 0 8px;
-        border-right: 1px solid var(--border);
+        border-right: 0.5px solid var(--border);
     }
 
     .col-checkbox input[type="checkbox"] {
@@ -197,10 +197,12 @@
         align-items: center;
         padding: 0;
         width: 100%;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .col-key {
-        border-right: 1px solid var(--border);
+        border-right: 0.5px solid var(--border);
     }
 
     :global(.kv-input) {
@@ -213,6 +215,9 @@
         color: var(--text-primary);
         box-shadow: none;
         transition: background 0.1s ease;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
     }
 
     :global(.kv-input:focus) {

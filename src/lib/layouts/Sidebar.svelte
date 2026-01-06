@@ -40,6 +40,7 @@
         padding: 10px 0;
         background: var(--bg-darker);
         border: 0.5px solid var(--border);
+        border-top: 0;
         display: flex;
         flex-direction: column;
         align-items: center;

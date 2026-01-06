@@ -93,6 +93,5 @@
         height: 100%;
         color: var(--text-tertiary);
         font-size: 14px;
-        border-top: 0.5px solid var(--border);
     }
 </style>
