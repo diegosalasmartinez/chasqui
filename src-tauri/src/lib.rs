@@ -13,6 +13,7 @@ pub fn run() {
             commands::http::move_api,
             commands::http::send_request,
             commands::http::list_history,
+            commands::http::clear_history,
             commands::http::list_apis,
             commands::folder::create_folder,
             commands::folder::update_folder,

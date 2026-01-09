@@ -1,15 +1,13 @@
-use crate::core::models::{EnvVariable, Environment};
-use serde_json::{json, Value};
+use crate::core::{
+    models::{EnvVariable, Environment},
+    storage::{self, keys},
+};
 use tauri::AppHandle;
-use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
 #[tauri::command]
 pub fn list_environments(app: AppHandle) -> Result<Vec<Environment>, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("environments").unwrap_or(json!([]));
-    let environments: Vec<Environment> = serde_json::from_value(val).unwrap_or_default();
-    Ok(environments)
+    storage::get_list(&app, keys::ENVIRONMENTS)
 }
 
 #[tauri::command]
@@ -18,9 +16,7 @@ pub async fn create_environment(
     name: String,
     workspaceId: Option<String>,
 ) -> Result<Environment, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("environments").unwrap_or(json!([]));
-    let mut environments: Vec<Environment> = serde_json::from_value(val).unwrap_or_default();
+    let mut environments: Vec<Environment> = storage::get_list(&app, keys::ENVIRONMENTS)?;
 
     let environment = Environment {
         id: Uuid::new_v4().to_string(),
@@ -30,8 +26,7 @@ pub async fn create_environment(
     };
 
     environments.push(environment.clone());
-    store.set("environments", serde_json::to_value(&environments).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_list_and_save(&app, keys::ENVIRONMENTS, &environments)?;
 
     Ok(environment)
 }
@@ -43,9 +38,7 @@ pub async fn update_environment(
     name: Option<String>,
     variables: Option<Vec<EnvVariable>>,
 ) -> Result<Environment, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("environments").unwrap_or(json!([]));
-    let mut environments: Vec<Environment> = serde_json::from_value(val).unwrap_or_default();
+    let mut environments: Vec<Environment> = storage::get_list(&app, keys::ENVIRONMENTS)?;
 
     let environment = environments
         .iter_mut()
@@ -61,17 +54,14 @@ pub async fn update_environment(
 
     let updated = environment.clone();
 
-    store.set("environments", serde_json::to_value(&environments).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_list_and_save(&app, keys::ENVIRONMENTS, &environments)?;
 
     Ok(updated)
 }
 
 #[tauri::command]
 pub async fn delete_environment(app: AppHandle, id: String) -> Result<(), String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("environments").unwrap_or(json!([]));
-    let mut environments: Vec<Environment> = serde_json::from_value(val).unwrap_or_default();
+    let mut environments: Vec<Environment> = storage::get_list(&app, keys::ENVIRONMENTS)?;
 
     let before = environments.len();
     environments.retain(|e| e.id != id);
@@ -80,8 +70,7 @@ pub async fn delete_environment(app: AppHandle, id: String) -> Result<(), String
         return Err("Environment not found".into());
     }
 
-    store.set("environments", serde_json::to_value(&environments).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_list_and_save(&app, keys::ENVIRONMENTS, &environments)?;
 
     Ok(())
 }

@@ -74,6 +74,7 @@ pub struct Response {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct HistoryItem {
+    pub id: String,
     pub at_ms: u128,
     pub request: Request,
     pub response: Response,

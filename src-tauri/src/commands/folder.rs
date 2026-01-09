@@ -1,7 +1,8 @@
-use crate::core::models::{Api, Folder};
-use serde_json::{json, Value};
+use crate::core::{
+    models::{Api, Folder},
+    storage::{self, keys},
+};
 use tauri::AppHandle;
-use tauri_plugin_store::StoreExt;
 use uuid::Uuid;
 
 #[tauri::command]
@@ -10,9 +11,7 @@ pub async fn create_folder(
     name: String,
     parent_id: Option<String>,
 ) -> Result<Folder, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("folders").unwrap_or(json!([]));
-    let mut folders: Vec<Folder> = serde_json::from_value(val).unwrap_or_default();
+    let mut folders: Vec<Folder> = storage::get_list(&app, keys::FOLDERS)?;
 
     // Validate parent exists if provided
     if let Some(ref pid) = parent_id {
@@ -28,8 +27,7 @@ pub async fn create_folder(
     };
 
     folders.push(folder.clone());
-    store.set("folders", serde_json::to_value(&folders).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_list_and_save(&app, keys::FOLDERS, &folders)?;
 
     Ok(folder)
 }
@@ -41,9 +39,7 @@ pub async fn update_folder(
     name: Option<String>,
     parent_id: Option<Option<String>>,
 ) -> Result<Folder, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("folders").unwrap_or(json!([]));
-    let mut folders: Vec<Folder> = serde_json::from_value(val).unwrap_or_default();
+    let mut folders: Vec<Folder> = storage::get_list(&app, keys::FOLDERS)?;
 
     // Validate new parent exists if provided
     if let Some(Some(ref pid)) = parent_id {
@@ -70,19 +66,14 @@ pub async fn update_folder(
 
     let updated = folder.clone();
 
-    store.set("folders", serde_json::to_value(&folders).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_list_and_save(&app, keys::FOLDERS, &folders)?;
 
     Ok(updated)
 }
 
 #[tauri::command]
 pub async fn delete_folder(app: AppHandle, id: String) -> Result<(), String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-
-    // Get folders
-    let folders_val: Value = store.get("folders").unwrap_or(json!([]));
-    let mut folders: Vec<Folder> = serde_json::from_value(folders_val).unwrap_or_default();
+    let mut folders: Vec<Folder> = storage::get_list(&app, keys::FOLDERS)?;
 
     // Find the folder to delete
     let folder = folders
@@ -102,8 +93,7 @@ pub async fn delete_folder(app: AppHandle, id: String) -> Result<(), String> {
     folders.retain(|f| f.id != id);
 
     // Move APIs in this folder to parent (or root)
-    let apis_val: Value = store.get("apis").unwrap_or(json!([]));
-    let mut apis: Vec<Api> = serde_json::from_value(apis_val).unwrap_or_default();
+    let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
     for api in apis.iter_mut() {
         if api.folder_id.as_ref() == Some(&id) {
@@ -112,18 +102,12 @@ pub async fn delete_folder(app: AppHandle, id: String) -> Result<(), String> {
     }
 
     // Persist changes
-    store.set("folders", serde_json::to_value(&folders).unwrap());
-    store.set("apis", serde_json::to_value(&apis).unwrap());
-    store.save().map_err(|e| e.to_string())?;
+    storage::set_lists_and_save(&app, keys::FOLDERS, &folders, keys::APIS, &apis)?;
 
     Ok(())
 }
 
 #[tauri::command]
 pub fn list_folders(app: AppHandle) -> Result<Vec<Folder>, String> {
-    let store = app.store("db.json").map_err(|e| e.to_string())?;
-    let val: Value = store.get("folders").unwrap_or(json!([]));
-    let folders: Vec<Folder> = serde_json::from_value(val).unwrap_or_default();
-
-    Ok(folders)
+    storage::get_list(&app, keys::FOLDERS)
 }
