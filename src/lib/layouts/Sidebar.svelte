@@ -1,8 +1,9 @@
 <script lang="ts">
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
-    import FolderIcon from "$lib/ui/icons/FolderIcon.svelte";
     import SettingsIcon from "$lib/ui/icons/SettingsIcon.svelte";
+    import HistoryIcon from "$lib/ui/icons/HistoryIcon.svelte";
+    import FolderIcon from "$lib/ui/icons/FolderIcon.svelte";
 </script>
 
 <aside id="sidebar">
@@ -25,6 +26,14 @@
                 title="Environments"
             >
                 <SettingsIcon />
+            </button>
+            <button
+                class="nav-btn"
+                class:active={sidebarStore.isHistory}
+                onclick={() => sidebarStore.setView("history")}
+                title="History"
+            >
+                <HistoryIcon />
             </button>
         </nav>
     </div>

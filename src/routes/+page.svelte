@@ -1,9 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { environmentStore } from "$lib/stores/environment.svelte";
+    import { historyStore } from "$lib/stores/history.svelte";
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import HistoryRequestViewer from "$lib/components/history/HistoryRequestViewer.svelte";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
     import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
@@ -19,6 +21,7 @@
             apiStore.listApis(),
             folderStore.load(),
             environmentStore.load(),
+            historyStore.load(),
         ]);
     });
 </script>
@@ -31,9 +34,23 @@
 
         <section
             class="main-panel"
-            class:single-column={sidebarStore.isEnvironments || !apiStore.api}
+            class:single-column={sidebarStore.isEnvironments ||
+                (!sidebarStore.isHistory && !apiStore.api) ||
+                (sidebarStore.isHistory && !historyStore.selected)}
         >
-            {#if sidebarStore.isEnvironments}
+            {#if sidebarStore.isHistory}
+                {#if historyStore.selected}
+                    <HistoryRequestViewer
+                        request={historyStore.selected.request}
+                        timestamp={historyStore.selected.at_ms}
+                    />
+                    <ResponseViewer response={historyStore.selected.response} />
+                {:else}
+                    <div class="empty-panel">
+                        <p>Select a history entry to view details</p>
+                    </div>
+                {/if}
+            {:else if sidebarStore.isEnvironments}
                 {#if environmentStore.selected}
                     <EnvEditor />
                 {:else}
@@ -80,6 +97,7 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         min-height: 0;
+        overflow: hidden;
     }
 
     .main-panel.single-column {

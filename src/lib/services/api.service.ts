@@ -1,4 +1,4 @@
-import type { Request } from '$lib/types/http'
+import type { Request, SendRequestResult } from '$lib/types/http'
 import { toastStore } from '$lib/stores/toast.svelte';
 import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge } from "$lib/infra/tauri";
 
@@ -33,7 +33,7 @@ class ApiService {
         }
     }
 
-    async sendRequest(req: Request) {
+    async sendRequest(req: Request): Promise<SendRequestResult | undefined> {
         try {
             return await sendRequestBridge(req);
         } catch (err) {

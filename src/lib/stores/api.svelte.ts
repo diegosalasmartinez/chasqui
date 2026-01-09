@@ -1,8 +1,9 @@
-import { apiService } from '$lib/services/api.service'
 import type { Response, Api, Request } from '$lib/types/http'
-import { bodyPrettify } from '$lib/utils/common'
 import { applyVariableSubstitution } from '$lib/utils/variables'
+import { bodyPrettify } from '$lib/utils/common'
 import { environmentStore } from '$lib/stores/environment.svelte'
+import { historyStore } from '$lib/stores/history.svelte'
+import { apiService } from '$lib/services/api.service'
 
 const defaultRequest = (): Request => ({
     method: 'GET',
@@ -120,15 +121,15 @@ class ApiStore {
         const variables = environmentStore.variablesMap
         const substitutedRequest = applyVariableSubstitution(request, variables)
 
-        const responseRaw = await apiService.sendRequest(substitutedRequest)
-        if (responseRaw) {
+        const result = await apiService.sendRequest(substitutedRequest)
+        if (result) {
             const response: Response = {
-                status: responseRaw.status,
-                headers: responseRaw.headers,
-                body: bodyPrettify(responseRaw.body),
-                at_ms: responseRaw.at_ms,
-                duration_ms: responseRaw.duration_ms,
-                size_bytes: responseRaw.size_bytes
+                status: result.response.status,
+                headers: result.response.headers,
+                body: bodyPrettify(result.response.body),
+                at_ms: result.response.at_ms,
+                duration_ms: result.response.duration_ms,
+                size_bytes: result.response.size_bytes
             }
             this.currentResponse = response
 
@@ -137,6 +138,12 @@ class ApiStore {
                 map.set(this.api.id, response)
                 this.lastResponses = map
             }
+
+            // Add to history store (with prettified body)
+            historyStore.addEntry({
+                ...result.history_entry,
+                response: response
+            })
         }
         this.currentResponseLoading = false;
     }

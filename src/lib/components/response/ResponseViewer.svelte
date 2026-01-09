@@ -1,56 +1,60 @@
 <script lang="ts">
+    import type { Response } from "$lib/types/http";
     import { apiStore } from "$lib/stores/api.svelte";
-    import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import ResponseHeaders from "$lib/components/response/ResponseHeaders.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
     import JsonViewer from "../JsonViewer.svelte";
 
+    interface Props {
+        response?: Response;
+    }
+
+    let { response: propResponse }: Props = $props();
+
     let activeTab = $state<"body" | "headers">("body");
 
-    const body = $derived(apiStore.currentResponse?.body);
-    const headers = $derived(apiStore.currentResponse?.headers);
+    const response = $derived(propResponse ?? apiStore.currentResponse);
+    const headers = $derived(response?.headers);
+    const body = $derived(response?.body);
 </script>
 
-{#if apiStore.currentResponse}
-    {#if apiStore.currentResponseLoading}
-        <ResponseLoading />
-    {:else}
-        <section class="response">
-            <div class="header">
-                <div class="tabs" role="tablist" aria-label="Response content">
-                    <TabButton
-                        text="Body"
-                        isActive={activeTab === "body"}
-                        onClick={() => (activeTab = "body")}
-                    />
-                    <TabButton
-                        text="Headers"
-                        isActive={activeTab === "headers"}
-                        onClick={() => (activeTab = "headers")}
-                    />
-                </div>
-
-                <ResponseStats />
+{#if response}
+    <section class="response">
+        <div class="header">
+            <div class="tabs" role="tablist" aria-label="Response content">
+                <TabButton
+                    text="Body"
+                    isActive={activeTab === "body"}
+                    onClick={() => (activeTab = "body")}
+                />
+                <TabButton
+                    text="Headers"
+                    isActive={activeTab === "headers"}
+                    onClick={() => (activeTab = "headers")}
+                />
             </div>
 
-            <div role="tabpanel" class="panel">
-                {#if activeTab === "body"}
-                    <JsonViewer value={body} />
-                {:else}
-                    <ResponseHeaders headers={headers ?? []} />
-                {/if}
-            </div>
-        </section>
-    {/if}
+            <ResponseStats {response} />
+        </div>
+
+        <div role="tabpanel" class="panel">
+            {#if activeTab === "body"}
+                <JsonViewer value={body} />
+            {:else}
+                <ResponseHeaders headers={headers ?? []} />
+            {/if}
+        </div>
+    </section>
 {/if}
 
 <style>
     .response {
-        height: 100dvh;
+        height: 100%;
         display: flex;
         flex-direction: column;
         min-height: 0;
+        overflow: hidden;
     }
 
     .header {

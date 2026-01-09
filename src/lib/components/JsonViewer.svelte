@@ -165,6 +165,8 @@
         font-family: "Consolas", "Monaco", "Courier New", monospace;
         font-size: 13px;
         line-height: 1.5;
+        flex: 1;
+        min-height: 0;
     }
 
     /* TODO: Update this colors for white mode */

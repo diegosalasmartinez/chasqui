@@ -1,6 +1,13 @@
 <script lang="ts">
+    import type { Response } from "$lib/types/http";
     import { apiStore } from "$lib/stores/api.svelte";
     import { fmtMs, fmtBytes } from "$lib/utils/common";
+
+    interface Props {
+        response?: Response;
+    }
+
+    let { response: propResponse }: Props = $props();
 
     const statusTint = (code?: number) => {
         if (typeof code !== "number") return "neutral";
@@ -10,7 +17,7 @@
         return "err";
     };
 
-    let response = $derived(apiStore.currentResponse);
+    let response = $derived(propResponse ?? apiStore.currentResponse);
 </script>
 
 {#if response}

@@ -4,6 +4,7 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { dragStore } from "$lib/stores/drag.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import ChevronIcon from "$lib/ui/icons/ChevronIcon.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
 
     type Props = {
@@ -137,7 +138,9 @@
         tabindex="0"
     >
         <button class="folder-toggle" onclick={toggle}>
-            <span class="chevron">{isExpanded ? "▼" : "▶"}</span>
+            <span class="chevron" class:collapsed={!isExpanded}>
+                <ChevronIcon size={12} />
+            </span>
         </button>
         {#if isEditing}
             <input
@@ -240,9 +243,14 @@
     }
 
     .chevron {
-        font-size: 8px;
-        width: 12px;
-        opacity: 0.7;
+        display: flex;
+        align-items: center;
+        color: var(--text-tertiary);
+        transition: transform 0.15s ease;
+    }
+
+    .chevron.collapsed {
+        transform: rotate(-90deg);
     }
 
     .folder-name-btn {
@@ -344,7 +352,6 @@
     .method {
         font-size: 11px;
         font-weight: 600;
-        width: 30px;
         text-align: left;
     }
 </style>

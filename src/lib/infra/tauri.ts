@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Request, Api, ResponseRaw, Folder, Environment, EnvVariable } from '$lib/types/http'
+import type { Request, Api, Folder, Environment, EnvVariable, HistoryEntryRaw, SendRequestResult } from '$lib/types/http'
 
 // API bridges
 export async function listApisBridge(): Promise<Api[]> {
@@ -24,8 +24,8 @@ export async function moveApiBridge(id: string, folderId?: string): Promise<Api>
     return await invoke('move_api', payload) as Api
 }
 
-export async function sendRequestBridge(request: Request): Promise<ResponseRaw> {
-    return await invoke('send_request', { request }) as ResponseRaw
+export async function sendRequestBridge(request: Request): Promise<SendRequestResult> {
+    return await invoke('send_request', { request }) as SendRequestResult
 }
 
 // Folder bridges
@@ -60,4 +60,13 @@ export async function updateEnvironmentBridge(id: string, name?: string, variabl
 
 export async function deleteEnvironmentBridge(id: string): Promise<void> {
     return await invoke('delete_environment', { id })
+}
+
+// History bridges
+export async function listHistoryBridge(): Promise<HistoryEntryRaw[]> {
+    return await invoke('list_history') as HistoryEntryRaw[]
+}
+
+export async function clearHistoryBridge(): Promise<void> {
+    return await invoke('clear_history')
 }

@@ -191,6 +191,8 @@
         display: flex;
         flex-direction: column;
         background: var(--bg);
+        min-height: 0;
+        overflow: hidden;
     }
 
     .editor-header {
@@ -218,6 +220,7 @@
         flex: 1;
         overflow-y: auto;
         padding: 20px;
+        min-height: 0;
     }
 
     .kv-editor {

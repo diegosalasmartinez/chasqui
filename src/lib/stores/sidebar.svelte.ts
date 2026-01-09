@@ -1,4 +1,4 @@
-type SidebarView = 'collections' | 'environments'
+type SidebarView = 'collections' | 'environments' | 'history'
 
 class SidebarStore {
     view = $state<SidebarView>('collections')
@@ -13,6 +13,10 @@ class SidebarStore {
 
     get isEnvironments() {
         return this.view === 'environments'
+    }
+
+    get isHistory() {
+        return this.view === 'history'
     }
 }
 

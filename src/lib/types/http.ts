@@ -86,9 +86,23 @@ export type Api = {
     request: Request
 }
 
-export type HistoryItem = {
-    api: Api
+export type HistoryEntryRaw = {
+    id: string
+    at_ms: number
+    request: Request
+    response: ResponseRaw
+}
+
+export type HistoryEntry = {
+    id: string
+    at_ms: number
+    request: Request
     response: Response
+}
+
+export type SendRequestResult = {
+    response: ResponseRaw
+    history_entry: HistoryEntryRaw
 }
 
 export type FolderNode = Folder & {

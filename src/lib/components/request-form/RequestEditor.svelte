@@ -104,6 +104,9 @@
         display: flex;
         flex-direction: column;
         padding: 0;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
     }
 
     .header-bar {
@@ -133,5 +136,7 @@
         background: var(--bg);
         flex: 1;
         padding: 15px;
+        overflow-y: auto;
+        min-height: 0;
     }
 </style>

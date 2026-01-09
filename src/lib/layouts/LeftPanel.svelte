@@ -1,8 +1,10 @@
 <script lang="ts">
     import { environmentStore } from "$lib/stores/environment.svelte";
+    import { historyStore } from "$lib/stores/history.svelte";
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import HistoryList from "$lib/components/history/HistoryList.svelte";
     import EnvList from "$lib/components/environment/EnvList.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
     import ApiList from "$lib/components/ApiList.svelte";
@@ -26,17 +28,36 @@
         },
     ];
 
+    const historyMenuItems = [
+        {
+            label: "Clear History",
+            danger: true,
+            onClick: () => historyStore.clear(),
+        },
+    ];
+
     const title = $derived(
-        sidebarStore.isCollections ? "Collections" : "Environments",
+        sidebarStore.isCollections
+            ? "Collections"
+            : sidebarStore.isEnvironments
+              ? "Environments"
+              : "History",
     );
+
     const menuItems = $derived(
-        sidebarStore.isCollections ? collectionMenuItems : environmentMenuItems,
+        sidebarStore.isCollections
+            ? collectionMenuItems
+            : sidebarStore.isEnvironments
+              ? environmentMenuItems
+              : historyMenuItems,
     );
+
+    const showAddButton = $derived(!sidebarStore.isHistory);
 
     function handleAdd() {
         if (sidebarStore.isCollections) {
             apiStore.createApi();
-        } else {
+        } else if (sidebarStore.isEnvironments) {
             environmentStore.create();
         }
     }
@@ -47,35 +68,40 @@
         <span>{title}</span>
 
         <div class="actions-right">
-            <button
-                class="ghost icon-btn"
-                onclick={handleAdd}
-                title={sidebarStore.isCollections
-                    ? "New Request"
-                    : "New Environment"}
-            >
-                <AddIcon />
-            </button>
+            {#if showAddButton}
+                <button
+                    class="ghost icon-btn"
+                    onclick={handleAdd}
+                    title={sidebarStore.isCollections
+                        ? "New Request"
+                        : "New Environment"}
+                >
+                    <AddIcon />
+                </button>
+            {/if}
             <ContextMenu items={menuItems} />
         </div>
     </section>
 
     {#if sidebarStore.isCollections}
         <ApiList />
-    {:else}
+    {:else if sidebarStore.isEnvironments}
         <EnvList />
+    {:else}
+        <HistoryList />
     {/if}
 </aside>
 
 <style>
     #left-panel {
-        min-height: max-content;
         height: 100%;
         width: 100%;
         color: var(--text-secondary);
         border-right: 0.5px solid var(--border);
         display: flex;
         flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
     }
 
     .header {

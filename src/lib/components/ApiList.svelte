@@ -122,6 +122,8 @@
         display: flex;
         flex-direction: column;
         flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     .root-drop-zone {
@@ -171,7 +173,6 @@
     .method {
         font-size: 11px;
         font-weight: 600;
-        width: 30px;
         text-align: left;
     }
 
