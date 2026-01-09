@@ -1,9 +1,28 @@
 <script lang="ts">
+    import { tick } from "svelte";
     import CopyIcon from "$lib/ui/icons/CopyIcon.svelte";
     import { copyToClipboard } from "$lib/utils/common";
 
-    export let value: unknown;
-    export let indent = 2;
+    interface Props {
+        value: unknown;
+        indent?: number;
+    }
+
+    let { value, indent = 2 }: Props = $props();
+
+    // Cache for highlighted HTML (keyed by raw value reference or hash)
+    const highlightCache = new Map<string, string>();
+    const MAX_CACHE_SIZE = 20;
+
+    let isProcessing = $state(true);
+    let formattedText = $state("");
+    let highlightedHtml = $state("");
+    let isJson = $state(false);
+
+    function getCacheKey(v: unknown): string {
+        if (typeof v === "string") return v.slice(0, 1000);
+        return JSON.stringify(v).slice(0, 1000);
+    }
 
     function tryFormatJson(v: unknown): { text: string; isJson: boolean } {
         if (v !== null && typeof v === "object") {
@@ -46,23 +65,69 @@
         );
     }
 
-    $: formatted = tryFormatJson(value);
-    $: highlighted = formatted.isJson
-        ? highlightJson(formatted.text)
-        : formatted.text;
+    function addToCache(key: string, html: string) {
+        if (highlightCache.size >= MAX_CACHE_SIZE) {
+            const firstKey = highlightCache.keys().next().value;
+            if (firstKey) highlightCache.delete(firstKey);
+        }
+        highlightCache.set(key, html);
+    }
+
+    async function processValue(v: unknown) {
+        isProcessing = true;
+
+        const cacheKey = getCacheKey(v);
+        const cached = highlightCache.get(cacheKey);
+
+        if (cached !== undefined) {
+            const formatted = tryFormatJson(v);
+            formattedText = formatted.text;
+            isJson = formatted.isJson;
+            highlightedHtml = cached;
+            isProcessing = false;
+            return;
+        }
+
+        // Yield to let UI render first
+        await tick();
+        await new Promise(resolve => requestAnimationFrame(resolve));
+
+        const formatted = tryFormatJson(v);
+        formattedText = formatted.text;
+        isJson = formatted.isJson;
+
+        if (formatted.isJson) {
+            const html = highlightJson(formatted.text);
+            highlightedHtml = html;
+            addToCache(cacheKey, html);
+        } else {
+            highlightedHtml = "";
+            addToCache(cacheKey, "");
+        }
+
+        isProcessing = false;
+    }
+
+    $effect(() => {
+        processValue(value);
+    });
 </script>
 
 <div class="code-wrapper">
-    <button
-        class="copy-btn ghost"
-        title="Copy"
-        onclick={() => copyToClipboard(formatted.text)}
-    >
-        <CopyIcon size={14} />
-    </button>
-    <pre class="code"><code
-            >{#if formatted.isJson}{@html highlighted}{:else}{formatted.text}{/if}</code
-        ></pre>
+    {#if isProcessing}
+        <div class="loading">
+            <span class="loading-text">Loading response...</span>
+        </div>
+    {:else}
+        <button
+            class="copy-btn ghost"
+            title="Copy"
+            onclick={() => copyToClipboard(formattedText)}
+        >
+            <CopyIcon size={14} />
+        </button>
+        <pre class="code"><code>{#if isJson}{@html highlightedHtml}{:else}{formattedText}{/if}</code></pre>
+    {/if}
 </div>
 
 <style>
@@ -72,6 +137,20 @@
         display: flex;
         flex-direction: column;
         position: relative;
+    }
+
+    .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        background: var(--surface);
+        border-radius: 10px;
+    }
+
+    .loading-text {
+        font-size: 13px;
+        color: var(--text-secondary);
     }
 
     .code {
@@ -131,4 +210,3 @@
         display: block;
     }
 </style>
-

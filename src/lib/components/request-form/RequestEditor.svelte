@@ -100,7 +100,6 @@
 <style>
     form {
         border-right: 0.5px solid var(--border);
-        border-bottom: 0.5px solid var(--border);
         background: var(--bg-darker);
         display: flex;
         flex-direction: column;
@@ -112,7 +111,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        /*margin-bottom: 10px;*/
         gap: 5px;
         height: 40px;
     }

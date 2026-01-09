@@ -74,7 +74,6 @@
         width: 100%;
         color: var(--text-secondary);
         border-right: 0.5px solid var(--border);
-        border-bottom: 0.5px solid var(--border);
         display: flex;
         flex-direction: column;
     }

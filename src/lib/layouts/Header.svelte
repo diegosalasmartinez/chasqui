@@ -20,7 +20,8 @@
         padding: 0;
         height: 40px;
         background: var(--bg);
-        border: 0.5px solid var(--border);
+        border-top: 0.5px solid var(--border);
+        border-bottom: 0.5px solid var(--border);
     }
 
     .header-left {

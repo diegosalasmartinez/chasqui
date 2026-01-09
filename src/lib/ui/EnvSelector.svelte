@@ -77,6 +77,7 @@
         padding: 6px 10px;
         background: var(--bg);
         border: 0.5px solid var(--border);
+        border-right: 0;
         box-shadow: none;
         border-radius: 0;
         cursor: pointer;
@@ -87,6 +88,7 @@
     .env-trigger:hover {
         background: var(--surface);
         border: 0.5px solid var(--border);
+        border-right: 0;
     }
 
     .env-label {

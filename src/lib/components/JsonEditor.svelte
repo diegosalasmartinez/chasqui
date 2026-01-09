@@ -201,6 +201,9 @@
         border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
+    }
+
+    .container :global(.monaco-editor) {
         padding: 15px 0px;
     }
 
