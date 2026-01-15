@@ -77,18 +77,21 @@ export type Folder = {
     id: string
     name: string
     parent_id?: string
+    workspace_id?: string
 }
 
 export type Api = {
     id?: string
     name: string
     folder_id?: string
+    workspace_id?: string
     request: Request
 }
 
 export type HistoryEntryRaw = {
     id: string
     at_ms: number
+    workspace_id?: string
     request: Request
     response: ResponseRaw
 }
@@ -96,6 +99,7 @@ export type HistoryEntryRaw = {
 export type HistoryEntry = {
     id: string
     at_ms: number
+    workspace_id?: string
     request: Request
     response: Response
 }
@@ -120,4 +124,9 @@ export type Environment = {
     name: string
     workspace_id?: string
     variables: EnvVariable[]
+}
+
+export type Workspace = {
+    id: string
+    name: string
 }

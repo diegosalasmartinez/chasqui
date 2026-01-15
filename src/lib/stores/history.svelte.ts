@@ -1,6 +1,7 @@
 import type { HistoryEntry, HistoryEntryRaw } from '$lib/types/http'
 import { listHistoryBridge, clearHistoryBridge } from '$lib/infra/tauri'
 import { toastStore } from '$lib/stores/toast.svelte'
+import { workspaceStore } from '$lib/stores/workspace.svelte'
 import { bodyPrettify } from '$lib/utils/common'
 
 const HISTORY_LIMIT = 50
@@ -9,6 +10,7 @@ function convertRawEntry(raw: HistoryEntryRaw): HistoryEntry {
     return {
         id: raw.id,
         at_ms: raw.at_ms,
+        workspace_id: raw.workspace_id,
         request: raw.request,
         response: {
             status: raw.response.status,
@@ -22,9 +24,15 @@ function convertRawEntry(raw: HistoryEntryRaw): HistoryEntry {
 }
 
 class HistoryStore {
-    entries = $state<HistoryEntry[]>([])
+    private allEntries = $state<HistoryEntry[]>([])
     selectedId = $state<string | null>(null)
     loading = $state(false)
+
+    get entries(): HistoryEntry[] {
+        const workspaceId = workspaceStore.currentWorkspaceId
+        if (!workspaceId) return []
+        return this.allEntries.filter(e => e.workspace_id === workspaceId)
+    }
 
     get selected(): HistoryEntry | null {
         if (!this.selectedId) return null
@@ -35,7 +43,7 @@ class HistoryStore {
         this.loading = true
         try {
             const rawEntries = await listHistoryBridge()
-            this.entries = rawEntries.map(convertRawEntry)
+            this.allEntries = rawEntries.map(convertRawEntry)
         } catch (err) {
             toastStore.error('Failed to load history: ' + err)
         } finally {
@@ -50,23 +58,27 @@ class HistoryStore {
     // Called by apiStore after a successful request
     addEntry(entry: HistoryEntry) {
         // Add to front
-        this.entries = [entry, ...this.entries]
+        this.allEntries = [entry, ...this.allEntries]
 
-        // Enforce limit
-        if (this.entries.length > HISTORY_LIMIT) {
-            this.entries = this.entries.slice(0, HISTORY_LIMIT)
+        // Enforce limit (across all workspaces)
+        if (this.allEntries.length > HISTORY_LIMIT) {
+            this.allEntries = this.allEntries.slice(0, HISTORY_LIMIT)
         }
     }
 
     async clear() {
         try {
             await clearHistoryBridge()
-            this.entries = []
+            this.allEntries = []
             this.selectedId = null
             toastStore.info('History cleared')
         } catch (err) {
             toastStore.error('Failed to clear history: ' + err)
         }
+    }
+
+    clearSelection() {
+        this.selectedId = null
     }
 }
 

@@ -10,6 +10,7 @@ pub async fn create_folder(
     app: AppHandle,
     name: String,
     parent_id: Option<String>,
+    workspace_id: Option<String>,
 ) -> Result<Folder, String> {
     let mut folders: Vec<Folder> = storage::get_list(&app, keys::FOLDERS)?;
 
@@ -24,6 +25,7 @@ pub async fn create_folder(
         id: Uuid::new_v4().to_string(),
         name,
         parent_id,
+        workspace_id,
     };
 
     folders.push(folder.clone());

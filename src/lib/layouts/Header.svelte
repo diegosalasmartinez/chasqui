@@ -1,10 +1,11 @@
 <script lang="ts">
     import EnvSelector from "$lib/ui/EnvSelector.svelte";
+    import WorkspaceSelector from "$lib/ui/WorkspaceSelector.svelte";
 </script>
 
 <header class="app-header">
     <div class="header-left">
-        <!-- Future: workspace selector -->
+        <WorkspaceSelector />
     </div>
 
     <div class="header-right">

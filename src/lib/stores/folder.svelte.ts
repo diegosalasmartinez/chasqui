@@ -1,9 +1,16 @@
 import { folderService } from '$lib/services/folder.service'
+import { workspaceStore } from '$lib/stores/workspace.svelte'
 import type { Folder, FolderNode } from '$lib/types/http'
 
 class FolderStore {
-    folders = $state<Folder[]>([])
+    private allFolders = $state<Folder[]>([])
     expandedIds = $state<Set<string>>(new Set())
+
+    get folders(): Folder[] {
+        const workspaceId = workspaceStore.currentWorkspaceId
+        if (!workspaceId) return []
+        return this.allFolders.filter(f => f.workspace_id === workspaceId)
+    }
 
     // Build tree structure from flat folders list
     get tree(): FolderNode[] {
@@ -64,13 +71,14 @@ class FolderStore {
     }
 
     async load() {
-        this.folders = await folderService.listFolders()
+        this.allFolders = await folderService.listFolders()
     }
 
     async create(name: string, parentId?: string) {
-        const folder = await folderService.createFolder(name, parentId)
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const folder = await folderService.createFolder(name, parentId, workspaceId)
         if (folder) {
-            this.folders = [...this.folders, folder]
+            this.allFolders = [...this.allFolders, folder]
             // Auto-expand parent if creating inside a folder
             if (parentId) {
                 this.expand(parentId)
@@ -82,14 +90,14 @@ class FolderStore {
     async update(id: string, name?: string, parentId?: string | null) {
         const folder = await folderService.updateFolder(id, name, parentId)
         if (folder) {
-            this.folders = this.folders.map(f => f.id === id ? folder : f)
+            this.allFolders = this.allFolders.map(f => f.id === id ? folder : f)
         }
         return folder
     }
 
     async delete(id: string) {
         await folderService.deleteFolder(id)
-        this.folders = this.folders.filter(f => f.id !== id)
+        this.allFolders = this.allFolders.filter(f => f.id !== id)
         // Remove from expanded set
         this.collapse(id)
     }
@@ -99,7 +107,7 @@ class FolderStore {
     }
 
     getFolder(id: string): Folder | undefined {
-        return this.folders.find(f => f.id === id)
+        return this.allFolders.find(f => f.id === id)
     }
 }
 

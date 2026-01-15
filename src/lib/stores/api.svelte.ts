@@ -3,6 +3,7 @@ import { applyVariableSubstitution } from '$lib/utils/variables'
 import { bodyPrettify } from '$lib/utils/common'
 import { environmentStore } from '$lib/stores/environment.svelte'
 import { historyStore } from '$lib/stores/history.svelte'
+import { workspaceStore } from '$lib/stores/workspace.svelte'
 import { apiService } from '$lib/services/api.service'
 
 const defaultRequest = (): Request => ({
@@ -18,13 +19,19 @@ const defaultRequest = (): Request => ({
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
 class ApiStore {
-    savedApis = $state<Api[]>([])
+    private allApis = $state<Api[]>([])
     savedApisLoading = $state<boolean>(false)
     private currentApi = $state<Api | null>(null)
     private unsavedChanges = $state(new Map<string, Api>())
     currentResponse = $state<Response | null>(null)
     currentResponseLoading = $state<boolean>(false)
     private lastResponses = $state(new Map<string, Response>())
+
+    get savedApis(): Api[] {
+        const workspaceId = workspaceStore.currentWorkspaceId
+        if (!workspaceId) return []
+        return this.allApis.filter(a => a.workspace_id === workspaceId)
+    }
 
     get api(): Api | null {
         if (!this.currentApi) return null
@@ -54,19 +61,25 @@ class ApiStore {
     }
 
     private addApi(newApi: Api) {
-        this.savedApis = [...this.savedApis, newApi]
+        this.allApis = [...this.allApis, newApi]
     }
 
     private replaceApi(api: Api) {
-        this.savedApis = this.savedApis.map(e => e.id === api.id ? api : e)
+        this.allApis = this.allApis.map(e => e.id === api.id ? api : e)
     }
 
     private removeApi(id: string) {
-        this.savedApis = this.savedApis.filter(e => e.id !== id)
+        this.allApis = this.allApis.filter(e => e.id !== id)
+    }
+
+    // Update an API in the list (used after moving)
+    updateApiInList(api: Api) {
+        this.replaceApi(api)
     }
 
     async createApi(folderId?: string) {
-        const apiCreated = await apiService.createApi("New Request", defaultRequest(), folderId)
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const apiCreated = await apiService.createApi("New Request", defaultRequest(), folderId, workspaceId)
         if (apiCreated) {
             this.addApi(apiCreated)
             this.currentApi = apiCreated
@@ -124,7 +137,8 @@ class ApiStore {
         const variables = environmentStore.variablesMap
         const substitutedRequest = applyVariableSubstitution(request, variables)
 
-        const result = await apiService.sendRequest(substitutedRequest)
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const result = await apiService.sendRequest(substitutedRequest, workspaceId)
         if (result) {
             const response: Response = {
                 status: result.response.status,
@@ -152,10 +166,12 @@ class ApiStore {
     }
 
     async duplicateApi(api: Api) {
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
         const duplicated = await apiService.createApi(
             `${api.name} (Copy)`,
             deepClone(api.request),
-            api.folder_id
+            api.folder_id,
+            workspaceId
         )
         if (duplicated) {
             this.addApi(duplicated)
@@ -166,7 +182,12 @@ class ApiStore {
 
     async listApis() {
         const apis = await apiService.listApis()
-        this.savedApis = apis
+        this.allApis = apis
+    }
+
+    clearSelection() {
+        this.currentApi = null
+        this.currentResponse = null
     }
 
     private setUnsaved(id: string, api: Api) {

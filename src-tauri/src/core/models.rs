@@ -76,6 +76,8 @@ pub struct Response {
 pub struct HistoryItem {
     pub id: String,
     pub at_ms: u128,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
     pub request: Request,
     pub response: Response,
 }
@@ -86,6 +88,8 @@ pub struct Folder {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -94,6 +98,8 @@ pub struct Api {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub folder_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub workspace_id: Option<String>,
     pub request: Request,
 }
 
@@ -112,4 +118,10 @@ pub struct Environment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace_id: Option<String>,
     pub variables: Vec<EnvVariable>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Workspace {
+    pub id: String,
+    pub name: String,
 }

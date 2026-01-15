@@ -1,13 +1,13 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Request, Api, Folder, Environment, EnvVariable, HistoryEntryRaw, SendRequestResult } from '$lib/types/http'
+import type { Request, Api, Folder, Environment, EnvVariable, HistoryEntryRaw, SendRequestResult, Workspace } from '$lib/types/http'
 
 // API bridges
 export async function listApisBridge(): Promise<Api[]> {
     return await invoke('list_apis') as Api[]
 }
 
-export async function createApiBridge(name: string, request: Request, folderId?: string): Promise<Api> {
-    return await invoke('create_api', { name, request, folderId }) as Api
+export async function createApiBridge(name: string, request: Request, folderId?: string, workspaceId?: string): Promise<Api> {
+    return await invoke('create_api', { name, request, folderId, workspaceId }) as Api
 }
 
 export async function updateApiBridge(id: string, name: string, request: Request): Promise<Api> {
@@ -24,8 +24,8 @@ export async function moveApiBridge(id: string, folderId?: string): Promise<Api>
     return await invoke('move_api', payload) as Api
 }
 
-export async function sendRequestBridge(request: Request): Promise<SendRequestResult> {
-    return await invoke('send_request', { request }) as SendRequestResult
+export async function sendRequestBridge(request: Request, workspaceId?: string): Promise<SendRequestResult> {
+    return await invoke('send_request', { request, workspaceId }) as SendRequestResult
 }
 
 // Folder bridges
@@ -33,8 +33,8 @@ export async function listFoldersBridge(): Promise<Folder[]> {
     return await invoke('list_folders') as Folder[]
 }
 
-export async function createFolderBridge(name: string, parent_id?: string): Promise<Folder> {
-    return await invoke('create_folder', { name, parent_id }) as Folder
+export async function createFolderBridge(name: string, parent_id?: string, workspace_id?: string): Promise<Folder> {
+    return await invoke('create_folder', { name, parent_id, workspace_id }) as Folder
 }
 
 export async function updateFolderBridge(id: string, name?: string, parent_id?: string | null): Promise<Folder> {
@@ -69,4 +69,21 @@ export async function listHistoryBridge(): Promise<HistoryEntryRaw[]> {
 
 export async function clearHistoryBridge(): Promise<void> {
     return await invoke('clear_history')
+}
+
+// Workspace bridges
+export async function listWorkspacesBridge(): Promise<Workspace[]> {
+    return await invoke('list_workspaces') as Workspace[]
+}
+
+export async function createWorkspaceBridge(name: string): Promise<Workspace> {
+    return await invoke('create_workspace', { name }) as Workspace
+}
+
+export async function updateWorkspaceBridge(id: string, name: string): Promise<Workspace> {
+    return await invoke('update_workspace', { id, name }) as Workspace
+}
+
+export async function deleteWorkspaceBridge(id: string): Promise<void> {
+    return await invoke('delete_workspace', { id })
 }

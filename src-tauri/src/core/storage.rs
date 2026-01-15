@@ -11,6 +11,7 @@ pub mod keys {
     pub const FOLDERS: &str = "folders";
     pub const ENVIRONMENTS: &str = "environments";
     pub const HISTORY: &str = "history";
+    pub const WORKSPACES: &str = "workspaces";
 }
 
 // Get a typed list from the store, returning an empty Vec if not found

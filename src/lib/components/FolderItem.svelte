@@ -82,9 +82,7 @@
 
         const updated = await folderStore.moveApi(apiId, folder.id);
         if (updated) {
-            apiStore.savedApis = apiStore.savedApis.map((a) =>
-                a.id === apiId ? updated : a,
-            );
+            apiStore.updateApiInList(updated);
             folderStore.expand(folder.id);
         }
     }

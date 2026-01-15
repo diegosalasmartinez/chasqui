@@ -17,9 +17,9 @@ class FolderService {
         }
     }
 
-    async createFolder(name: string, parentId?: string) {
+    async createFolder(name: string, parentId?: string, workspaceId?: string) {
         try {
-            const folder = await createFolderBridge(name, parentId)
+            const folder = await createFolderBridge(name, parentId, workspaceId)
             toastStore.info('Folder created')
             return folder
         } catch (err) {

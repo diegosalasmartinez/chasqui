@@ -14,6 +14,7 @@ pub async fn create_api(
     name: String,
     request: Request,
     folderId: Option<String>,
+    workspaceId: Option<String>,
 ) -> Result<Api, String> {
     let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
@@ -21,6 +22,7 @@ pub async fn create_api(
         id: Uuid::new_v4().to_string(),
         name,
         folder_id: folderId,
+        workspace_id: workspaceId,
         request,
     };
     apis.push(record.clone());
@@ -82,7 +84,11 @@ pub struct SendRequestResult {
 }
 
 #[tauri::command]
-pub async fn send_request(app: AppHandle, request: Request) -> Result<SendRequestResult, String> {
+pub async fn send_request(
+    app: AppHandle,
+    request: Request,
+    workspaceId: Option<String>,
+) -> Result<SendRequestResult, String> {
     let out = http_client::send(&request).await?;
 
     let mut hist: Vec<HistoryItem> = storage::get_list(&app, keys::HISTORY)?;
@@ -95,6 +101,7 @@ pub async fn send_request(app: AppHandle, request: Request) -> Result<SendReques
     let history_entry = HistoryItem {
         id: Uuid::new_v4().to_string(),
         at_ms,
+        workspace_id: workspaceId,
         request,
         response: out.clone(),
     };

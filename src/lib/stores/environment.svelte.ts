@@ -1,11 +1,18 @@
 import { environmentService } from '$lib/services/environment.service'
+import { workspaceStore } from '$lib/stores/workspace.svelte'
 import type { Environment, EnvVariable } from '$lib/types/http'
 
 class EnvironmentStore {
-    environments = $state<Environment[]>([])
+    private allEnvironments = $state<Environment[]>([])
     selectedId = $state<string | null>(null)
     private saveTimeout: ReturnType<typeof setTimeout> | null = null
     private pendingSave: { id: string; name?: string; variables?: EnvVariable[] } | null = null
+
+    get environments(): Environment[] {
+        const workspaceId = workspaceStore.currentWorkspaceId
+        if (!workspaceId) return []
+        return this.allEnvironments.filter(e => e.workspace_id === workspaceId)
+    }
 
     get selected(): Environment | null {
         if (!this.selectedId) return null
@@ -26,7 +33,7 @@ class EnvironmentStore {
     }
 
     async load() {
-        this.environments = await environmentService.list()
+        this.allEnvironments = await environmentService.list()
     }
 
     select(id: string | null) {
@@ -34,9 +41,10 @@ class EnvironmentStore {
     }
 
     async create(name: string = "New Environment") {
-        const env = await environmentService.create(name)
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const env = await environmentService.create(name, workspaceId)
         if (env) {
-            this.environments = [...this.environments, env]
+            this.allEnvironments = [...this.allEnvironments, env]
         }
         return env
     }
@@ -44,7 +52,7 @@ class EnvironmentStore {
     // Update locally first, then debounce save to server
     updateLocal(id: string, name?: string, variables?: EnvVariable[]) {
         // Update local state immediately
-        this.environments = this.environments.map(e => {
+        this.allEnvironments = this.allEnvironments.map(e => {
             if (e.id !== id) return e
             return {
                 ...e,
@@ -77,21 +85,25 @@ class EnvironmentStore {
     async update(id: string, name?: string, variables?: EnvVariable[]) {
         const env = await environmentService.update(id, name, variables)
         if (env) {
-            this.environments = this.environments.map(e => e.id === id ? env : e)
+            this.allEnvironments = this.allEnvironments.map(e => e.id === id ? env : e)
         }
         return env
     }
 
     async delete(id: string) {
         await environmentService.delete(id)
-        this.environments = this.environments.filter(e => e.id !== id)
+        this.allEnvironments = this.allEnvironments.filter(e => e.id !== id)
         if (this.selectedId === id) {
             this.selectedId = null
         }
     }
 
     getEnvironment(id: string): Environment | undefined {
-        return this.environments.find(e => e.id === id)
+        return this.allEnvironments.find(e => e.id === id)
+    }
+
+    clearSelection() {
+        this.selectedId = null
     }
 }
 

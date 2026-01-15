@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { workspaceStore } from "$lib/stores/workspace.svelte";
     import { environmentStore } from "$lib/stores/environment.svelte";
     import { historyStore } from "$lib/stores/history.svelte";
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
@@ -17,6 +18,9 @@
     import Header from "$lib/layouts/Header.svelte";
 
     onMount(async () => {
+        // Load workspaces first since other stores filter by workspace
+        await workspaceStore.load();
+
         await Promise.all([
             apiStore.listApis(),
             folderStore.load(),

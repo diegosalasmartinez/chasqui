@@ -3,9 +3,9 @@ import { toastStore } from '$lib/stores/toast.svelte';
 import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge } from "$lib/infra/tauri";
 
 class ApiService {
-    async createApi(name: string, req: Request, folderId?: string) {
+    async createApi(name: string, req: Request, folderId?: string, workspaceId?: string) {
         try {
-            const response = await createApiBridge(name, req, folderId);
+            const response = await createApiBridge(name, req, folderId, workspaceId);
             toastStore.info("Request created")
             return response;
         } catch (err) {
@@ -33,9 +33,9 @@ class ApiService {
         }
     }
 
-    async sendRequest(req: Request): Promise<SendRequestResult | undefined> {
+    async sendRequest(req: Request, workspaceId?: string): Promise<SendRequestResult | undefined> {
         try {
-            return await sendRequestBridge(req);
+            return await sendRequestBridge(req, workspaceId);
         } catch (err) {
             toastStore.error("Error processing the request: " + err)
         }

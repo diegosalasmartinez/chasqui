@@ -51,9 +51,7 @@
         // Move to root (no folder)
         const updated = await folderStore.moveApi(apiId, undefined);
         if (updated) {
-            apiStore.savedApis = apiStore.savedApis.map((a) =>
-                a.id === apiId ? updated : a,
-            );
+            apiStore.updateApiInList(updated);
         }
     }
 
