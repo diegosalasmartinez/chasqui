@@ -39,7 +39,10 @@ class ApiStore {
 
     get hasUnsavedChanges(): boolean {
         if (!this.currentApi?.id) return false
-        return this.unsavedChanges.has(this.currentApi.id)
+        const pending = this.unsavedChanges.get(this.currentApi.id)
+        if (!pending) return false
+        // Compare the pending changes with the original saved API
+        return JSON.stringify(pending.request) !== JSON.stringify(this.currentApi.request)
     }
 
     updateApi(mutator: (a: Api) => Api) {

@@ -2,6 +2,7 @@
     export let onClick: () => void;
     export let isActive: boolean;
     export let text: string;
+    export let hasContent: boolean = false;
 </script>
 
 <button
@@ -13,6 +14,9 @@
     onclick={() => onClick()}
 >
     {text}
+    {#if hasContent}
+        <span class="content-indicator"></span>
+    {/if}
 </button>
 
 <style>
@@ -25,6 +29,7 @@
         font-size: 13px;
         color: var(--text-primary);
         cursor: pointer;
+        position: relative;
     }
 
     .tab:hover {
@@ -33,5 +38,15 @@
 
     .tab.active {
         border-bottom: 1px solid var(--blue);
+    }
+
+    .content-indicator {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--blue);
     }
 </style>

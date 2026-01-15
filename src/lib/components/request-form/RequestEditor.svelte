@@ -34,6 +34,31 @@
         },
     ];
 
+    function tabHasContent(key: Tabs): boolean {
+        const request = apiStore.api?.request;
+        if (!request) return false;
+
+        switch (key) {
+            case "params":
+                return request.params.some((p) => p.key || p.value);
+            case "auth":
+                return request.auth.type !== "none";
+            case "headers":
+                return request.headers.some((h) => h.key || h.value);
+            case "body":
+                if (request.body.type === "none") return false;
+                if (request.body.type === "json" || request.body.type === "text") {
+                    return !!request.body.content;
+                }
+                if (request.body.type === "form-data" || request.body.type === "x-www-form-urlencoded") {
+                    return request.body.data.some((d) => d.key || d.value);
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
     async function onSend() {
         await apiStore.sendRequest();
     }
@@ -79,6 +104,7 @@
                     text={tab.title}
                     isActive={activeTab === tab.key}
                     onClick={() => (activeTab = tab.key)}
+                    hasContent={tabHasContent(tab.key)}
                 />
             {/each}
         </div>

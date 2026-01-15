@@ -40,8 +40,7 @@
         }
 
         return date.toLocaleDateString(undefined, {
-            weekday: "long",
-            month: "short",
+            month: "long",
             day: "numeric",
         });
     }
