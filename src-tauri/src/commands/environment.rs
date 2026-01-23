@@ -14,7 +14,7 @@ pub fn list_environments(app: AppHandle) -> Result<Vec<Environment>, String> {
 pub async fn create_environment(
     app: AppHandle,
     name: String,
-    workspaceId: Option<String>,
+    #[allow(non_snake_case)] workspaceId: Option<String>,
 ) -> Result<Environment, String> {
     let mut environments: Vec<Environment> = storage::get_list(&app, keys::ENVIRONMENTS)?;
 

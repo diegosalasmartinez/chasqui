@@ -5,7 +5,7 @@ use crate::core::{
 use tauri::AppHandle;
 use uuid::Uuid;
 
-const DEFAULT_WORKSPACE_NAME: &str = "Default";
+const DEFAULT_WORKSPACE_NAME: &str = "Default Workspace";
 
 #[tauri::command]
 pub fn list_workspaces(app: AppHandle) -> Result<Vec<Workspace>, String> {

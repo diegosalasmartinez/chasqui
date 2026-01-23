@@ -13,8 +13,8 @@ pub async fn create_api(
     app: AppHandle,
     name: String,
     request: Request,
-    folderId: Option<String>,
-    workspaceId: Option<String>,
+    #[allow(non_snake_case)] folderId: Option<String>,
+    #[allow(non_snake_case)] workspaceId: Option<String>,
 ) -> Result<Api, String> {
     let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
@@ -87,7 +87,7 @@ pub struct SendRequestResult {
 pub async fn send_request(
     app: AppHandle,
     request: Request,
-    workspaceId: Option<String>,
+    #[allow(non_snake_case)] workspaceId: Option<String>,
 ) -> Result<SendRequestResult, String> {
     let out = http_client::send(&request).await?;
 
@@ -138,7 +138,7 @@ pub fn list_apis(app: AppHandle) -> Result<Vec<Api>, String> {
 pub async fn move_api(
     app: AppHandle,
     id: String,
-    folderId: Option<String>,
+    #[allow(non_snake_case)] folderId: Option<String>,
 ) -> Result<Api, String> {
     let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
