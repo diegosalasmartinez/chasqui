@@ -6,7 +6,7 @@ class ApiService {
     async createApi(name: string, req: Request, folderId?: string, workspaceId?: string) {
         try {
             const response = await createApiBridge(name, req, folderId, workspaceId);
-            toastStore.info("Request created")
+            //toastStore.info("Request created")
             return response;
         } catch (err) {
             toastStore.error("Error: " + err)
@@ -16,7 +16,7 @@ class ApiService {
     async updateApi(id: string, name: string, req: Request) {
         try {
             const response = await updateApiBridge(id, name, req);
-            toastStore.info("API updated successfully")
+            //toastStore.info("API updated successfully")
             return response;
         } catch (err) {
             toastStore.error("Error: " + err)

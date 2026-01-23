@@ -64,52 +64,56 @@
 <svelte:window onmouseup={handleGlobalMouseUp} />
 
 <section id="saved-requests">
-    <!-- Folders -->
-    {#each folderStore.tree as folder}
-        <FolderItem {folder} apis={apiStore.savedApis} />
-    {/each}
-
-    <!-- Root drop zone -->
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
-        class="root-drop-zone"
-        class:drag-over={showDropHighlight}
-        data-drop-zone="root"
-        onmouseup={handleMouseUp}
-        role="list"
-    >
-        <!-- Root-level APIs (no folder) -->
-        {#each rootApis as req}
-            <button
-                class="saved-request {req.id === apiStore.api?.id
-                    ? 'active'
-                    : ''}"
-                class:dragging={dragStore.draggingApiId === req.id}
-                onmousedown={(e) => handleMouseDown(e, req)}
-                onclick={() => onSelectApi(req)}
-            >
-                <div class="request-info">
-                    <span
-                        class="method"
-                        style:color={COLORS[req.request.method]}
-                    >
-                        {req.request.method}
-                    </span>
-                    <span class="name">{req.name}</span>
-                </div>
-
-                {#if req.id === apiStore.api?.id}
-                    <ContextMenu items={getMenuItems(req)} />
-                {/if}
-            </button>
+    {#if folderStore.tree.length === 0 && apiStore.savedApis.length === 0}
+        <div class="empty-state">No collections yet</div>
+    {:else}
+        <!-- Folders -->
+        {#each folderStore.tree as folder}
+            <FolderItem {folder} apis={apiStore.savedApis} />
         {/each}
 
-        {#if rootApis.length === 0 && dragStore.draggingApiId}
-            <div class="drop-hint" class:visible={showDropHighlight}>
-                Drop here to move to root
-            </div>
-        {/if}
-    </div>
+        <!-- Root drop zone -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+        <div
+            class="root-drop-zone"
+            class:drag-over={showDropHighlight}
+            data-drop-zone="root"
+            onmouseup={handleMouseUp}
+            role="list"
+        >
+            <!-- Root-level APIs (no folder) -->
+            {#each rootApis as req}
+                <button
+                    class="saved-request {req.id === apiStore.api?.id
+                        ? 'active'
+                        : ''}"
+                    class:dragging={dragStore.draggingApiId === req.id}
+                    onmousedown={(e) => handleMouseDown(e, req)}
+                    onclick={() => onSelectApi(req)}
+                >
+                    <div class="request-info">
+                        <span
+                            class="method"
+                            style:color={COLORS[req.request.method]}
+                        >
+                            {req.request.method}
+                        </span>
+                        <span class="name">{req.name}</span>
+                    </div>
+
+                    {#if req.id === apiStore.api?.id}
+                        <ContextMenu items={getMenuItems(req)} />
+                    {/if}
+                </button>
+            {/each}
+
+            {#if rootApis.length === 0 && dragStore.draggingApiId}
+                <div class="drop-hint" class:visible={showDropHighlight}>
+                    Drop here to move to root
+                </div>
+            {/if}
+        </div>
+    {/if}
 </section>
 
 <style>
@@ -186,4 +190,5 @@
     .drop-hint.visible {
         opacity: 1;
     }
+
 </style>

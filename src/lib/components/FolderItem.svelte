@@ -6,6 +6,7 @@
     import { apiStore } from "$lib/stores/api.svelte";
     import ChevronIcon from "$lib/ui/icons/ChevronIcon.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
+    import FolderItem from "./FolderItem.svelte";
 
     type Props = {
         folder: FolderNode;
@@ -163,7 +164,7 @@
     {#if isExpanded}
         <div class="folder-children">
             {#each folder.children as child}
-                <svelte:self folder={child} {apis} />
+                <FolderItem folder={child} {apis} />
             {/each}
 
             {#each folderApis as api}

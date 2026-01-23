@@ -134,6 +134,13 @@ select:active {
     gap: 4px;
 }
 
+.empty-state {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
 /* Global dragging state */
 body.is-dragging {
     cursor: grabbing !important;

@@ -1,7 +1,6 @@
 <script lang="ts">
     import { apiStore } from "$lib/stores/api.svelte";
     import HttpMethodSelector from "$lib/components/request-form/HttpMethodSelector.svelte";
-    //import InsecureToggle from "$lib/components/request-form/InsecureToggle.svelte";
     import SaveButton from "$lib/components/request-form/SaveButton.svelte";
     import NameField from "$lib/components/request-form/NameField.svelte";
     import UrlInput from "$lib/components/request-form/UrlInput.svelte";
@@ -92,10 +91,6 @@
         <UrlInput />
         <SendButton />
     </div>
-
-    <!--
-    <InsecureToggle />
-    -->
 
     <div class="tabs-container">
         <div class="tabs" role="tablist" aria-label="Response content">

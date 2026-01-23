@@ -58,11 +58,3 @@ export const substituteVariables = (text: string, variables: Map<string, string>
         return value !== undefined ? value : match;
     });
 };
-
-/**
- * Extracts all {{var_name}} variable references from a string
- */
-export const extractVariables = (text: string): string[] => {
-    const matches = text.match(/\{\{(\w+)\}\}/g) || [];
-    return matches.map(m => m.slice(2, -2));
-};

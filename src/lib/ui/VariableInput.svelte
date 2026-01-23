@@ -240,6 +240,7 @@
     class:disabled
     contenteditable={!disabled}
     role="textbox"
+    tabindex={disabled ? -1 : 0}
     aria-placeholder={placeholder}
     data-placeholder={placeholder}
     spellcheck="false"

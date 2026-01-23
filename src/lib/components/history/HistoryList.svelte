@@ -111,44 +111,44 @@
 </script>
 
 <section id="history-list">
-    {#each groupedEntries as group}
-        <div class="day-group">
-            <button class="day-header" onclick={() => toggleDay(group.key)}>
-                <span class="chevron" class:collapsed={!isExpanded(group.key)}>
-                    <ChevronIcon size={12} />
-                </span>
-                <span class="day-label">{group.label}</span>
-            </button>
-
-            {#if isExpanded(group.key)}
-                <div class="day-entries">
-                    {#each group.entries as entry}
-                        <button
-                            class="history-entry"
-                            class:active={historyStore.selectedId === entry.id}
-                            onclick={() => selectEntry(entry)}
-                        >
-                            <div class="entry-main">
-                                <span
-                                    class="method"
-                                    style:color={COLORS[entry.request.method] ||
-                                        "var(--text-primary)"}
-                                >
-                                    {entry.request.method}
-                                </span>
-                                <span class="url"
-                                    >{getUrlPath(entry.request.url)}</span
-                                >
-                            </div>
-                        </button>
-                    {/each}
-                </div>
-            {/if}
-        </div>
-    {/each}
-
     {#if historyStore.entries.length === 0}
         <div class="empty-state">No history yet</div>
+    {:else}
+        {#each groupedEntries as group}
+            <div class="day-group">
+                <button class="day-header" onclick={() => toggleDay(group.key)}>
+                    <span class="chevron" class:collapsed={!isExpanded(group.key)}>
+                        <ChevronIcon size={12} />
+                    </span>
+                    <span class="day-label">{group.label}</span>
+                </button>
+
+                {#if isExpanded(group.key)}
+                    <div class="day-entries">
+                        {#each group.entries as entry}
+                            <button
+                                class="history-entry"
+                                class:active={historyStore.selectedId === entry.id}
+                                onclick={() => selectEntry(entry)}
+                            >
+                                <div class="entry-main">
+                                    <span
+                                        class="method"
+                                        style:color={COLORS[entry.request.method] ||
+                                            "var(--text-primary)"}
+                                    >
+                                        {entry.request.method}
+                                    </span>
+                                    <span class="url"
+                                        >{getUrlPath(entry.request.url)}</span
+                                    >
+                                </div>
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
+        {/each}
     {/if}
 </section>
 
@@ -262,10 +262,4 @@
         text-overflow: ellipsis;
     }
 
-    .empty-state {
-        padding: 20px;
-        text-align: center;
-        color: var(--text-tertiary);
-        font-size: 12px;
-    }
 </style>

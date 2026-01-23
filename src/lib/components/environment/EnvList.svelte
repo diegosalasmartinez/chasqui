@@ -67,33 +67,32 @@
 </script>
 
 <section id="environments-list">
-    {#each environmentStore.environments as env}
-        <div
-            class="env-item"
-            class:selected={environmentStore.selectedId === env.id}
-            onclick={() => selectEnvironment(env)}
-            role="button"
-            tabindex="0"
-        >
-            {#if editingId === env.id}
-                <input
-                    bind:this={inputRef}
-                    bind:value={editName}
-                    class="env-name-input"
-                    onblur={() => saveEdit(env)}
-                    onkeydown={(e) => handleKeydown(e, env)}
-                    onclick={(e) => e.stopPropagation()}
-                />
-            {:else}
-                <span class="env-name">{env.name}</span>
-            {/if}
-
-            <ContextMenu items={getMenuItems(env)} />
-        </div>
-    {/each}
-
     {#if environmentStore.environments.length === 0}
         <div class="empty-state">No environments yet</div>
+    {:else}
+        {#each environmentStore.environments as env}
+            <button
+                type="button"
+                class="env-item"
+                class:selected={environmentStore.selectedId === env.id}
+                onclick={() => selectEnvironment(env)}
+            >
+                {#if editingId === env.id}
+                    <input
+                        bind:this={inputRef}
+                        bind:value={editName}
+                        class="env-name-input"
+                        onblur={() => saveEdit(env)}
+                        onkeydown={(e) => handleKeydown(e, env)}
+                        onclick={(e) => e.stopPropagation()}
+                    />
+                {:else}
+                    <span class="env-name">{env.name}</span>
+                {/if}
+
+                <ContextMenu items={getMenuItems(env)} />
+            </button>
+        {/each}
     {/if}
 </section>
 
@@ -116,6 +115,13 @@
         border-radius: 6px;
         cursor: pointer;
         transition: background 0.15s ease;
+        width: 100%;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        text-align: left;
+        font-size: inherit;
+        color: inherit;
     }
 
     .env-item:hover {
@@ -158,10 +164,4 @@
         outline: none;
     }
 
-    .empty-state {
-        padding: 20px;
-        text-align: center;
-        color: var(--text-tertiary);
-        font-size: 12px;
-    }
 </style>
