@@ -6,6 +6,7 @@
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { preloadMonaco } from "$lib/utils/monaco";
     import HistoryRequestViewer from "$lib/components/history/HistoryRequestViewer.svelte";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
@@ -18,6 +19,9 @@
     import Header from "$lib/layouts/Header.svelte";
 
     onMount(async () => {
+        // Preload Monaco in the background
+        preloadMonaco();
+
         // Load workspaces first since other stores filter by workspace
         await workspaceStore.load();
 
