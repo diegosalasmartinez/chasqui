@@ -71,6 +71,7 @@
                     <input
                         type="text"
                         class="kv-input"
+                        spellcheck="false"
                         placeholder={placeholder.key}
                         value={item.key}
                         oninput={(e) =>
@@ -92,6 +93,7 @@
                         <input
                             type="text"
                             class="kv-input"
+                            spellcheck="false"
                             placeholder={placeholder.value}
                             value={item.value}
                             oninput={(e) =>

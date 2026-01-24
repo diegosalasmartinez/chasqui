@@ -178,6 +178,10 @@
         padding: 8px 12px;
         font-size: 14px;
         transition: all 0.15s ease;
+        background: var(--surface);
+        color: var(--text-primary);
+        border: 0.5px solid var(--border);
+        border-radius: 8px;
     }
 
     :global(.auth-input)::placeholder {

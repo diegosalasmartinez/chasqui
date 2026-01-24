@@ -94,8 +94,9 @@
             {:else if body.type === "text"}
                 <div class="editor-wrapper">
                     <textarea
-                        class="code-editor"
+                        class="text-editor"
                         placeholder="Enter text content..."
+                        spellcheck="false"
                         value={body.content}
                         oninput={(e) =>
                             updateContent(
@@ -155,7 +156,7 @@
         min-height: 300px;
     }
 
-    .code-editor {
+    .text-editor {
         width: 100%;
         height: 100%;
         min-height: 300px;
@@ -170,14 +171,15 @@
         transition: all 0.15s ease;
     }
 
-    .code-editor:focus {
+    .text-editor:focus {
         outline: none;
         border-color: var(--accent);
         background: var(--background);
     }
 
-    .code-editor::placeholder {
-        color: var(--text-tertiary);
+    .text-editor::placeholder {
+        color: var(--text-secondary) !important;
+        opacity: 0.5;
     }
 
     .empty-state {
