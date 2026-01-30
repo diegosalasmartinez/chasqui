@@ -334,7 +334,7 @@ async fn test_response_metadata() {
 
     assert_eq!(response.status, 200);
     assert_eq!(response.size_bytes, 5); // "Hello" is 5 bytes
-    assert!(response.duration_ms > 0);
+    // duration_ms can be 0 for very fast local requests
     assert!(response.at_ms > 0);
 }
 
