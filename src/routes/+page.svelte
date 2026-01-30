@@ -14,6 +14,7 @@
     import EnvEditor from "$lib/components/environment/EnvEditor.svelte";
     import NoResponse from "$lib/components/response/NoResponse.svelte";
     import ToastContainer from "$lib/ui/ToastContainer.svelte";
+    import ExportModal from "$lib/components/export/ExportModal.svelte";
     import LeftPanel from "$lib/layouts/LeftPanel.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
     import Header from "$lib/layouts/Header.svelte";
@@ -85,6 +86,7 @@
     </main>
 
     <ToastContainer />
+    <ExportModal />
 </div>
 
 <style>

@@ -4,6 +4,7 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { dragStore } from "$lib/stores/drag.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { exportModalStore } from "$lib/stores/exportModal.svelte";
     import ChevronIcon from "$lib/ui/icons/ChevronIcon.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
     import FolderItem from "./FolderItem.svelte";
@@ -90,6 +91,10 @@
 
     function getApiMenuItems(api: Api) {
         return [
+            {
+                label: "Export",
+                onClick: () => exportModalStore.show(api.request, api.name),
+            },
             {
                 label: "Duplicate",
                 onClick: () => apiStore.duplicateApi(api),

@@ -3,6 +3,7 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { dragStore } from "$lib/stores/drag.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { exportModalStore } from "$lib/stores/exportModal.svelte";
     import type { MenuItem } from "$lib/types/menu";
     import type { Api } from "$lib/types/http";
     import FolderItem from "$lib/components/FolderItem.svelte";
@@ -18,6 +19,10 @@
 
     function getMenuItems(api: Api): MenuItem[] {
         return [
+            {
+                label: "Export",
+                onClick: () => exportModalStore.show(api.request, api.name),
+            },
             {
                 label: "Duplicate",
                 onClick: () => apiStore.duplicateApi(api),
