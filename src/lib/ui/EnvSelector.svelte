@@ -121,29 +121,18 @@
     .env-list {
         position: absolute;
         right: 0;
-        top: calc(100% + 4px);
+        top: 30px;
         z-index: 100;
         list-style: none;
         padding: 4px;
         background: var(--surface);
-        border: 1px solid var(--border);
+        border: 0.5px solid var(--border);
         border-radius: 8px;
         min-width: 180px;
         max-height: 300px;
         overflow-y: auto;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         animation: slideDown 0.15s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     .env-item {

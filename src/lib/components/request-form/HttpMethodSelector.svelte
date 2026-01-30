@@ -126,17 +126,6 @@
         animation: slideDown 0.15s ease-out;
     }
 
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
     .item {
         display: flex;
         width: 100%;

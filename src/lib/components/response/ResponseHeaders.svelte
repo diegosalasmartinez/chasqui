@@ -92,6 +92,7 @@
         font-size: 13px;
         color: var(--text-primary);
         word-break: break-word;
+        line-height: 110%;
     }
 
     .col-actions {

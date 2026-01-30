@@ -86,27 +86,16 @@
     .context-menu {
         position: absolute;
         right: 0;
-        top: calc(100% - 5px);
+        top: 22px;
         z-index: 50;
         list-style: none;
         padding: 4px;
         background: var(--surface);
-        border: 0;
+        border: 0.5px solid var(--border);
         border-radius: 8px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         min-width: 160px;
         animation: slideDown 0.15s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     .menu-item {
