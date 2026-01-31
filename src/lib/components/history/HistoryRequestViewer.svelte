@@ -259,7 +259,7 @@
     }
 
     .tab-content {
-        background: var(--bg);
+        background: var(--bg-darker);
         flex: 1;
         padding: 15px;
         overflow-y: auto;

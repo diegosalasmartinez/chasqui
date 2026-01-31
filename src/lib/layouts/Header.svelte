@@ -20,7 +20,7 @@
         justify-content: space-between;
         padding: 0;
         height: 40px;
-        background: var(--bg);
+        background: var(--bg-darker);
         border-top: 0.5px solid var(--border);
         border-bottom: 0.5px solid var(--border);
     }

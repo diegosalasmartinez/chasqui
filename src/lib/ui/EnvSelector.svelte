@@ -75,7 +75,7 @@
         align-items: center;
         gap: 8px;
         padding: 6px 10px;
-        background: var(--bg);
+        background: var(--bg-darker);
         border: 0.5px solid var(--border);
         border-right: 0;
         box-shadow: none;
@@ -86,7 +86,7 @@
     }
 
     .env-trigger:hover {
-        background: var(--surface);
+        background: var(--hover);
         border: 0.5px solid var(--border);
         border-right: 0;
     }

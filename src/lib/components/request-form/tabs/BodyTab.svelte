@@ -144,6 +144,7 @@
         padding: 8px 12px;
         font-size: 14px;
         transition: all 0.15s ease;
+        background: var(--surface);
     }
 
     .body-content {

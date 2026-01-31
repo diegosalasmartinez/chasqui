@@ -46,10 +46,16 @@
                 return request.headers.some((h) => h.key || h.value);
             case "body":
                 if (request.body.type === "none") return false;
-                if (request.body.type === "json" || request.body.type === "text") {
+                if (
+                    request.body.type === "json" ||
+                    request.body.type === "text"
+                ) {
                     return !!request.body.content;
                 }
-                if (request.body.type === "form-data" || request.body.type === "x-www-form-urlencoded") {
+                if (
+                    request.body.type === "form-data" ||
+                    request.body.type === "x-www-form-urlencoded"
+                ) {
                     return request.body.data.some((d) => d.key || d.value);
                 }
                 return false;
@@ -154,7 +160,7 @@
     }
 
     .tab-content {
-        background: var(--bg);
+        background: var(--bg-darker);
         flex: 1;
         padding: 15px;
         overflow-y: auto;

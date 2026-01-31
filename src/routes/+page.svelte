@@ -98,6 +98,7 @@
 
     main {
         display: grid;
+        background: var(--bg-darker);
         grid-template-columns: 60px 230px minmax(0, 1fr);
         flex: 1;
         min-height: 0;
@@ -120,6 +121,7 @@
         justify-content: center;
         height: 100%;
         color: var(--text-tertiary);
+        background: var(--bg-darker);
         font-size: 14px;
     }
 </style>

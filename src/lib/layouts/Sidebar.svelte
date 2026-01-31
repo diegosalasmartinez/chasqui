@@ -1,7 +1,7 @@
 <script lang="ts">
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import ThemeToggler from "$lib/components/ThemeToggler.svelte";
-    import SettingsIcon from "$lib/ui/icons/SettingsIcon.svelte";
+    import EnvIcon from "$lib/ui/icons/EnvIcon.svelte";
     import HistoryIcon from "$lib/ui/icons/HistoryIcon.svelte";
     import FolderIcon from "$lib/ui/icons/FolderIcon.svelte";
 </script>
@@ -25,7 +25,7 @@
                 onclick={() => sidebarStore.setView("environments")}
                 title="Environments"
             >
-                <SettingsIcon />
+                <EnvIcon />
             </button>
             <button
                 class="nav-btn"

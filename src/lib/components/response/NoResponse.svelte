@@ -71,7 +71,6 @@
         gap: 8px;
         margin-top: 20px;
         padding-top: 20px;
-        border-top: 0.5px solid var(--border);
         width: 100%;
     }
 

@@ -97,6 +97,7 @@
         height: 100%;
         width: 100%;
         color: var(--text-secondary);
+        background: var(--bg-darker);
         border-right: 0.5px solid var(--border);
         display: flex;
         flex-direction: column;

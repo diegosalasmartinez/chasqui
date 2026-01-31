@@ -190,7 +190,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        background: var(--bg);
+        background: var(--bg-darker);
         min-height: 0;
         overflow: hidden;
     }
@@ -234,7 +234,7 @@
         border: 0.5px solid var(--border);
         border-radius: 6px;
         overflow: hidden;
-        background: var(--bg);
+        background: var(--surface);
     }
 
     .kv-header {
@@ -246,7 +246,7 @@
         font-weight: 600;
         color: var(--text-secondary);
         text-transform: uppercase;
-        background: var(--bg);
+        background: var(--surface);
         border-bottom: 0.5px solid var(--border);
     }
 
@@ -349,7 +349,7 @@
         gap: 8px;
         width: 100%;
         padding: 10px 0;
-        background: transparent;
+        background: var(--surface);
         border: 1px dashed var(--border);
         border-radius: 6px;
         color: var(--text-secondary);
