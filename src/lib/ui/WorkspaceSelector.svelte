@@ -188,6 +188,7 @@
         padding: 8px 12px;
         border: none;
         background: transparent;
+        box-shadow: none;
         cursor: pointer;
         border-radius: 6px;
         font-size: 13px;
@@ -235,6 +236,6 @@
 
     .create-input:focus {
         outline: none;
-        border-color: var(--blue);
+        border-color: var(--action);
     }
 </style>

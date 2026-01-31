@@ -361,7 +361,7 @@
 
     .btn-add:hover {
         background: var(--hover);
-        border-color: var(--blue);
-        color: var(--blue);
+        border-color: var(--action);
+        color: var(--action);
     }
 </style>

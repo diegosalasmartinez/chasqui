@@ -60,7 +60,7 @@
                 <li role="option" aria-selected={method === m}>
                     <button
                         type="button"
-                        class="item ghost"
+                        class="item"
                         class:active={i === highlighted}
                         onmouseenter={() => (highlighted = i)}
                         onclick={() => choose(m as HttpMethod)}
@@ -98,6 +98,7 @@
         border-radius: 0;
         border-top-left-radius: 0.375rem;
         border-bottom-left-radius: 0.375rem;
+        box-shadow: none;
         transition: all 0.15s ease;
     }
 
@@ -124,11 +125,14 @@
         border-radius: 0.5rem;
         min-width: 110px;
         animation: slideDown 0.15s ease-out;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
     }
 
     .item {
         display: flex;
         width: 100%;
+        height: auto;
+        box-shadow: none;
         align-items: center;
         padding: 0.25rem;
         border: none;

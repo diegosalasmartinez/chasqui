@@ -45,7 +45,7 @@
     }
 
     .dot {
-        color: #94a3b8;
+        color: var(--text-tertiary);
         font-size: 10px;
     }
 
@@ -56,19 +56,19 @@
     }
 
     .badge.ok {
-        color: #6bdd9a;
+        color: var(--success);
     }
 
     .badge.info {
-        color: #eff6ff;
+        color: var(--info);
     }
 
     .badge.warn {
-        color: #fff7ed;
+        color: var(--warning);
     }
 
     .badge.err {
-        color: #fef2f2;
+        color: var(--error);
     }
 
     .pill {

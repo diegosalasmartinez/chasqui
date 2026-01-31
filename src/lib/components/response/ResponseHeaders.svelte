@@ -123,7 +123,7 @@
 
     .copy-btn:hover {
         opacity: 1 !important;
-        color: var(--blue);
+        color: var(--action);
         background: var(--hover);
     }
 </style>

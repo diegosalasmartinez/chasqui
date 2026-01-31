@@ -28,7 +28,7 @@
         font-size: 13px;
         transition: all 0.15s ease;
         border: 1px solid transparent;
-        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: none;
     }
 
     :global(.url-input:focus) {

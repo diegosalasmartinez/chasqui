@@ -9,8 +9,8 @@
 <style>
     .send-btn {
         height: 40px;
-        background: var(--blue);
-        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+        background: var(--action);
+        box-shadow: none;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
     }

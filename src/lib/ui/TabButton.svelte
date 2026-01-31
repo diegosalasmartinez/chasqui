@@ -33,11 +33,11 @@
     }
 
     .tab:hover {
-        color: var(--blue);
+        color: var(--action);
     }
 
     .tab.active {
-        border-bottom: 1px solid var(--blue);
+        border-bottom: 1px solid var(--action);
     }
 
     .content-indicator {
@@ -47,6 +47,6 @@
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--blue);
+        background: var(--action);
     }
 </style>

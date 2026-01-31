@@ -55,7 +55,7 @@
 
     function getStatusColor(status: number): string {
         if (status >= 200 && status < 300) return "var(--green)";
-        if (status >= 300 && status < 400) return "var(--blue)";
+        if (status >= 300 && status < 400) return "var(--action)";
         if (status >= 400 && status < 500) return "var(--orange)";
         return "var(--red)";
     }

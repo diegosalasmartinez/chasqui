@@ -168,6 +168,10 @@
         color: var(--text-primary);
     }
 
+    :global(.auth-input) {
+        box-shadow: none;
+    }
+
     .auth-select,
     :global(.auth-input) {
         width: 100%;

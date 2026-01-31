@@ -39,11 +39,18 @@
         }
     }
 
+    function getEditorTheme(): string {
+        return document.documentElement.dataset.theme === "light"
+            ? "chasqui-light"
+            : "vs-dark";
+    }
+
     /**
      * Svelte Action: mounts Monaco into a DOM element.
      */
     function monacoJson(node: HTMLElement) {
         let destroyed = false;
+        let observer: MutationObserver | null = null;
 
         (async () => {
             const m = await getMonaco();
@@ -52,9 +59,36 @@
 
             disposeEditor();
 
+            // Define custom light theme once
+            m.editor.defineTheme("chasqui-light", {
+                base: "vs",
+                inherit: false,
+                rules: [
+                    { token: "", foreground: "1c1917" },
+                    {
+                        token: "string.key.json",
+                        foreground: "0451a5",
+                    },
+                    { token: "string.value.json", foreground: "a31515" },
+                    { token: "string", foreground: "a31515" },
+                    { token: "number", foreground: "098658" },
+                    { token: "number.json", foreground: "098658" },
+                    { token: "keyword", foreground: "0000ff" },
+                    { token: "keyword.json", foreground: "0000ff" },
+                    { token: "delimiter", foreground: "1c1917" },
+                    { token: "delimiter.bracket.json", foreground: "1c1917" },
+                ],
+                colors: {
+                    "editor.background": "#ffffff",
+                    "editor.foreground": "#1c1917",
+                    "editorLineNumber.foreground": "#57534e",
+                    "editorCursor.foreground": "#1c1917",
+                },
+            });
+
             editor = m.editor.create(node, {
                 language: "json",
-                theme: "vs-dark",
+                theme: getEditorTheme(),
                 automaticLayout: true,
                 minimap: { enabled: false },
                 formatOnPaste: true,
@@ -82,11 +116,21 @@
                 if (!model || settingFromStore) return;
                 updateContent(model.getValue());
             });
+
+            // Watch for theme changes
+            observer = new MutationObserver(() => {
+                m.editor.setTheme(getEditorTheme());
+            });
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["data-theme"],
+            });
         })();
 
         return {
             destroy() {
                 destroyed = true;
+                observer?.disconnect();
                 disposeEditor();
             },
         };
@@ -117,7 +161,9 @@
 
     onDestroy(() => {
         disposeEditor();
-        monaco?.editor.getModels().forEach((m: MonacoEditor.editor.ITextModel) => m.dispose());
+        monaco?.editor
+            .getModels()
+            .forEach((m: MonacoEditor.editor.ITextModel) => m.dispose());
     });
 </script>
 
@@ -127,7 +173,7 @@
     .container {
         height: 100%;
         width: 100%;
-        background: var(--bg-darker);
+        background: var(--editor-bg);
         border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
@@ -140,6 +186,6 @@
     .container :global(.monaco-editor),
     .container :global(.monaco-editor-background),
     .container :global(.margin) {
-        background: var(--bg-darker) !important;
+        background: var(--editor-bg) !important;
     }
 </style>

@@ -90,7 +90,7 @@
 
         // Yield to let UI render first
         await tick();
-        await new Promise(resolve => requestAnimationFrame(resolve));
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         const formatted = tryFormatJson(v);
         formattedText = formatted.text;
@@ -126,7 +126,9 @@
         >
             <CopyIcon size={14} />
         </button>
-        <pre class="code"><code>{#if isJson}{@html highlightedHtml}{:else}{formattedText}{/if}</code></pre>
+        <pre class="code"><code
+                >{#if isJson}{@html highlightedHtml}{:else}{formattedText}{/if}</code
+            ></pre>
     {/if}
 </div>
 
@@ -154,8 +156,9 @@
     }
 
     .code {
-        background: var(--surface);
-        color: white;
+        background: var(--bg-darker);
+        color: var(--text-primary);
+        border: 0.5px solid var(--border);
         padding: 12px;
         border-radius: 10px;
         overflow: auto;
@@ -169,7 +172,7 @@
         min-height: 0;
     }
 
-    /* TODO: Update this colors for white mode */
+    /* Dark mode syntax colors */
     .code :global(.key) {
         color: #9cdcfe;
     }
@@ -188,6 +191,27 @@
 
     .code :global(.null) {
         color: #569cd6;
+    }
+
+    /* Light mode syntax colors */
+    :global([data-theme="light"]) .code :global(.key) {
+        color: #0451a5;
+    }
+
+    :global([data-theme="light"]) .code :global(.string) {
+        color: #a31515;
+    }
+
+    :global([data-theme="light"]) .code :global(.number) {
+        color: #098658;
+    }
+
+    :global([data-theme="light"]) .code :global(.boolean) {
+        color: #0000ff;
+    }
+
+    :global([data-theme="light"]) .code :global(.null) {
+        color: #0000ff;
     }
 
     .copy-btn {

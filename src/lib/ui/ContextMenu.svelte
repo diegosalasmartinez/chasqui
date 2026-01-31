@@ -106,6 +106,7 @@
         padding: 8px 12px;
         border: none;
         background: transparent;
+        box-shadow: none;
         cursor: pointer;
         border-radius: 6px;
         transition: background 0.1s ease;
