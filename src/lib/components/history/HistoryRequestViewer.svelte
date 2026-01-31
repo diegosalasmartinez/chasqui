@@ -2,6 +2,7 @@
     import type { Request } from "$lib/types/http";
     import { COLORS } from "$lib/constants/http.constants";
     import JsonViewer from "$lib/components/JsonViewer.svelte";
+    import DataTable from "$lib/ui/DataTable.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
 
     interface Props {
@@ -73,22 +74,11 @@
 
     <div class="tab-content">
         {#if activeTab === "params"}
-            {#if enabledParams.length > 0}
-                <div class="kv-table">
-                    <div class="kv-header">
-                        <span>Key</span>
-                        <span>Value</span>
-                    </div>
-                    {#each enabledParams as param}
-                        <div class="kv-row">
-                            <span class="kv-key">{param.key}</span>
-                            <span class="kv-value">{param.value}</span>
-                        </div>
-                    {/each}
-                </div>
-            {:else}
-                <p class="empty">No query parameters</p>
-            {/if}
+            <DataTable
+                columns={[{ key: "key", label: "Key" }, { key: "value", label: "Value" }]}
+                rows={enabledParams}
+                emptyMessage="No query parameters"
+            />
         {:else if activeTab === "auth"}
             <div class="auth-info">
                 {#if request.auth.type === "none"}
@@ -135,22 +125,11 @@
                 {/if}
             </div>
         {:else if activeTab === "headers"}
-            {#if enabledHeaders.length > 0}
-                <div class="kv-table">
-                    <div class="kv-header">
-                        <span>Key</span>
-                        <span>Value</span>
-                    </div>
-                    {#each enabledHeaders as header}
-                        <div class="kv-row">
-                            <span class="kv-key">{header.key}</span>
-                            <span class="kv-value">{header.value}</span>
-                        </div>
-                    {/each}
-                </div>
-            {:else}
-                <p class="empty">No headers</p>
-            {/if}
+            <DataTable
+                columns={[{ key: "key", label: "Key" }, { key: "value", label: "Value" }]}
+                rows={enabledHeaders}
+                emptyMessage="No headers"
+            />
         {:else if activeTab === "body"}
             {#if request.body.type === "none"}
                 <p class="empty">No body</p>
@@ -159,18 +138,10 @@
             {:else if request.body.type === "text"}
                 <pre class="body-text">{request.body.content}</pre>
             {:else if request.body.type === "form-data" || request.body.type === "x-www-form-urlencoded"}
-                <div class="kv-table">
-                    <div class="kv-header">
-                        <span>Key</span>
-                        <span>Value</span>
-                    </div>
-                    {#each request.body.data.filter((d) => d.enabled) as item}
-                        <div class="kv-row">
-                            <span class="kv-key">{item.key}</span>
-                            <span class="kv-value">{item.value}</span>
-                        </div>
-                    {/each}
-                </div>
+                <DataTable
+                    columns={[{ key: "key", label: "Key" }, { key: "value", label: "Value" }]}
+                    rows={request.body.data.filter((d) => d.enabled)}
+                />
             {/if}
         {/if}
     </div>
@@ -270,45 +241,6 @@
         color: var(--text-secondary);
         font-size: 13px;
         margin: 0;
-    }
-
-    .kv-table {
-        border: 0.5px solid var(--border);
-        border-radius: 6px;
-        overflow: hidden;
-    }
-
-    .kv-header {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        padding: 8px 12px;
-        background: var(--bg-darker);
-        border-bottom: 0.5px solid var(--border);
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-    }
-
-    .kv-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        padding: 8px 12px;
-        border-bottom: 0.5px solid var(--border);
-        font-size: 13px;
-    }
-
-    .kv-row:last-child {
-        border-bottom: none;
-    }
-
-    .kv-key {
-        color: var(--text-secondary);
-    }
-
-    .kv-value {
-        color: var(--text-primary);
-        word-break: break-all;
     }
 
     .auth-info {

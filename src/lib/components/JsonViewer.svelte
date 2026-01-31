@@ -156,7 +156,7 @@
     }
 
     .code {
-        background: var(--bg-darker);
+        background: var(--surface);
         color: var(--text-primary);
         border: 0.5px solid var(--border);
         padding: 12px;

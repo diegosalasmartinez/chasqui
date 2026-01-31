@@ -39,7 +39,7 @@
         border: 1px solid var(--border);
         border-radius: 6px;
         overflow: auto;
-        background: var(--bg);
+        background: var(--surface);
         font-size: 14px;
     }
 
@@ -50,8 +50,8 @@
         font-size: 11px;
         font-weight: 600;
         color: var(--text-secondary);
+        background: var(--surface);
         text-transform: uppercase;
-        background: var(--bg);
         border-bottom: 1px solid var(--border);
     }
 
