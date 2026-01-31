@@ -33,12 +33,12 @@ export async function listFoldersBridge(): Promise<Folder[]> {
     return await invoke('list_folders') as Folder[]
 }
 
-export async function createFolderBridge(name: string, parent_id?: string, workspace_id?: string): Promise<Folder> {
-    return await invoke('create_folder', { name, parent_id, workspace_id }) as Folder
+export async function createFolderBridge(name: string, parentId?: string, workspaceId?: string): Promise<Folder> {
+    return await invoke('create_folder', { name, parentId, workspaceId }) as Folder
 }
 
-export async function updateFolderBridge(id: string, name?: string, parent_id?: string | null): Promise<Folder> {
-    return await invoke('update_folder', { id, name, parent_id }) as Folder
+export async function updateFolderBridge(id: string, name?: string, parentId?: string | null): Promise<Folder> {
+    return await invoke('update_folder', { id, name, parentId }) as Folder
 }
 
 export async function deleteFolderBridge(id: string): Promise<void> {

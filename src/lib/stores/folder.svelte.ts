@@ -75,7 +75,7 @@ class FolderStore {
     }
 
     async create(name: string, parentId?: string) {
-        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const workspaceId = workspaceStore.currentWorkspaceId || undefined
         const folder = await folderService.createFolder(name, parentId, workspaceId)
         if (folder) {
             this.allFolders = [...this.allFolders, folder]
