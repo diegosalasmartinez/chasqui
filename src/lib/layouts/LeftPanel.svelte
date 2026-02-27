@@ -75,9 +75,19 @@
 <aside id="left-panel">
     <section class="header">
         <div class="search-wrapper">
-            <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <svg
+                class="search-icon"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
                 type="text"
@@ -86,7 +96,11 @@
                 bind:value={searchQuery}
             />
             {#if searchQuery}
-                <button class="clear-btn ghost icon-btn" onclick={() => searchQuery = ""} title="Clear">
+                <button
+                    class="clear-btn ghost icon-btn"
+                    onclick={() => (searchQuery = "")}
+                    title="Clear"
+                >
                     <CloseIcon size={10} />
                 </button>
             {/if}
@@ -159,6 +173,7 @@
         flex: 1;
         background: transparent;
         border: none;
+        box-shadow: none;
         outline: none;
         font-size: 13px;
         color: var(--text-secondary);
