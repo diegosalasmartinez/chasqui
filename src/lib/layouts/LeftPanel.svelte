@@ -9,6 +9,15 @@
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
     import ApiList from "$lib/components/ApiList.svelte";
     import AddIcon from "$lib/ui/icons/AddIcon.svelte";
+    import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
+
+    let searchQuery = $state("");
+
+    $effect(() => {
+        void sidebarStore.isCollections;
+        void sidebarStore.isEnvironments;
+        searchQuery = "";
+    });
 
     const collectionMenuItems = [
         {
@@ -65,7 +74,23 @@
 
 <aside id="left-panel">
     <section class="header">
-        <span>{title}</span>
+        <div class="search-wrapper">
+            <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+                type="text"
+                class="search-input"
+                placeholder={title}
+                bind:value={searchQuery}
+            />
+            {#if searchQuery}
+                <button class="clear-btn ghost icon-btn" onclick={() => searchQuery = ""} title="Clear">
+                    <CloseIcon size={10} />
+                </button>
+            {/if}
+        </div>
 
         <div class="actions-right">
             {#if showAddButton}
@@ -84,11 +109,11 @@
     </section>
 
     {#if sidebarStore.isCollections}
-        <ApiList />
+        <ApiList {searchQuery} />
     {:else if sidebarStore.isEnvironments}
-        <EnvList />
+        <EnvList {searchQuery} />
     {:else}
-        <HistoryList />
+        <HistoryList {searchQuery} />
     {/if}
 </aside>
 
@@ -114,6 +139,47 @@
         display: flex;
         gap: 8px;
         justify-content: space-between;
+        align-items: center;
+    }
+
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .search-icon {
+        color: var(--text-tertiary);
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 13px;
+        color: var(--text-secondary);
+        padding: 0;
+        min-width: 0;
+        font-weight: 500;
+    }
+
+    .search-input::placeholder {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .search-input:focus::placeholder {
+        color: var(--text-tertiary);
+    }
+
+    .clear-btn {
+        padding: 2px;
+        color: var(--text-tertiary);
+        display: flex;
         align-items: center;
     }
 

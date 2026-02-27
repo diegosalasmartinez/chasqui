@@ -10,6 +10,11 @@
         entries: HistoryEntry[];
     };
 
+    type Props = { searchQuery?: string };
+    let { searchQuery = "" }: Props = $props();
+
+    const query = $derived(searchQuery.toLowerCase().trim());
+
     let collapsedDays = $state<Set<string>>(new Set());
 
     function getDayKey(atMs: number): string {
@@ -91,7 +96,15 @@
         const groups: DayGroup[] = [];
         const groupMap = new Map<string, DayGroup>();
 
-        for (const entry of historyStore.entries) {
+        const entries = query
+            ? historyStore.entries.filter(
+                  (e) =>
+                      e.request.url.toLowerCase().includes(query) ||
+                      e.request.method.toLowerCase().includes(query),
+              )
+            : historyStore.entries;
+
+        for (const entry of entries) {
             const key = getDayKey(entry.at_ms);
             let group = groupMap.get(key);
             if (!group) {
@@ -113,6 +126,8 @@
 <section id="history-list">
     {#if historyStore.entries.length === 0}
         <div class="empty-state">No history yet</div>
+    {:else if groupedEntries.length === 0}
+        <div class="empty-state">No matches</div>
     {:else}
         {#each groupedEntries as group}
             <div class="day-group">

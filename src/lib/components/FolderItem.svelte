@@ -12,16 +12,46 @@
     type Props = {
         folder: FolderNode;
         apis: Api[];
+        searchQuery?: string;
     };
 
-    let { folder, apis }: Props = $props();
+    let { folder, apis, searchQuery = "" }: Props = $props();
 
     let isEditing = $state(false);
     let editName = $state(folder.name);
     let inputRef: HTMLInputElement | null = $state(null);
 
-    const isExpanded = $derived(folderStore.isExpanded(folder.id));
-    const folderApis = $derived(apis.filter((a) => a.folder_id === folder.id));
+    const query = $derived(searchQuery.toLowerCase().trim());
+
+    function folderHasMatches(f: FolderNode, allApis: Api[], q: string): boolean {
+        if (!q) return true;
+        if (f.name.toLowerCase().includes(q)) return true;
+        const direct = allApis.filter((a) => a.folder_id === f.id);
+        if (
+            direct.some(
+                (a) =>
+                    a.name.toLowerCase().includes(q) ||
+                    a.request.url.toLowerCase().includes(q),
+            )
+        )
+            return true;
+        return f.children.some((child) => folderHasMatches(child, allApis, q));
+    }
+
+    const isVisible = $derived(folderHasMatches(folder, apis, query));
+    const isExpanded = $derived(
+        query ? isVisible : folderStore.isExpanded(folder.id),
+    );
+    const folderApis = $derived(
+        apis
+            .filter((a) => a.folder_id === folder.id)
+            .filter(
+                (a) =>
+                    !query ||
+                    a.name.toLowerCase().includes(query) ||
+                    a.request.url.toLowerCase().includes(query),
+            ),
+    );
     const showDropHighlight = $derived(dragStore.isHoveringFolder(folder.id));
 
     function toggle() {
@@ -132,6 +162,7 @@
     }
 </script>
 
+{#if isVisible}
 <div class="folder-item">
     <div
         class="folder-header"
@@ -169,7 +200,7 @@
     {#if isExpanded}
         <div class="folder-children">
             {#each folder.children as child}
-                <FolderItem folder={child} {apis} />
+                <FolderItem folder={child} {apis} {searchQuery} />
             {/each}
 
             {#each folderApis as api}
@@ -199,6 +230,7 @@
         </div>
     {/if}
 </div>
+{/if}
 
 <style>
     .folder-item {

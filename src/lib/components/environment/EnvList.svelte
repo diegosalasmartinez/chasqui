@@ -3,6 +3,18 @@
     import { environmentStore } from "$lib/stores/environment.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
 
+    type Props = { searchQuery?: string };
+    let { searchQuery = "" }: Props = $props();
+
+    const query = $derived(searchQuery.toLowerCase().trim());
+    const filteredEnvironments = $derived(
+        query
+            ? environmentStore.environments.filter((e) =>
+                  e.name.toLowerCase().includes(query),
+              )
+            : environmentStore.environments,
+    );
+
     let editingId = $state<string | null>(null);
     let editName = $state("");
     let inputRef: HTMLInputElement | null = $state(null);
@@ -69,8 +81,10 @@
 <section id="environments-list">
     {#if environmentStore.environments.length === 0}
         <div class="empty-state">No environments yet</div>
+    {:else if filteredEnvironments.length === 0}
+        <div class="empty-state">No matches</div>
     {:else}
-        {#each environmentStore.environments as env}
+        {#each filteredEnvironments as env}
             <button
                 type="button"
                 class="env-item"

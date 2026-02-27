@@ -9,8 +9,22 @@
     import FolderItem from "$lib/components/FolderItem.svelte";
     import ContextMenu from "$lib/ui/ContextMenu.svelte";
 
-    // APIs without a folder (root level)
-    const rootApis = $derived(apiStore.savedApis.filter((a) => !a.folder_id));
+    type Props = { searchQuery?: string };
+    let { searchQuery = "" }: Props = $props();
+
+    const query = $derived(searchQuery.toLowerCase().trim());
+
+    // APIs without a folder (root level), filtered by search query
+    const rootApis = $derived(
+        apiStore.savedApis
+            .filter((a) => !a.folder_id)
+            .filter(
+                (a) =>
+                    !query ||
+                    a.name.toLowerCase().includes(query) ||
+                    a.request.url.toLowerCase().includes(query),
+            ),
+    );
     const showDropHighlight = $derived(dragStore.isHoveringRoot());
 
     function onSelectApi(api: Api) {
@@ -74,7 +88,7 @@
     {:else}
         <!-- Folders -->
         {#each folderStore.tree as folder}
-            <FolderItem {folder} apis={apiStore.savedApis} />
+            <FolderItem {folder} apis={apiStore.savedApis} {searchQuery} />
         {/each}
 
         <!-- Root drop zone -->
@@ -195,5 +209,4 @@
     .drop-hint.visible {
         opacity: 1;
     }
-
 </style>
