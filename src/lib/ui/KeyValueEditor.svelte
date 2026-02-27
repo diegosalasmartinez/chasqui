@@ -217,9 +217,9 @@
         color: var(--text-primary);
         box-shadow: none;
         transition: background 0.1s ease;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     :global(.kv-input:focus) {

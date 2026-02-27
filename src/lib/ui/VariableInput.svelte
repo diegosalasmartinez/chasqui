@@ -205,7 +205,22 @@
     function handlePaste(e: ClipboardEvent) {
         e.preventDefault();
         const text = e.clipboardData?.getData("text/plain") || "";
-        document.execCommand("insertText", false, text);
+
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else if (editorRef) {
+            editorRef.appendChild(document.createTextNode(text));
+        }
+
+        handleInput();
     }
 
     // Sync external value changes to editor
@@ -273,8 +288,13 @@
     :global(.variable-input) {
         cursor: text;
         white-space: pre;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+    }
+
+    :global(.variable-input::-webkit-scrollbar) {
+        display: none;
     }
 
     :global(.variable-input:empty::before) {
