@@ -23,7 +23,11 @@
 
     const query = $derived(searchQuery.toLowerCase().trim());
 
-    function folderHasMatches(f: FolderNode, allApis: Api[], q: string): boolean {
+    function folderHasMatches(
+        f: FolderNode,
+        allApis: Api[],
+        q: string,
+    ): boolean {
         if (!q) return true;
         if (f.name.toLowerCase().includes(q)) return true;
         const direct = allApis.filter((a) => a.folder_id === f.id);
@@ -163,73 +167,73 @@
 </script>
 
 {#if isVisible}
-<div class="folder-item">
-    <div
-        class="folder-header"
-        class:drag-over={showDropHighlight}
-        data-folder-id={folder.id}
-        onmouseup={handleMouseUp}
-        role="button"
-        tabindex="0"
-    >
-        <button class="folder-toggle" onclick={toggle}>
-            <span class="chevron" class:collapsed={!isExpanded}>
-                <ChevronIcon size={12} />
-            </span>
-        </button>
-        {#if isEditing}
-            <input
-                bind:this={inputRef}
-                bind:value={editName}
-                class="folder-name-input"
-                onblur={saveEdit}
-                onkeydown={handleKeydown}
-            />
-        {:else}
-            <button
-                class="folder-name-btn"
-                onclick={toggle}
-                ondblclick={startEditing}
-            >
-                {folder.name}
+    <div class="folder-item">
+        <div
+            class="folder-header"
+            class:drag-over={showDropHighlight}
+            data-folder-id={folder.id}
+            onmouseup={handleMouseUp}
+            role="button"
+            tabindex="0"
+        >
+            <button class="folder-toggle" onclick={toggle}>
+                <span class="chevron" class:collapsed={!isExpanded}>
+                    <ChevronIcon size={12} />
+                </span>
             </button>
-        {/if}
-        <ContextMenu items={getFolderMenuItems()} />
-    </div>
-
-    {#if isExpanded}
-        <div class="folder-children">
-            {#each folder.children as child}
-                <FolderItem folder={child} {apis} {searchQuery} />
-            {/each}
-
-            {#each folderApis as api}
+            {#if isEditing}
+                <input
+                    bind:this={inputRef}
+                    bind:value={editName}
+                    class="folder-name-input"
+                    onblur={saveEdit}
+                    onkeydown={handleKeydown}
+                />
+            {:else}
                 <button
-                    class="api-item {api.id === apiStore.api?.id
-                        ? 'active'
-                        : ''}"
-                    class:dragging={dragStore.draggingApiId === api.id}
-                    onmousedown={(e) => handleMouseDown(e, api)}
-                    onclick={() => onSelectApi(api)}
+                    class="folder-name-btn"
+                    onclick={toggle}
+                    ondblclick={startEditing}
                 >
-                    <div class="request-info">
-                        <span
-                            class="method"
-                            style:color={COLORS[api.request.method]}
-                        >
-                            {api.request.method}
-                        </span>
-                        <span class="name">{api.name}</span>
-                    </div>
-
-                    {#if api.id === apiStore.api?.id}
-                        <ContextMenu items={getApiMenuItems(api)} />
-                    {/if}
+                    {folder.name}
                 </button>
-            {/each}
+            {/if}
+            <ContextMenu items={getFolderMenuItems()} />
         </div>
-    {/if}
-</div>
+
+        {#if isExpanded}
+            <div class="folder-children">
+                {#each folder.children as child}
+                    <FolderItem folder={child} {apis} {searchQuery} />
+                {/each}
+
+                {#each folderApis as api}
+                    <button
+                        class="api-item {api.id === apiStore.api?.id
+                            ? 'active'
+                            : ''}"
+                        class:dragging={dragStore.draggingApiId === api.id}
+                        onmousedown={(e) => handleMouseDown(e, api)}
+                        onclick={() => onSelectApi(api)}
+                    >
+                        <div class="request-info">
+                            <span
+                                class="method"
+                                style:color={COLORS[api.request.method]}
+                            >
+                                {api.request.method}
+                            </span>
+                            <span class="name">{api.name}</span>
+                        </div>
+
+                        {#if api.id === apiStore.api?.id}
+                            <ContextMenu items={getApiMenuItems(api)} />
+                        {/if}
+                    </button>
+                {/each}
+            </div>
+        {/if}
+    </div>
 {/if}
 
 <style>

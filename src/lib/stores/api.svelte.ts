@@ -180,6 +180,15 @@ class ApiStore {
         }
     }
 
+    async importApi(name: string, request: Request, folderId?: string) {
+        const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
+        const created = await apiService.createApi(name, request, folderId, workspaceId)
+        if (created) {
+            this.addApi(created)
+        }
+        return created
+    }
+
     async listApis() {
         const apis = await apiService.listApis()
         this.allApis = apis

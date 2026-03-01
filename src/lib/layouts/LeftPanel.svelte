@@ -10,6 +10,7 @@
     import ApiList from "$lib/components/ApiList.svelte";
     import AddIcon from "$lib/ui/icons/AddIcon.svelte";
     import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
+    import { importModalStore } from "$lib/stores/importModal.svelte";
 
     let searchQuery = $state("");
 
@@ -27,6 +28,10 @@
         {
             label: "New Folder",
             onClick: () => folderStore.create("New Folder"),
+        },
+        {
+            label: "Import",
+            onClick: () => importModalStore.show(),
         },
     ];
 
