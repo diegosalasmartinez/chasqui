@@ -1,4 +1,5 @@
 import type { Request, HttpMethod, KeyValuePair, AuthConfig, RequestBody, QueryParam } from '$lib/types/http'
+import { defaultRequest } from '$lib/utils/common'
 
 export type ImportedRequest = {
     name: string
@@ -14,22 +15,16 @@ export type ImportedFolder = {
 export type ImportedCollection = {
     name: string
     folders: ImportedFolder[]
-    requests: ImportedRequest[] // root-level
+    requests: ImportedRequest[]
 }
 
 export type ImportFormat = 'curl' | 'postman' | 'insomnia' | 'unknown'
 
-function defaultRequest(): Request {
-    return {
-        method: 'GET',
-        url: '',
-        params: [],
-        headers: [],
-        auth: { type: 'none' },
-        body: { type: 'none' },
-        insecure: false,
-    }
-}
+export type ParseResult =
+    | { format: 'curl'; name: string; request: Request }
+    | { format: 'postman' | 'insomnia'; collection: ImportedCollection }
+    | { format: 'error'; message: string }
+    | { format: 'unknown' }
 
 function isJsonLike(s: string): boolean {
     const t = s.trim()

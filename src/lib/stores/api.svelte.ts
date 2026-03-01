@@ -1,20 +1,10 @@
 import type { Response, Api, Request } from '$lib/types/http'
 import { applyVariableSubstitution } from '$lib/utils/variables'
-import { bodyPrettify } from '$lib/utils/common'
+import { bodyPrettify, defaultRequest } from '$lib/utils/common'
 import { environmentStore } from '$lib/stores/environment.svelte'
 import { historyStore } from '$lib/stores/history.svelte'
 import { workspaceStore } from '$lib/stores/workspace.svelte'
 import { apiService } from '$lib/services/api.service'
-
-const defaultRequest = (): Request => ({
-    method: 'GET',
-    url: '',
-    params: [],
-    headers: [],
-    auth: { type: 'none' },
-    body: { type: 'none' },
-    insecure: false,
-})
 
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 

@@ -58,3 +58,13 @@ export const substituteVariables = (text: string, variables: Map<string, string>
         return value !== undefined ? value : match;
     });
 };
+
+export const defaultRequest = (): import("$lib/types/http").Request => ({
+    method: 'GET',
+    url: '',
+    params: [],
+    headers: [],
+    auth: { type: 'none' },
+    body: { type: 'none' },
+    insecure: false,
+});

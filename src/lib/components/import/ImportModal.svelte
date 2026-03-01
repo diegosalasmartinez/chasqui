@@ -13,22 +13,28 @@
         countCollectionRequests,
         type ImportedFolder,
         type ImportedCollection,
+        type ParseResult,
     } from "$lib/utils/import";
+    import type { RequestBody } from "$lib/types/http";
 
     let input = $state("");
     let importedName = $state("");
     let isImporting = $state(false);
     let fileInputRef: HTMLInputElement | null = $state(null);
 
-    type ParseResult =
-        | {
-              format: "curl";
-              name: string;
-              request: import("$lib/types/http").Request;
-          }
-        | { format: "postman" | "insomnia"; collection: ImportedCollection }
-        | { format: "error"; message: string }
-        | { format: "unknown" };
+    const FORMAT_LABELS: Record<string, string> = {
+        curl: "curl",
+        postman: "Postman",
+        insomnia: "Insomnia",
+    };
+
+    const BODY_LABELS: Record<RequestBody["type"], string> = {
+        none: "no body",
+        json: "JSON body",
+        text: "text body",
+        "form-data": "form-data",
+        "x-www-form-urlencoded": "url-encoded",
+    };
 
     const parsed = $derived.by((): ParseResult | null => {
         const trimmed = input.trim();
@@ -63,11 +69,8 @@
         return { format: "unknown" };
     });
 
-    // Sync the editable name when a curl is parsed
     $effect(() => {
-        if (parsed?.format === "curl") {
-            importedName = parsed.name;
-        }
+        if (parsed?.format === "curl") importedName = parsed.name;
     });
 
     function handleClose() {
@@ -109,12 +112,12 @@
     ): Promise<void> {
         const created = await folderStore.create(folder.name, parentId);
         if (!created?.id) return;
-        for (const child of folder.children) {
-            await importFolder(child, created.id);
-        }
-        for (const req of folder.requests) {
-            await apiStore.importApi(req.name, req.request, created.id);
-        }
+        await Promise.all([
+            ...folder.children.map((child) => importFolder(child, created.id)),
+            ...folder.requests.map((req) =>
+                apiStore.importApi(req.name, req.request, created.id),
+            ),
+        ]);
     }
 
     async function importCollection() {
@@ -123,40 +126,18 @@
         isImporting = true;
         try {
             const { collection } = parsed;
-            for (const req of collection.requests) {
-                await apiStore.importApi(req.name, req.request);
-            }
-            for (const folder of collection.folders) {
-                await importFolder(folder);
-            }
             const total = countCollectionRequests(collection);
-            toastStore.info(
-                `Imported ${total} request${total !== 1 ? "s" : ""}`,
-            );
+            await Promise.all([
+                ...collection.requests.map((req) =>
+                    apiStore.importApi(req.name, req.request),
+                ),
+                ...collection.folders.map((folder) => importFolder(folder)),
+            ]);
+            toastStore.info(`Imported ${total} request${total !== 1 ? "s" : ""}`);
             handleClose();
         } finally {
             isImporting = false;
         }
-    }
-
-    function formatLabel(format: string): string {
-        if (format === "curl") return "curl";
-        if (format === "postman") return "Postman";
-        if (format === "insomnia") return "Insomnia";
-        return format;
-    }
-
-    function bodyLabel(body: import("$lib/types/http").RequestBody): string {
-        if (body.type === "none") return "no body";
-        if (body.type === "json") return "JSON body";
-        if (body.type === "text") return "text body";
-        if (body.type === "form-data") return "form-data";
-        if (body.type === "x-www-form-urlencoded") return "url-encoded";
-        return "body";
-    }
-
-    function folderCount(col: ImportedCollection): number {
-        return col.folders.length;
     }
 </script>
 
@@ -193,9 +174,7 @@
                 <div class="preview-header">
                     <span class="preview-label">Preview</span>
                     {#if parsed.format !== "unknown" && parsed.format !== "error"}
-                        <span class="format-badge"
-                            >{formatLabel(parsed.format)}</span
-                        >
+                        <span class="format-badge">{FORMAT_LABELS[parsed.format] ?? parsed.format}</span>
                     {/if}
                 </div>
 
@@ -226,7 +205,7 @@
                                     : ""}
                             </span>
                             <span class="dot">·</span>
-                            <span>{bodyLabel(parsed.request.body)}</span>
+                            <span>{BODY_LABELS[parsed.request.body.type]}</span>
                             {#if parsed.request.auth.type !== "none"}
                                 <span class="dot">·</span>
                                 <span>{parsed.request.auth.type} auth</span>
@@ -256,7 +235,7 @@
                 {:else if parsed.format === "postman" || parsed.format === "insomnia"}
                     {@const col = parsed.collection}
                     {@const totalReqs = countCollectionRequests(col)}
-                    {@const folders = folderCount(col)}
+                    {@const folders = col.folders.length}
 
                     <div class="preview-card">
                         <div class="collection-name">{col.name}</div>
