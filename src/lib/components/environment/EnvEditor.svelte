@@ -1,82 +1,73 @@
 <script lang="ts">
     import type { EnvVariable } from "$lib/types/http";
     import { environmentStore } from "$lib/stores/environment.svelte";
+    import EnvVariableRow from "./EnvVariableRow.svelte";
     import PlusIcon from "$lib/ui/icons/PlusIcon.svelte";
-    import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
-    import ResetIcon from "$lib/ui/icons/ResetIcon.svelte";
 
     const env = $derived(environmentStore.selected);
 
+    function updateVariables(updated: EnvVariable[]) {
+        if (!env) return;
+
+        environmentStore.updateLocal(env.id, undefined, updated);
+    }
+
     function addRow() {
         if (!env) return;
-        const newVar: EnvVariable = { key: "", value: "" };
-        environmentStore.updateLocal(env.id, undefined, [
-            ...env.variables,
-            newVar,
-        ]);
+
+        updateVariables([...env.variables, { key: "", value: "" }]);
     }
 
     function updateKey(index: number, key: string) {
         if (!env) return;
+
         const updated = [...env.variables];
-        const variable = updated[index];
-        // Set initial_value when key is first set
-        if (!variable.initial_value && variable.value) {
-            updated[index] = {
-                ...variable,
-                key,
-                initial_value: variable.value,
-            };
-        } else {
-            updated[index] = { ...variable, key };
-        }
-        environmentStore.updateLocal(env.id, undefined, updated);
+        const v = updated[index];
+        updated[index] =
+            !v.initial_value && v.value
+                ? { ...v, key, initial_value: v.value }
+                : { ...v, key };
+        updateVariables(updated);
     }
 
     function updateValue(index: number, value: string) {
         if (!env) return;
+
         const updated = [...env.variables];
-        const variable = updated[index];
-        // Set initial_value on first value input if not already set
-        if (!variable.initial_value && value && variable.key) {
-            updated[index] = { ...variable, value, initial_value: value };
-        } else {
-            updated[index] = { ...variable, value };
-        }
-        environmentStore.updateLocal(env.id, undefined, updated);
+        const v = updated[index];
+        updated[index] =
+            !v.initial_value && value && v.key
+                ? { ...v, value, initial_value: value }
+                : { ...v, value };
+        updateVariables(updated);
     }
 
     function updateInitialValue(index: number, initial_value: string) {
         if (!env) return;
+
         const updated = [...env.variables];
         updated[index] = {
             ...updated[index],
             initial_value: initial_value || undefined,
         };
-        environmentStore.updateLocal(env.id, undefined, updated);
+        updateVariables(updated);
     }
 
     function resetToInitial(index: number) {
         if (!env) return;
+
         const updated = [...env.variables];
-        const variable = updated[index];
-        if (variable.initial_value) {
-            updated[index] = { ...variable, value: variable.initial_value };
-            environmentStore.updateLocal(env.id, undefined, updated);
+        const v = updated[index];
+        if (v.initial_value) {
+            updated[index] = { ...v, value: v.initial_value };
+            updateVariables(updated);
         }
     }
 
     function removeRow(index: number) {
         if (!env) return;
-        const updated = env.variables.filter((_, i) => i !== index);
-        environmentStore.updateLocal(env.id, undefined, updated);
-    }
 
-    function hasChanged(variable: EnvVariable): boolean {
-        return (
-            !!variable.initial_value &&
-            variable.value !== variable.initial_value
-        );
+        updateVariables(env.variables.filter((_, i) => i !== index));
     }
 </script>
 
@@ -98,87 +89,23 @@
                     </div>
 
                     {#each env.variables as variable, i}
-                        <div
-                            class="kv-row"
-                            class:changed={hasChanged(variable)}
-                        >
-                            <div class="col-key">
-                                <input
-                                    type="text"
-                                    class="kv-input"
-                                    placeholder="Variable name"
-                                    value={variable.key}
-                                    oninput={(e) =>
-                                        updateKey(i, e.currentTarget.value)}
-                                    autocomplete="off"
-                                    autocorrect="off"
-                                    autocapitalize="off"
-                                    spellcheck="false"
-                                />
-                            </div>
-                            <div class="col-initial">
-                                <input
-                                    type="text"
-                                    class="kv-input"
-                                    placeholder="Initial value"
-                                    value={variable.initial_value || ""}
-                                    oninput={(e) =>
-                                        updateInitialValue(
-                                            i,
-                                            e.currentTarget.value,
-                                        )}
-                                    autocomplete="off"
-                                    autocorrect="off"
-                                    autocapitalize="off"
-                                    spellcheck="false"
-                                />
-                            </div>
-                            <div class="col-value">
-                                <input
-                                    type="text"
-                                    class="kv-input"
-                                    placeholder="Value"
-                                    value={variable.value}
-                                    oninput={(e) =>
-                                        updateValue(i, e.currentTarget.value)}
-                                    autocomplete="off"
-                                    autocorrect="off"
-                                    autocapitalize="off"
-                                    spellcheck="false"
-                                />
-                            </div>
-                            <div class="col-actions">
-                                {#if hasChanged(variable)}
-                                    <button
-                                        type="button"
-                                        class="btn-reset"
-                                        onclick={() => resetToInitial(i)}
-                                        aria-label="Reset to initial value"
-                                        title="Reset to initial value"
-                                    >
-                                        <ResetIcon size={14} />
-                                    </button>
-                                {/if}
-                                <button
-                                    type="button"
-                                    class="btn-remove"
-                                    onclick={() => removeRow(i)}
-                                    aria-label="Remove row"
-                                >
-                                    <CloseIcon size={14} />
-                                </button>
-                            </div>
-                        </div>
+                        <EnvVariableRow
+                            {variable}
+                            onUpdateKey={(key) => updateKey(i, key)}
+                            onUpdateValue={(value) => updateValue(i, value)}
+                            onUpdateInitialValue={(val) =>
+                                updateInitialValue(i, val)}
+                            onReset={() => resetToInitial(i)}
+                            onRemove={() => removeRow(i)}
+                        />
                     {/each}
                 </div>
 
                 <button type="button" class="btn-add" onclick={addRow}>
                     <PlusIcon size={16} />
-                    <span
-                        >Add {env.variables.length === 0
-                            ? "Variable"
-                            : "Row"}</span
-                    >
+                    <span>
+                        Add {env.variables.length === 0 ? "Variable" : "Row"}
+                    </span>
                 </button>
             </div>
         </div>
@@ -253,93 +180,6 @@
     .kv-header div {
         border: none !important;
         padding-left: 12px;
-    }
-
-    .kv-row {
-        display: grid;
-        grid-template-columns: 0.8fr 1fr 1fr 60px;
-        gap: 0;
-        border-bottom: 0.5px solid var(--border);
-        transition: background 0.1s ease;
-    }
-
-    .kv-row:last-child {
-        border-bottom: none;
-    }
-
-    .kv-row:hover {
-        background: var(--hover);
-    }
-
-    .col-key,
-    .col-initial,
-    .col-value {
-        display: flex;
-        align-items: center;
-        padding: 0;
-        border-right: 0.5px solid var(--border);
-    }
-
-    .kv-input {
-        width: 100%;
-        padding: 8px 12px;
-        background: transparent;
-        border: none;
-        font-size: 13px;
-        color: var(--text-primary);
-        box-shadow: none;
-        transition: background 0.1s ease;
-    }
-
-    .kv-input:focus {
-        outline: none;
-        background: var(--bg-darker);
-    }
-
-    .kv-input::placeholder {
-        color: var(--text-secondary);
-        opacity: 0.5;
-    }
-
-    .col-actions {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 8px;
-    }
-
-    .btn-reset,
-    .btn-remove {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: auto;
-        padding: 4px;
-        border: none;
-        background: transparent;
-        border-radius: 4px;
-        opacity: 0;
-        transition: all 0.15s ease;
-        color: var(--text-secondary);
-        cursor: pointer;
-        box-shadow: none;
-    }
-
-    .kv-row:hover .btn-reset,
-    .kv-row:hover .btn-remove {
-        opacity: 0.6;
-    }
-
-    .btn-reset:hover {
-        opacity: 1 !important;
-        color: var(--orange);
-        background: color-mix(in srgb, var(--orange) 15%, transparent);
-    }
-
-    .btn-remove:hover {
-        opacity: 1 !important;
-        color: var(--red);
-        background: var(--red-hover);
     }
 
     .btn-add {

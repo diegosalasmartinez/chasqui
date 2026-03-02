@@ -1,16 +1,17 @@
 <script lang="ts">
     import { environmentStore } from "$lib/stores/environment.svelte";
+    import { importModalStore } from "$lib/stores/importModal.svelte";
     import { historyStore } from "$lib/stores/history.svelte";
     import { sidebarStore } from "$lib/stores/sidebar.svelte";
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
+    import { exportCollection } from "$lib/utils/collectionExport";
     import HistoryList from "$lib/components/history/HistoryList.svelte";
     import EnvList from "$lib/components/environment/EnvList.svelte";
-    import ContextMenu from "$lib/ui/ContextMenu.svelte";
     import ApiList from "$lib/components/ApiList.svelte";
-    import AddIcon from "$lib/ui/icons/AddIcon.svelte";
+    import ContextMenu from "$lib/ui/ContextMenu.svelte";
     import CloseIcon from "$lib/ui/icons/CloseIcon.svelte";
-    import { importModalStore } from "$lib/stores/importModal.svelte";
+    import AddIcon from "$lib/ui/icons/AddIcon.svelte";
 
     let searchQuery = $state("");
 
@@ -32,6 +33,10 @@
         {
             label: "Import",
             onClick: () => importModalStore.show(),
+        },
+        {
+            label: "Export Collection",
+            onClick: () => exportCollection(),
         },
     ];
 

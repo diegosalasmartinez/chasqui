@@ -6,8 +6,8 @@
         exportRequest,
         getFormatName,
         EXPORT_FORMATS,
-        type ExportFormat,
     } from "$lib/utils/export";
+    import type { ExportFormat } from "$lib/types/export";
     import CopyIcon from "$lib/ui/icons/CopyIcon.svelte";
     import Modal from "$lib/ui/Modal.svelte";
 
