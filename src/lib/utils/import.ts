@@ -1,43 +1,20 @@
 import type { Request, HttpMethod, KeyValuePair, AuthConfig, RequestBody, QueryParam } from '$lib/types/http'
-import { defaultRequest } from '$lib/utils/common'
-
-export type ImportedRequest = {
-    name: string
-    request: Request
-}
-
-export type ImportedFolder = {
-    name: string
-    requests: ImportedRequest[]
-    children: ImportedFolder[]
-}
-
-export type ImportedCollection = {
-    name: string
-    folders: ImportedFolder[]
-    requests: ImportedRequest[]
-}
-
-export type ImportFormat = 'curl' | 'postman' | 'insomnia' | 'unknown'
-
-export type ParseResult =
-    | { format: 'curl'; name: string; request: Request }
-    | { format: 'postman' | 'insomnia'; collection: ImportedCollection }
-    | { format: 'error'; message: string }
-    | { format: 'unknown' }
+import type { ImportedRequest, ImportedFolder, ImportedCollection, ImportFormat } from '$lib/types/import'
+import { METHODS } from '$lib/constants/http.constants'
+import { defaultRequest } from './common'
 
 function isJsonLike(s: string): boolean {
     const t = s.trim()
     return (t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))
 }
 
+// Normalizes a method string to a known HttpMethod, defaulting to GET
 function normalizeMethod(m: string): HttpMethod {
     const upper = m.toUpperCase()
-    return (['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(upper) ? upper : 'GET') as HttpMethod
+    return ((METHODS as readonly string[]).includes(upper) ? upper : 'GET') as HttpMethod
 }
 
-// ─── curl parser ─────────────────────────────────────────────────────────────
-
+// Curl parser
 function tokenizeCurl(raw: string): string[] {
     const normalized = raw
         .replace(/\\\r?\n\s*/g, ' ')
@@ -161,7 +138,7 @@ export function parseCurl(curlString: string): ImportedRequest {
             token === '--compressed' || token === '-s' || token === '--silent' ||
             token === '-L' || token === '--location' || token === '-v' || token === '--verbose'
         ) {
-            // ignored flags with no value
+            // ignored flags
         } else if (
             token === '-o' || token === '--output' || token === '--max-time' ||
             token === '--connect-timeout' || token === '-A' || token === '--user-agent' ||
@@ -233,7 +210,7 @@ export function parseCurl(curlString: string): ImportedRequest {
     return { name, request }
 }
 
-// ─── Postman v2.1 parser ──────────────────────────────────────────────────────
+// Postman v2.1 parser
 
 function postmanUrlString(url: unknown): string {
     if (typeof url === 'string') return url
@@ -378,7 +355,7 @@ export function parsePostman(json: unknown): ImportedCollection {
     return collection
 }
 
-// ─── Insomnia v4 parser ───────────────────────────────────────────────────────
+// Insomnia v4 parser
 
 type InsomniaResource = {
     _type: string
@@ -512,8 +489,6 @@ export function parseInsomnia(json: unknown): ImportedCollection {
     return collection
 }
 
-// ─── Auto-detect format ───────────────────────────────────────────────────────
-
 export function detectFormat(input: string): ImportFormat {
     const trimmed = input.trim()
     if (trimmed.toLowerCase().startsWith('curl')) return 'curl'
@@ -527,8 +502,6 @@ export function detectFormat(input: string): ImportFormat {
     } catch { /* not JSON */ }
     return 'unknown'
 }
-
-// ─── Count helpers ────────────────────────────────────────────────────────────
 
 export function countCollectionRequests(col: ImportedCollection): number {
     return col.requests.length + col.folders.reduce((acc, f) => acc + countFolderRequests(f), 0)

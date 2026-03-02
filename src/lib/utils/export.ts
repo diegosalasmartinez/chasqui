@@ -1,15 +1,10 @@
 import type { Request } from '$lib/types/http';
+import type { ExportFormat, ExportOptions } from '$lib/types/export';
 import { applyVariableSubstitution } from './variables';
 
-export type ExportFormat = 'curl' | 'http' | 'fetch' | 'axios' | 'python' | 'php' | 'go';
+export type { ExportFormat, ExportOptions };
 
-export type ExportOptions = {
-    variables?: Map<string, string>;
-};
-
-/**
- * Build the full URL with query parameters
- */
+// Build the full URL with query parameters
 function buildUrl(request: Request): string {
     const enabledParams = request.params.filter(p => p.enabled && p.key);
     if (enabledParams.length === 0) return request.url;
@@ -21,9 +16,7 @@ function buildUrl(request: Request): string {
     return url.toString();
 }
 
-/**
- * Build URL with API key in query if needed
- */
+// Build URL with API key in query if needed
 function buildUrlWithAuth(request: Request): string {
     let url = buildUrl(request);
     if (request.auth.type === 'api-key' && request.auth.addTo === 'query') {
@@ -34,9 +27,7 @@ function buildUrlWithAuth(request: Request): string {
     return url;
 }
 
-/**
- * Get headers including auth headers
- */
+// Get headers including auth headers
 function getHeaders(request: Request): Array<{ key: string; value: string }> {
     const headers: Array<{ key: string; value: string }> = [];
 
@@ -75,9 +66,7 @@ function getHeaders(request: Request): Array<{ key: string; value: string }> {
     return headers;
 }
 
-/**
- * Get the request body as a string
- */
+// Get the request body as a string
 function getBody(request: Request): string | null {
     if (request.body.type === 'json' || request.body.type === 'text') {
         return request.body.content || null;
@@ -95,9 +84,7 @@ function getBody(request: Request): string | null {
     return null;
 }
 
-/**
- * Apply variable substitution wrapper
- */
+// Apply variable substitution wrapper
 function prepareRequest(request: Request, options: ExportOptions): Request {
     if (options.variables && options.variables.size > 0) {
         return applyVariableSubstitution(request, options.variables);
@@ -105,9 +92,7 @@ function prepareRequest(request: Request, options: ExportOptions): Request {
     return request;
 }
 
-/**
- * Export request as curl command
- */
+// Export request as curl command
 export function toCurl(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const parts: string[] = ['curl'];
@@ -145,9 +130,7 @@ export function toCurl(request: Request, options: ExportOptions = {}): string {
     return parts.join(' \\\n  ');
 }
 
-/**
- * Export request as raw HTTP format
- */
+// Export request as raw HTTP format
 export function toHttp(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const lines: string[] = [];
@@ -183,9 +166,7 @@ export function toHttp(request: Request, options: ExportOptions = {}): string {
     return lines.join('\n');
 }
 
-/**
- * Export request as JavaScript Fetch
- */
+// Export request as JavaScript Fetch
 export function toFetch(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const url = buildUrlWithAuth(request);
@@ -227,9 +208,7 @@ export function toFetch(request: Request, options: ExportOptions = {}): string {
     return lines.join('\n');
 }
 
-/**
- * Export request as JavaScript Axios
- */
+// Export request as JavaScript Axios
 export function toAxios(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const url = buildUrlWithAuth(request);
@@ -273,9 +252,7 @@ export function toAxios(request: Request, options: ExportOptions = {}): string {
     return lines.join('\n');
 }
 
-/**
- * Export request as Python requests
- */
+// Export request as Python requests
 export function toPython(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const url = buildUrlWithAuth(request);
@@ -334,9 +311,7 @@ export function toPython(request: Request, options: ExportOptions = {}): string 
     return lines.join('\n');
 }
 
-/**
- * Export request as PHP cURL
- */
+// Export request as PHP cURL
 export function toPhp(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const url = buildUrlWithAuth(request);
@@ -385,9 +360,7 @@ export function toPhp(request: Request, options: ExportOptions = {}): string {
     return lines.join('\n');
 }
 
-/**
- * Export request as Go net/http
- */
+// Export request as Go net/http
 export function toGo(request: Request, options: ExportOptions = {}): string {
     request = prepareRequest(request, options);
     const url = buildUrlWithAuth(request);
@@ -444,9 +417,7 @@ export function toGo(request: Request, options: ExportOptions = {}): string {
     return lines.join('\n');
 }
 
-/**
- * Export request to the specified format
- */
+// Export request to the specified format
 export function exportRequest(request: Request, format: ExportFormat, options: ExportOptions = {}): string {
     switch (format) {
         case 'curl':
@@ -468,9 +439,7 @@ export function exportRequest(request: Request, format: ExportFormat, options: E
     }
 }
 
-/**
- * Get display name for export format
- */
+// Get display name for export format
 export function getFormatName(format: ExportFormat): string {
     switch (format) {
         case 'curl':

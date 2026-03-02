@@ -6,20 +6,14 @@ export type Monaco = typeof MonacoEditor;
 let monaco: Monaco | null = null;
 let initPromise: Promise<Monaco> | null = null;
 
-/**
- * Preload Monaco editor in the background.
- * Call this early (e.g., on app mount) to avoid delay when user opens the editor.
- */
+// Preload Monaco in the background to avoid delay when user opens the editor
 export function preloadMonaco(): void {
     if (!initPromise) {
         initPromise = loadMonaco();
     }
 }
 
-/**
- * Get the Monaco instance, loading it if necessary.
- * Returns the same instance on subsequent calls.
- */
+// Get the Monaco instance, loading it if not yet initialized
 export async function getMonaco(): Promise<Monaco> {
     if (monaco) return monaco;
 

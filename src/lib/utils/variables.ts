@@ -1,9 +1,7 @@
 import type { Request } from '$lib/types/http'
 import { substituteVariables } from './common'
 
-/**
- * Applies variable substitution to all parts of a request
- */
+// Applies variable substitution to all string fields of a request
 export const applyVariableSubstitution = (request: Request, variables: Map<string, string>): Request => {
     const sub = (text: string) => substituteVariables(text, variables)
 
@@ -16,7 +14,6 @@ export const applyVariableSubstitution = (request: Request, variables: Map<strin
         body: { ...request.body },
     }
 
-    // Substitute auth values
     if (substituted.auth.type === 'bearer') {
         substituted.auth = { ...substituted.auth, token: sub(substituted.auth.token) }
     } else if (substituted.auth.type === 'basic') {
@@ -25,7 +22,6 @@ export const applyVariableSubstitution = (request: Request, variables: Map<strin
         substituted.auth = { ...substituted.auth, key: sub(substituted.auth.key), value: sub(substituted.auth.value) }
     }
 
-    // Substitute body content
     if (substituted.body.type === 'json' || substituted.body.type === 'text') {
         substituted.body = { ...substituted.body, content: sub(substituted.body.content) }
     } else if (substituted.body.type === 'form-data' || substituted.body.type === 'x-www-form-urlencoded') {

@@ -7,8 +7,7 @@ export const clickOutside = (node: HTMLElement, cb: () => void) => {
 
     document.addEventListener("click", onDocClick, true);
     return {
-        destroy: () =>
-            document.removeEventListener("click", onDocClick, true),
+        destroy: () => document.removeEventListener("click", onDocClick, true),
     };
 }
 
@@ -17,7 +16,7 @@ export const copyToClipboard = async (txt: string, message?: string) => {
         await navigator.clipboard.writeText(txt);
         toastStore.info(message ?? 'Copied to your clipboard!');
     } catch {
-        // Do nothing
+        // do nothing
     }
 };
 
@@ -26,7 +25,6 @@ export const bodyPrettify = (body: Uint8Array | number[] | undefined) => {
         const buf = new Uint8Array(body as any);
         const rawBody = new TextDecoder().decode(buf);
         const pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
-
         return pretty || rawBody;
     } catch {
         return "";
@@ -49,9 +47,7 @@ export const fmtMs = (ms?: number) =>
             ? `${ms} ms`
             : `${(ms / 1000).toFixed(2)} s`;
 
-/**
- * Substitutes {{var_name}} placeholders in a string with values from a Map
- */
+// Substitutes {{var_name}} placeholders with values from a Map
 export const substituteVariables = (text: string, variables: Map<string, string>): string => {
     return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
         const value = variables.get(varName);
@@ -68,3 +64,7 @@ export const defaultRequest = (): import("$lib/types/http").Request => ({
     body: { type: 'none' },
     insecure: false,
 });
+
+export const pluralize = (quantity: number, text: string) => {
+    return `${quantity} ${text}${quantity !== 1 ? "s" : ""}`
+}
