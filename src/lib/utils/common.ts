@@ -20,9 +20,19 @@ export const copyToClipboard = async (txt: string, message?: string) => {
     }
 };
 
-export const bodyPrettify = (body: Uint8Array | number[] | undefined) => {
+export const bodyPrettify = (body: Uint8Array | number[] | undefined, contentType?: string) => {
+    if (!body) return "";
+    const buf = new Uint8Array(body as any);
+
+    if (contentType && contentType.startsWith("image/")) {
+        let binary = "";
+        buf.forEach((b) => (binary += String.fromCharCode(b)));
+        const base64 = btoa(binary);
+        const mime = contentType.split(";")[0].trim();
+        return `data:${mime};base64,${base64}`;
+    }
+
     try {
-        const buf = new Uint8Array(body as any);
         const rawBody = new TextDecoder().decode(buf);
         const pretty = JSON.stringify(JSON.parse(rawBody), null, 2);
         return pretty || rawBody;

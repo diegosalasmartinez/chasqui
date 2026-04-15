@@ -7,6 +7,7 @@ import { bodyPrettify } from '$lib/utils/common'
 const HISTORY_LIMIT = 50
 
 function convertRawEntry(raw: HistoryEntryRaw): HistoryEntry {
+    const contentType = raw.response.headers.find(h => h.key.toLowerCase() === 'content-type')?.value ?? ''
     return {
         id: raw.id,
         at_ms: raw.at_ms,
@@ -15,7 +16,7 @@ function convertRawEntry(raw: HistoryEntryRaw): HistoryEntry {
         response: {
             status: raw.response.status,
             headers: raw.response.headers,
-            body: bodyPrettify(raw.response.body),
+            body: bodyPrettify(raw.response.body, contentType),
             at_ms: raw.response.at_ms,
             duration_ms: raw.response.duration_ms,
             size_bytes: raw.response.size_bytes

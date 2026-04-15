@@ -17,6 +17,7 @@
     const response = $derived(propResponse ?? apiStore.currentResponse);
     const headers = $derived(response?.headers);
     const body = $derived(response?.body);
+    const isImage = $derived(body?.startsWith("data:image/") ?? false);
 </script>
 
 {#if response}
@@ -40,7 +41,13 @@
 
         <div role="tabpanel" class="panel">
             {#if activeTab === "body"}
-                <JsonViewer value={body} />
+                {#if isImage}
+                    <div class="image-container">
+                        <img src={body} alt="Response" class="response-image" />
+                    </div>
+                {:else}
+                    <JsonViewer value={body} />
+                {/if}
             {:else}
                 <ResponseHeaders headers={headers ?? []} />
             {/if}
@@ -75,5 +82,20 @@
         min-height: 0;
         display: flex;
         flex-direction: column;
+    }
+
+    .image-container {
+        flex: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        overflow: auto;
+        padding: 10px;
+    }
+
+    .response-image {
+        max-width: 100%;
+        height: auto;
+        display: block;
     }
 </style>

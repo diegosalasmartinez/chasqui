@@ -130,10 +130,11 @@ class ApiStore {
         const workspaceId = workspaceStore.currentWorkspaceId ?? undefined
         const result = await apiService.sendRequest(substitutedRequest, workspaceId)
         if (result) {
+            const contentType = result.response.headers.find(h => h.key.toLowerCase() === 'content-type')?.value ?? ''
             const response: Response = {
                 status: result.response.status,
                 headers: result.response.headers,
-                body: bodyPrettify(result.response.body),
+                body: bodyPrettify(result.response.body, contentType),
                 at_ms: result.response.at_ms,
                 duration_ms: result.response.duration_ms,
                 size_bytes: result.response.size_bytes
