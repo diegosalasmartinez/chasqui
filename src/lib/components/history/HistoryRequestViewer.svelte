@@ -35,8 +35,47 @@
         }
     }
 
+    // Normalize URL: strip query string and merge into params for display
+    const normalizedUrl = $derived.by(() => {
+        try {
+            const u = new URL(request.url);
+            return u.origin + u.pathname;
+        } catch {
+            const qIdx = request.url.indexOf("?");
+            return qIdx !== -1 ? request.url.slice(0, qIdx) : request.url;
+        }
+    });
+
+    const allParams = $derived.by(() => {
+        const fromParams = request.params.filter((p) => p.enabled);
+        const urlParams: typeof fromParams = [];
+        try {
+            new URL(request.url).searchParams.forEach((value, key) => {
+                urlParams.push({ key, value, enabled: true });
+            });
+        } catch {
+            const qIdx = request.url.indexOf("?");
+            if (qIdx !== -1) {
+                for (const pair of request.url.slice(qIdx + 1).split("&")) {
+                    const eqIdx = pair.indexOf("=");
+                    if (eqIdx > 0) {
+                        urlParams.push({
+                            key: decodeURIComponent(pair.slice(0, eqIdx)),
+                            value: decodeURIComponent(pair.slice(eqIdx + 1)),
+                            enabled: true,
+                        });
+                    } else if (pair) {
+                        urlParams.push({ key: decodeURIComponent(pair), value: "", enabled: true });
+                    }
+                }
+            }
+        }
+        // Prefer explicit params; only add URL params not already in request.params
+        const keys = new Set(fromParams.map((p) => p.key));
+        return [...fromParams, ...urlParams.filter((p) => !keys.has(p.key))];
+    });
+
     const requestName = $derived(getRequestName(request.url));
-    const enabledParams = $derived(request.params.filter((p) => p.enabled));
     const enabledHeaders = $derived(request.headers.filter((h) => h.enabled));
 </script>
 
@@ -57,7 +96,7 @@
         <span class="method" style:color={COLORS[request.method]}>
             {request.method}
         </span>
-        <span class="url">{request.url}</span>
+        <span class="url">{normalizedUrl}</span>
     </div>
 
     <div class="tabs-container">
@@ -76,7 +115,7 @@
         {#if activeTab === "params"}
             <DataTable
                 columns={[{ key: "key", label: "Key" }, { key: "value", label: "Value" }]}
-                rows={enabledParams}
+                rows={allParams}
                 emptyMessage="No query parameters"
             />
         {:else if activeTab === "auth"}

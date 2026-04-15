@@ -160,7 +160,26 @@ export function parseCurl(curlString: string): ImportedRequest {
             request.params.push({ key, value, enabled: true })
         })
     } catch {
-        request.url = url
+        // Fallback for URLs without a valid protocol (e.g. example.com/path?q=1 or {{base}}/path?q=1)
+        const qIdx = url.indexOf('?')
+        if (qIdx !== -1) {
+            request.url = url.slice(0, qIdx)
+            const queryString = url.slice(qIdx + 1)
+            for (const pair of queryString.split('&')) {
+                const eqIdx = pair.indexOf('=')
+                if (eqIdx > 0) {
+                    request.params.push({
+                        key: decodeURIComponent(pair.slice(0, eqIdx)),
+                        value: decodeURIComponent(pair.slice(eqIdx + 1)),
+                        enabled: true,
+                    })
+                } else if (pair) {
+                    request.params.push({ key: decodeURIComponent(pair), value: '', enabled: true })
+                }
+            }
+        } else {
+            request.url = url
+        }
     }
 
     // Build body
