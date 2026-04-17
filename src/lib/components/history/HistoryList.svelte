@@ -131,7 +131,7 @@
     {:else}
         {#each groupedEntries as group}
             <div class="day-group">
-                <button class="day-header" onclick={() => toggleDay(group.key)}>
+                <button class="day-header sidebar-item" onclick={() => toggleDay(group.key)}>
                     <span class="chevron" class:collapsed={!isExpanded(group.key)}>
                         <ChevronIcon size={12} />
                     </span>
@@ -142,7 +142,7 @@
                     <div class="day-entries">
                         {#each group.entries as entry}
                             <button
-                                class="history-entry"
+                                class="history-entry sidebar-item"
                                 class:active={historyStore.selectedId === entry.id}
                                 onclick={() => selectEntry(entry)}
                             >
@@ -213,7 +213,6 @@
 
     .day-label {
         flex: 1;
-        text-align: left;
         font-size: 12.5px;
         font-weight: 500;
         color: var(--text-secondary);

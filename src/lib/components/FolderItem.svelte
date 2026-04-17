@@ -169,7 +169,7 @@
 {#if isVisible}
     <div class="folder-item">
         <div
-            class="folder-header"
+            class="folder-header sidebar-item"
             class:drag-over={showDropHighlight}
             data-folder-id={folder.id}
             onmouseup={handleMouseUp}
@@ -209,7 +209,7 @@
 
                 {#each folderApis as api}
                     <button
-                        class="api-item {api.id === apiStore.api?.id
+                        class="api-item sidebar-item {api.id === apiStore.api?.id
                             ? 'active'
                             : ''}"
                         class:dragging={dragStore.draggingApiId === api.id}

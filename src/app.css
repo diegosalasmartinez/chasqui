@@ -141,6 +141,11 @@ select:active {
     font-size: 12px;
 }
 
+.sidebar-item {
+    text-align: left;
+    line-height: 1.2;
+}
+
 /* Shared animations */
 @keyframes slideDown {
     from {

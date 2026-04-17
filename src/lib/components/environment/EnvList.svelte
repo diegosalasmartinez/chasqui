@@ -87,7 +87,7 @@
         {#each filteredEnvironments as env}
             <button
                 type="button"
-                class="env-item"
+                class="env-item sidebar-item"
                 class:selected={environmentStore.selectedId === env.id}
                 onclick={() => selectEnvironment(env)}
             >
@@ -133,7 +133,6 @@
         background: transparent;
         border: none;
         box-shadow: none;
-        text-align: left;
         font-size: inherit;
         color: inherit;
     }

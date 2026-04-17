@@ -103,7 +103,7 @@
             <!-- Root-level APIs (no folder) -->
             {#each rootApis as req}
                 <button
-                    class="saved-request {req.id === apiStore.api?.id
+                    class="saved-request sidebar-item {req.id === apiStore.api?.id
                         ? 'active'
                         : ''}"
                     class:dragging={dragStore.draggingApiId === req.id}
