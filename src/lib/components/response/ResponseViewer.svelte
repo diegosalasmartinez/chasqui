@@ -4,7 +4,7 @@
     import ResponseHeaders from "$lib/components/response/ResponseHeaders.svelte";
     import ResponseStats from "$lib/components/response/ResponseStats.svelte";
     import TabButton from "$lib/ui/TabButton.svelte";
-    import JsonViewer from "../JsonViewer.svelte";
+    import JsonResponseViewer from "./JsonResponseViewer.svelte";
 
     interface Props {
         response?: Response;
@@ -46,7 +46,7 @@
                         <img src={body} alt="Response" class="response-image" />
                     </div>
                 {:else}
-                    <JsonViewer value={body} />
+                    <JsonResponseViewer value={body} />
                 {/if}
             {:else}
                 <ResponseHeaders headers={headers ?? []} />
