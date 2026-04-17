@@ -37,7 +37,7 @@
 
     function getTextContent(): string {
         if (!editorRef) return "";
-        return editorRef.innerText || "";
+        return (editorRef.innerText || "").replace(/\n$/, "");
     }
 
     function getCursorPosition(): number {
