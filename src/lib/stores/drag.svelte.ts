@@ -88,6 +88,9 @@ class DragStore {
         ghost.style.transform = 'scale(0.95)'
         ghost.style.fontSize = '11px'
         ghost.style.padding = '4px 8px'
+        // The clone keeps the source's classes — kill any inherited transition
+        // (e.g. .folder-header's) so the ghost tracks the cursor without lag
+        ghost.style.transition = 'none'
         ghost.classList.add('drag-ghost')
 
         document.body.appendChild(ghost)
