@@ -67,25 +67,14 @@
     async function onSend() {
         await apiStore.sendRequest();
     }
-
-    function handleKeyDown(e: KeyboardEvent) {
-        const isEnter = e.key === "Enter";
-        const isCmdOrCtrl = e.metaKey || e.ctrlKey;
-
-        if (isEnter && isCmdOrCtrl) {
-            e.preventDefault();
-            onSend();
-        }
-    }
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- Cmd+Enter is handled globally in $lib/infra/shortcuts -->
 <form
     onsubmit={(e) => {
         e.preventDefault();
         onSend();
     }}
-    onkeydown={handleKeyDown}
 >
     <div class="header-bar">
         <NameField />

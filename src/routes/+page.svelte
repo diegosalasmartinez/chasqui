@@ -7,12 +7,14 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
     import { preloadMonaco } from "$lib/utils/monaco";
+    import { handleGlobalShortcut } from "$lib/infra/shortcuts";
     import HistoryRequestViewer from "$lib/components/history/HistoryRequestViewer.svelte";
     import ResponseLoading from "$lib/components/response/ResponseLoading.svelte";
     import RequestEditor from "$lib/components/request-form/RequestEditor.svelte";
     import ResponseViewer from "$lib/components/response/ResponseViewer.svelte";
     import EnvEditor from "$lib/components/environment/EnvEditor.svelte";
     import NoResponse from "$lib/components/response/NoResponse.svelte";
+    import NoRequestSelected from "$lib/components/NoRequestSelected.svelte";
     import ToastContainer from "$lib/ui/ToastContainer.svelte";
     import ExportModal from "$lib/components/export/ExportModal.svelte";
     import ImportModal from "$lib/components/import/ImportModal.svelte";
@@ -36,6 +38,8 @@
         ]);
     });
 </script>
+
+<svelte:window onkeydown={handleGlobalShortcut} />
 
 <div class="app-layout">
     <Header />
@@ -80,9 +84,7 @@
                     <NoResponse />
                 {/if}
             {:else}
-                <div class="empty-panel">
-                    <p>Select a request or create a new one</p>
-                </div>
+                <NoRequestSelected />
             {/if}
         </section>
     </main>

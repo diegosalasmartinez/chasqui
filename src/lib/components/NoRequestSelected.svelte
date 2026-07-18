@@ -1,21 +1,21 @@
 <script lang="ts">
-    import SendIcon from "$lib/ui/icons/SendIcon.svelte";
+    import AddIcon from "$lib/ui/icons/AddIcon.svelte";
     import ShortcutList from "$lib/ui/ShortcutList.svelte";
 
     const shortcuts = [
-        { keys: ["Mod", "Enter"], label: "Send request" },
-        { keys: ["Mod", "S"], label: "Save request" },
-        { keys: ["Mod", "D"], label: "Duplicate request" },
+        { keys: ["Mod", "N"], label: "New request" },
+        { keys: ["Mod", "F"], label: "Search" },
+        { keys: ["Mod", "1–3"], label: "Switch sidebar view" },
     ];
 </script>
 
-<section class="no-response">
+<section class="no-request">
     <div class="content">
         <div class="icon-wrapper">
-            <SendIcon size={32} />
+            <AddIcon size={32} />
         </div>
-        <h2>Ready to send</h2>
-        <p>Hit the send button to make your first request</p>
+        <h2>No request selected</h2>
+        <p>Select a request from the sidebar or create a new one</p>
 
         <div class="shortcuts-wrapper">
             <ShortcutList {shortcuts} />
@@ -24,7 +24,7 @@
 </section>
 
 <style>
-    .no-response {
+    .no-request {
         display: flex;
         align-items: center;
         justify-content: center;

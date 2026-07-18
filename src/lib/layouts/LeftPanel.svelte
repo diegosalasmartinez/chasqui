@@ -6,6 +6,7 @@
     import { folderStore } from "$lib/stores/folder.svelte";
     import { apiStore } from "$lib/stores/api.svelte";
     import { exportCollection } from "$lib/utils/collectionExport";
+    import { registerSearchInput } from "$lib/infra/shortcuts";
     import HistoryList from "$lib/components/history/HistoryList.svelte";
     import EnvList from "$lib/components/environment/EnvList.svelte";
     import ApiList from "$lib/components/ApiList.svelte";
@@ -14,6 +15,12 @@
     import AddIcon from "$lib/ui/icons/AddIcon.svelte";
 
     let searchQuery = $state("");
+    let searchInputEl: HTMLInputElement | null = null;
+
+    $effect(() => {
+        registerSearchInput(searchInputEl);
+        return () => registerSearchInput(null);
+    });
 
     $effect(() => {
         void sidebarStore.isCollections;
@@ -104,6 +111,7 @@
                 class="search-input"
                 placeholder={title}
                 bind:value={searchQuery}
+                bind:this={searchInputEl}
             />
             {#if searchQuery}
                 <button
