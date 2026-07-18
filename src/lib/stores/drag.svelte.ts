@@ -1,4 +1,4 @@
-// Global drag state for API items
+// Global drag state for sidebar items (API requests and folders)
 const DRAG_THRESHOLD = 5 // pixels before drag starts
 
 export type InsertionPoint = {
@@ -9,18 +9,30 @@ export type InsertionPoint = {
     lineWidth: number
 }
 
+type DragKind = 'api' | 'folder'
+
 class DragStore {
     draggingApiId = $state<string | null>(null)
+    draggingFolderId = $state<string | null>(null)
     hoverTargetId = $state<string | null>(null) // folder id or 'root'
     insertionPoint = $state<InsertionPoint | null>(null)
     justDropped = false // set briefly after a drop to suppress the click event
     private dragGhost: HTMLElement | null = null
-    private pendingDrag: { apiId: string; element: HTMLElement; startX: number; startY: number } | null = null
+    private pendingDrag: { kind: DragKind; id: string; element: HTMLElement; startX: number; startY: number } | null = null
     private hasDragStarted = false
 
     startDrag(apiId: string, sourceElement: HTMLElement, e: MouseEvent) {
+        this.startPendingDrag('api', apiId, sourceElement, e)
+    }
+
+    startFolderDrag(folderId: string, sourceElement: HTMLElement, e: MouseEvent) {
+        this.startPendingDrag('folder', folderId, sourceElement, e)
+    }
+
+    private startPendingDrag(kind: DragKind, id: string, sourceElement: HTMLElement, e: MouseEvent) {
         this.pendingDrag = {
-            apiId,
+            kind,
+            id,
             element: sourceElement,
             startX: e.clientX,
             startY: e.clientY
@@ -32,6 +44,7 @@ class DragStore {
     endDrag() {
         const didDrag = this.hasDragStarted
         this.draggingApiId = null
+        this.draggingFolderId = null
         this.hoverTargetId = null
         this.insertionPoint = null
         this.pendingDrag = null
@@ -48,7 +61,11 @@ class DragStore {
 
     private activateDrag() {
         if (!this.pendingDrag) return
-        this.draggingApiId = this.pendingDrag.apiId
+        if (this.pendingDrag.kind === 'api') {
+            this.draggingApiId = this.pendingDrag.id
+        } else {
+            this.draggingFolderId = this.pendingDrag.id
+        }
         this.hasDragStarted = true
         document.body.classList.add('is-dragging')
         this.createDragGhost(this.pendingDrag.element)
@@ -102,9 +119,19 @@ class DragStore {
         }
     }
 
-    // Called from per-item onmousemove handlers when dragging.
+    // Called from per-item onmousemove handlers when dragging an API.
     setHoverOnItem(groupId: string, index: number, rect: DOMRect, clientY: number) {
-        if (!this.isDragging) return
+        if (!this.draggingApiId) return
+        this.setInsertionPoint(groupId, index, rect, clientY)
+    }
+
+    // Called from folder-header onmousemove handlers when dragging a folder.
+    setHoverOnFolderItem(groupId: string, index: number, rect: DOMRect, clientY: number) {
+        if (!this.draggingFolderId) return
+        this.setInsertionPoint(groupId, index, rect, clientY)
+    }
+
+    private setInsertionPoint(groupId: string, index: number, rect: DOMRect, clientY: number) {
         const isAfter = clientY > rect.top + rect.height / 2
         this.insertionPoint = {
             groupId,
@@ -122,13 +149,13 @@ class DragStore {
     }
 
     setHoverFolder(folderId: string) {
-        if (!this.isDragging) return
+        if (!this.draggingApiId) return
         this.hoverTargetId = folderId
         this.insertionPoint = null
     }
 
     setHoverRoot() {
-        if (!this.isDragging) return
+        if (!this.draggingApiId) return
         this.hoverTargetId = 'root'
     }
 
@@ -137,7 +164,7 @@ class DragStore {
     }
 
     get isDragging(): boolean {
-        return this.draggingApiId !== null
+        return this.draggingApiId !== null || this.draggingFolderId !== null
     }
 
     isHoveringFolder(folderId: string): boolean {

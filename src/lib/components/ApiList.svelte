@@ -70,8 +70,9 @@
     }
 
     async function handleDrop() {
-        if (!dragStore.isDragging) return;
-        const apiId = dragStore.draggingApiId!;
+        // Folder drops are handled by FolderItem; the root zone only accepts APIs
+        const apiId = dragStore.draggingApiId;
+        if (!apiId) return;
 
         if (dragStore.insertionPoint?.groupId === "root") {
             // The insertion index is relative to the (possibly search-filtered)

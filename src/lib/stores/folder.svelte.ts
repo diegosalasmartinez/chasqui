@@ -111,6 +111,29 @@ class FolderStore {
         return this.allFolders.find(f => f.id === id)
     }
 
+    // Sorted folders sharing the same parent (undefined = root level)
+    getSiblings(parentId?: string): Folder[] {
+        return this.folders
+            .filter(f => (f.parent_id ?? null) === (parentId ?? null))
+            .sort(byPosition)
+    }
+
+    async moveAndInsertFolder(folderId: string, zoneIndex: number) {
+        const folder = this.getFolder(folderId)
+        if (!folder) return
+
+        const siblings = this.getSiblings(folder.parent_id)
+        const currentIndex = siblings.findIndex(f => f.id === folderId)
+        if (currentIndex === -1) return
+
+        const insertIndex = zoneIndex > currentIndex ? zoneIndex - 1 : zoneIndex
+        if (insertIndex === currentIndex) return
+
+        const filtered = siblings.filter(f => f.id !== folderId)
+        filtered.splice(insertIndex, 0, folder)
+        await this.reorderFolders(filtered.map(f => f.id))
+    }
+
     async reorderFolders(ids: string[]) {
         const posMap = new Map(ids.map((id, i) => [id, i]))
         this.allFolders = this.allFolders.map(f =>

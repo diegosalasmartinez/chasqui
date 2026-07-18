@@ -46,6 +46,7 @@
     const showDropHighlight = $derived(dragStore.isHoveringFolder(folder.id));
 
     function toggle() {
+        if (dragStore.justDropped) return;
         folderStore.toggleExpanded(folder.id);
     }
 
@@ -100,6 +101,30 @@
 
     function handleHeaderLeave() {
         dragStore.clearHoverTarget(folder.id);
+        if (dragStore.draggingFolderId) dragStore.clearItemHover();
+    }
+
+    function handleFolderMouseDown(e: MouseEvent) {
+        if (e.button !== 0 || isEditing) return;
+        const target = e.currentTarget as HTMLElement;
+        dragStore.startFolderDrag(folder.id, target, e);
+    }
+
+    function handleHeaderMouseMove(e: MouseEvent) {
+        const draggingId = dragStore.draggingFolderId;
+        if (!draggingId) return;
+
+        // Folders can only be reordered among siblings (same parent)
+        const draggedParent = folderStore.getFolder(draggingId)?.parent_id ?? "root";
+        const myParent = folder.parent_id ?? "root";
+        if (draggedParent !== myParent) return;
+
+        const siblings = folderStore.getSiblings(folder.parent_id);
+        const index = siblings.findIndex((s) => s.id === folder.id);
+        if (index === -1) return;
+
+        const el = e.currentTarget as HTMLElement;
+        dragStore.setHoverOnFolderItem(myParent, index, el.getBoundingClientRect(), e.clientY);
     }
 
     function handleChildrenLeave() {
@@ -108,6 +133,17 @@
 
     async function handleDrop() {
         if (!dragStore.isDragging) return;
+
+        if (dragStore.draggingFolderId) {
+            const pt = dragStore.insertionPoint;
+            // Only the hovered sibling's handler acts — ancestors' containers
+            // see the same mouseup but their group won't match
+            if (pt && pt.groupId === (folder.parent_id ?? "root")) {
+                await folderStore.moveAndInsertFolder(dragStore.draggingFolderId, pt.index);
+            }
+            return;
+        }
+
         const apiId = dragStore.draggingApiId!;
 
         if (dragStore.insertionPoint?.groupId === folder.id) {
@@ -157,6 +193,9 @@
         <div
             class="folder-header sidebar-item"
             class:drag-over={showDropHighlight}
+            class:dragging={dragStore.draggingFolderId === folder.id}
+            onmousedown={handleFolderMouseDown}
+            onmousemove={handleHeaderMouseMove}
             onmouseenter={handleHeaderEnter}
             onmouseleave={handleHeaderLeave}
             onmouseup={handleDrop}
@@ -355,7 +394,8 @@
         cursor: grabbing;
     }
 
-    .api-item.dragging {
+    .api-item.dragging,
+    .folder-header.dragging {
         opacity: 0.5;
     }
 
