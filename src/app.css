@@ -172,6 +172,8 @@ body.is-dragging {
 
 body.is-dragging * {
     cursor: grabbing !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 /* Suppress hover styles on sidebar items during drag — only the drop target should highlight */

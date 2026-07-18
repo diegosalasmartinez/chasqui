@@ -106,6 +106,8 @@
 
     function handleFolderMouseDown(e: MouseEvent) {
         if (e.button !== 0 || isEditing) return;
+        // Prevent native text selection / text-drag from hijacking the gesture
+        e.preventDefault();
         const target = e.currentTarget as HTMLElement;
         dragStore.startFolderDrag(folder.id, target, e);
     }
@@ -278,6 +280,9 @@
         font-size: 12.5px;
         color: var(--text-secondary);
         transition: all 0.15s ease;
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .folder-header:hover:not(.drag-over) {
