@@ -6,7 +6,7 @@
 
     interface Props {
         columns: Column[];
-        rows: Record<string, string>[];
+        rows: Record<string, unknown>[];
         emptyMessage?: string;
     }
 
