@@ -35,9 +35,18 @@ Chasqui is that. Nothing more.
 
 Grab the latest release from the [Releases](https://github.com/diegosalasmartinez/chasqui/releases) page.
 
-- **macOS**: `.dmg` or `.app`
+- **macOS**: `.dmg` (Apple Silicon and Intel builds)
 - **Windows**: `.msi` or `.exe`
 - **Linux**: `.deb`, `.AppImage`, or `.rpm`
+
+> **macOS**: builds are not signed with an Apple Developer certificate, so Gatekeeper
+> will claim the app is "damaged". It isn't — clear the quarantine flag and it opens fine:
+>
+> ```bash
+> xattr -cr /Applications/chasqui.app
+> ```
+>
+> **Windows**: SmartScreen may warn about an unknown publisher — click "More info" → "Run anyway".
 
 ### Build from source
 
@@ -75,6 +84,19 @@ pnpm check
 # Build frontend only
 pnpm build
 ```
+
+## Releasing
+
+Releases are tag-based. Bump the version in `package.json`, `src-tauri/Cargo.toml`
+and `src-tauri/tauri.conf.json`, then:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions builds the installers for all platforms and creates a **draft** release —
+review it and hit publish.
 
 ## Testing
 
