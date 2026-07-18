@@ -2,6 +2,9 @@ import { folderService } from '$lib/services/folder.service'
 import { workspaceStore } from '$lib/stores/workspace.svelte'
 import type { Folder, FolderNode } from '$lib/types/http'
 
+const byPosition = (a: { position?: number }, b: { position?: number }) =>
+    (a.position ?? 0) - (b.position ?? 0)
+
 class FolderStore {
     private allFolders = $state<Folder[]>([])
     expandedIds = $state<Set<string>>(new Set())
@@ -14,24 +17,22 @@ class FolderStore {
 
     // Build tree structure from flat folders list
     get tree(): FolderNode[] {
+        const sorted = [...this.folders].sort(byPosition)
         const map = new Map<string, FolderNode>()
 
-        // Create nodes for all folders
-        for (const folder of this.folders) {
+        for (const folder of sorted) {
             map.set(folder.id, { ...folder, children: [] })
         }
 
         const roots: FolderNode[] = []
 
-        // Build parent-child relationships
-        for (const folder of this.folders) {
+        for (const folder of sorted) {
             const node = map.get(folder.id)!
             if (folder.parent_id) {
                 const parent = map.get(folder.parent_id)
                 if (parent) {
                     parent.children.push(node)
                 } else {
-                    // Parent not found, treat as root
                     roots.push(node)
                 }
             } else {
@@ -108,6 +109,14 @@ class FolderStore {
 
     getFolder(id: string): Folder | undefined {
         return this.allFolders.find(f => f.id === id)
+    }
+
+    async reorderFolders(ids: string[]) {
+        const posMap = new Map(ids.map((id, i) => [id, i]))
+        this.allFolders = this.allFolders.map(f =>
+            posMap.has(f.id) ? { ...f, position: posMap.get(f.id)! } : f
+        )
+        await folderService.reorderFolders(ids)
     }
 }
 

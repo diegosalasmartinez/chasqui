@@ -14,20 +14,19 @@
 
     const query = $derived(searchQuery.toLowerCase().trim());
 
-    // APIs without a folder (root level), filtered by search query
+    const allRootApis = $derived(apiStore.savedApis.filter((a) => !a.folder_id));
     const rootApis = $derived(
-        apiStore.savedApis
-            .filter((a) => !a.folder_id)
-            .filter(
-                (a) =>
-                    !query ||
-                    a.name.toLowerCase().includes(query) ||
-                    a.request.url.toLowerCase().includes(query),
-            ),
+        allRootApis.filter(
+            (a) =>
+                !query ||
+                a.name.toLowerCase().includes(query) ||
+                a.request.url.toLowerCase().includes(query),
+        ),
     );
     const showDropHighlight = $derived(dragStore.isHoveringRoot());
 
     function onSelectApi(api: Api) {
+        if (dragStore.justDropped) return;
         apiStore.selectApi(api);
     }
 
@@ -49,32 +48,51 @@
         ];
     }
 
-    // Mouse-based drag handlers
     function handleMouseDown(e: MouseEvent, api: Api) {
         if (!api.id || e.button !== 0) return;
         const target = e.currentTarget as HTMLElement;
         dragStore.startDrag(api.id, target, e);
     }
 
-    async function handleMouseUp() {
-        if (!dragStore.draggingApiId || !dragStore.isHoveringRoot()) return;
+    function handleItemMouseMove(e: MouseEvent, index: number) {
+        if (!dragStore.isDragging) return;
+        const el = e.currentTarget as HTMLElement;
+        dragStore.setHoverOnItem("root", index, el.getBoundingClientRect(), e.clientY);
+    }
 
-        const apiId = dragStore.draggingApiId;
+    function handleRootMouseEnter() {
+        dragStore.setHoverRoot();
+    }
 
-        // Don't move if already at root
-        const api = apiStore.savedApis.find((a) => a.id === apiId);
-        if (!api?.folder_id) {
+    function handleRootMouseLeave() {
+        dragStore.clearHoverTarget("root");
+        dragStore.clearItemHover();
+    }
+
+    async function handleDrop() {
+        if (!dragStore.isDragging) return;
+        const apiId = dragStore.draggingApiId!;
+
+        if (dragStore.insertionPoint?.groupId === "root") {
+            // The insertion index is relative to the (possibly search-filtered)
+            // visible list — translate it to an index in the full root list
+            const visibleIndex = dragStore.insertionPoint.index;
+            const fullIndex =
+                visibleIndex >= rootApis.length
+                    ? allRootApis.length
+                    : allRootApis.findIndex((a) => a.id === rootApis[visibleIndex].id);
+            await apiStore.moveAndInsertApi(apiId, undefined, fullIndex);
             return;
         }
 
-        // Move to root (no folder)
+        if (!dragStore.isHoveringRoot()) return;
+        const api = apiStore.savedApis.find((a) => a.id === apiId);
+        if (!api?.folder_id) return;
+
         const updated = await folderStore.moveApi(apiId, undefined);
-        if (updated) {
-            apiStore.updateApiInList(updated);
-        }
+        if (updated) apiStore.updateApiInList(updated);
     }
 
-    // Global mouseup to end drag
     function handleGlobalMouseUp() {
         dragStore.endDrag();
     }
@@ -86,35 +104,30 @@
     {#if folderStore.tree.length === 0 && apiStore.savedApis.length === 0}
         <div class="empty-state">No collections yet</div>
     {:else}
-        <!-- Folders -->
         {#each folderStore.tree as folder}
             <FolderItem {folder} apis={apiStore.savedApis} {searchQuery} />
         {/each}
 
-        <!-- Root drop zone -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
             class="root-drop-zone"
             class:drag-over={showDropHighlight}
-            data-drop-zone="root"
-            onmouseup={handleMouseUp}
+            onmouseenter={handleRootMouseEnter}
+            onmouseleave={handleRootMouseLeave}
+            onmouseup={handleDrop}
             role="list"
         >
-            <!-- Root-level APIs (no folder) -->
-            {#each rootApis as req}
+            {#each rootApis as req, i (req.id)}
                 <button
-                    class="saved-request sidebar-item {req.id === apiStore.api?.id
-                        ? 'active'
-                        : ''}"
+                    class="saved-request sidebar-item"
+                    class:active={req.id === apiStore.api?.id}
                     class:dragging={dragStore.draggingApiId === req.id}
                     onmousedown={(e) => handleMouseDown(e, req)}
+                    onmousemove={(e) => handleItemMouseMove(e, i)}
                     onclick={() => onSelectApi(req)}
                 >
                     <div class="request-info">
-                        <span
-                            class="method"
-                            style:color={COLORS[req.request.method]}
-                        >
+                        <span class="method" style:color={COLORS[req.request.method]}>
                             {req.request.method}
                         </span>
                         <span class="name">{req.name}</span>
@@ -183,6 +196,11 @@
     .saved-request.active,
     .saved-request:hover {
         background: var(--hover);
+    }
+
+    /* During drag, suppress hover highlight on non-active items */
+    :global(body.is-dragging) .saved-request:hover:not(.active) {
+        background: transparent;
     }
 
     .request-info {

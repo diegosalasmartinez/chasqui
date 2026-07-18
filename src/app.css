@@ -173,3 +173,9 @@ body.is-dragging {
 body.is-dragging * {
     cursor: grabbing !important;
 }
+
+/* Suppress hover styles on sidebar items during drag — only the drop target should highlight */
+body.is-dragging .sidebar-item:hover:not(.active):not(.drag-over) {
+    background: transparent !important;
+    border-color: transparent !important;
+}

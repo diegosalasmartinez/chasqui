@@ -1,15 +1,24 @@
 // Global drag state for API items
 const DRAG_THRESHOLD = 5 // pixels before drag starts
 
+export type InsertionPoint = {
+    groupId: string
+    index: number
+    lineY: number
+    lineLeft: number
+    lineWidth: number
+}
+
 class DragStore {
     draggingApiId = $state<string | null>(null)
     hoverTargetId = $state<string | null>(null) // folder id or 'root'
+    insertionPoint = $state<InsertionPoint | null>(null)
+    justDropped = false // set briefly after a drop to suppress the click event
     private dragGhost: HTMLElement | null = null
     private pendingDrag: { apiId: string; element: HTMLElement; startX: number; startY: number } | null = null
     private hasDragStarted = false
 
     startDrag(apiId: string, sourceElement: HTMLElement, e: MouseEvent) {
-        // Store pending drag info - actual drag starts after threshold
         this.pendingDrag = {
             apiId,
             element: sourceElement,
@@ -21,18 +30,24 @@ class DragStore {
     }
 
     endDrag() {
+        const didDrag = this.hasDragStarted
         this.draggingApiId = null
         this.hoverTargetId = null
+        this.insertionPoint = null
         this.pendingDrag = null
         this.hasDragStarted = false
         document.body.classList.remove('is-dragging')
         window.removeEventListener('mousemove', this.handleMouseMove)
         this.removeDragGhost()
+        if (didDrag) {
+            this.justDropped = true
+            // Reset on next tick — after the click event would have fired
+            setTimeout(() => { this.justDropped = false }, 0)
+        }
     }
 
     private activateDrag() {
         if (!this.pendingDrag) return
-
         this.draggingApiId = this.pendingDrag.apiId
         this.hasDragStarted = true
         document.body.classList.add('is-dragging')
@@ -70,48 +85,55 @@ class DragStore {
     }
 
     private handleMouseMove = (e: MouseEvent) => {
-        // Check if we should activate the drag (threshold reached)
         if (this.pendingDrag && !this.hasDragStarted) {
             const dx = e.clientX - this.pendingDrag.startX
             const dy = e.clientY - this.pendingDrag.startY
-            const distance = Math.sqrt(dx * dx + dy * dy)
-
-            if (distance >= DRAG_THRESHOLD) {
+            if (Math.sqrt(dx * dx + dy * dy) >= DRAG_THRESHOLD) {
                 this.activateDrag()
             } else {
-                return // Don't do anything until threshold is reached
+                return
             }
         }
 
-        // Update ghost position
         if (this.dragGhost) {
             const ghostRect = this.dragGhost.getBoundingClientRect()
             this.dragGhost.style.top = `${e.clientY - ghostRect.height / 2}px`
             this.dragGhost.style.left = `${e.clientX - ghostRect.width / 2}px`
         }
+    }
 
-        // Detect hover target
-        const element = document.elementFromPoint(e.clientX, e.clientY)
-        if (!element) {
-            this.hoverTargetId = null
-            return
+    // Called from per-item onmousemove handlers when dragging.
+    setHoverOnItem(groupId: string, index: number, rect: DOMRect, clientY: number) {
+        if (!this.isDragging) return
+        const isAfter = clientY > rect.top + rect.height / 2
+        this.insertionPoint = {
+            groupId,
+            index: isAfter ? index + 1 : index,
+            lineY: isAfter ? rect.bottom : rect.top,
+            lineLeft: rect.left,
+            lineWidth: rect.width,
         }
-
-        // Check if hovering over a folder header
-        const folderHeader = element.closest('[data-folder-id]') as HTMLElement
-        if (folderHeader) {
-            this.hoverTargetId = folderHeader.dataset.folderId || null
-            return
-        }
-
-        // Check if hovering over root drop zone
-        const rootZone = element.closest('[data-drop-zone="root"]')
-        if (rootZone) {
-            this.hoverTargetId = 'root'
-            return
-        }
-
         this.hoverTargetId = null
+    }
+
+    clearItemHover() {
+        if (!this.isDragging) return
+        this.insertionPoint = null
+    }
+
+    setHoverFolder(folderId: string) {
+        if (!this.isDragging) return
+        this.hoverTargetId = folderId
+        this.insertionPoint = null
+    }
+
+    setHoverRoot() {
+        if (!this.isDragging) return
+        this.hoverTargetId = 'root'
+    }
+
+    clearHoverTarget(targetId: string) {
+        if (this.hoverTargetId === targetId) this.hoverTargetId = null
     }
 
     get isDragging(): boolean {
@@ -123,7 +145,7 @@ class DragStore {
     }
 
     isHoveringRoot(): boolean {
-        return this.isDragging && this.hoverTargetId === 'root'
+        return this.isDragging && this.hoverTargetId === 'root' && this.insertionPoint === null
     }
 }
 

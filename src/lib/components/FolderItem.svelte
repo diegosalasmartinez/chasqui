@@ -23,38 +23,25 @@
 
     const query = $derived(searchQuery.toLowerCase().trim());
 
-    function folderHasMatches(
-        f: FolderNode,
-        allApis: Api[],
-        q: string,
-    ): boolean {
+    function folderHasMatches(f: FolderNode, allApis: Api[], q: string): boolean {
         if (!q) return true;
         if (f.name.toLowerCase().includes(q)) return true;
         const direct = allApis.filter((a) => a.folder_id === f.id);
-        if (
-            direct.some(
-                (a) =>
-                    a.name.toLowerCase().includes(q) ||
-                    a.request.url.toLowerCase().includes(q),
-            )
-        )
+        if (direct.some((a) => a.name.toLowerCase().includes(q) || a.request.url.toLowerCase().includes(q)))
             return true;
         return f.children.some((child) => folderHasMatches(child, allApis, q));
     }
 
     const isVisible = $derived(folderHasMatches(folder, apis, query));
-    const isExpanded = $derived(
-        query ? isVisible : folderStore.isExpanded(folder.id),
-    );
+    const isExpanded = $derived(query ? isVisible : folderStore.isExpanded(folder.id));
+    const allFolderApis = $derived(apis.filter((a) => a.folder_id === folder.id));
     const folderApis = $derived(
-        apis
-            .filter((a) => a.folder_id === folder.id)
-            .filter(
-                (a) =>
-                    !query ||
-                    a.name.toLowerCase().includes(query) ||
-                    a.request.url.toLowerCase().includes(query),
-            ),
+        allFolderApis.filter(
+            (a) =>
+                !query ||
+                a.name.toLowerCase().includes(query) ||
+                a.request.url.toLowerCase().includes(query),
+        ),
     );
     const showDropHighlight = $derived(dragStore.isHoveringFolder(folder.id));
 
@@ -63,6 +50,7 @@
     }
 
     function onSelectApi(api: Api) {
+        if (dragStore.justDropped) return;
         apiStore.selectApi(api);
     }
 
@@ -85,11 +73,8 @@
     }
 
     function handleKeydown(e: KeyboardEvent) {
-        if (e.key === "Enter") {
-            saveEdit();
-        } else if (e.key === "Escape") {
-            cancelEdit();
-        }
+        if (e.key === "Enter") saveEdit();
+        else if (e.key === "Escape") cancelEdit();
     }
 
     async function createRequestInFolder() {
@@ -97,24 +82,50 @@
         folderStore.expand(folder.id);
     }
 
-    // Mouse-based drag handlers
     function handleMouseDown(e: MouseEvent, api: Api) {
         if (!api.id || e.button !== 0) return;
         const target = e.currentTarget as HTMLElement;
         dragStore.startDrag(api.id, target, e);
     }
 
-    async function handleMouseUp() {
-        if (!dragStore.draggingApiId || !dragStore.isHoveringFolder(folder.id))
-            return;
+    function handleItemMouseMove(e: MouseEvent, index: number) {
+        if (!dragStore.isDragging) return;
+        const el = e.currentTarget as HTMLElement;
+        dragStore.setHoverOnItem(folder.id, index, el.getBoundingClientRect(), e.clientY);
+    }
 
-        const apiId = dragStore.draggingApiId;
+    function handleHeaderEnter() {
+        dragStore.setHoverFolder(folder.id);
+    }
 
-        // Don't move if already in this folder
-        const api = apis.find((a) => a.id === apiId);
-        if (api?.folder_id === folder.id) {
+    function handleHeaderLeave() {
+        dragStore.clearHoverTarget(folder.id);
+    }
+
+    function handleChildrenLeave() {
+        dragStore.clearItemHover();
+    }
+
+    async function handleDrop() {
+        if (!dragStore.isDragging) return;
+        const apiId = dragStore.draggingApiId!;
+
+        if (dragStore.insertionPoint?.groupId === folder.id) {
+            // The insertion index is relative to the (possibly search-filtered)
+            // visible list — translate it to an index in the full folder list
+            const visibleIndex = dragStore.insertionPoint.index;
+            const fullIndex =
+                visibleIndex >= folderApis.length
+                    ? allFolderApis.length
+                    : allFolderApis.findIndex((a) => a.id === folderApis[visibleIndex].id);
+            await apiStore.moveAndInsertApi(apiId, folder.id, fullIndex);
+            folderStore.expand(folder.id);
             return;
         }
+
+        if (!dragStore.isHoveringFolder(folder.id)) return;
+        const api = apis.find((a) => a.id === apiId);
+        if (api?.folder_id === folder.id) return;
 
         const updated = await folderStore.moveApi(apiId, folder.id);
         if (updated) {
@@ -125,43 +136,18 @@
 
     function getApiMenuItems(api: Api) {
         return [
-            {
-                label: "Export",
-                onClick: () => exportModalStore.show(api.request, api.name),
-            },
-            {
-                label: "Duplicate",
-                onClick: () => apiStore.duplicateApi(api),
-            },
-            {
-                label: "Delete",
-                danger: true,
-                onClick: () => apiStore.deleteApi(api),
-            },
+            { label: "Export", onClick: () => exportModalStore.show(api.request, api.name) },
+            { label: "Duplicate", onClick: () => apiStore.duplicateApi(api) },
+            { label: "Delete", danger: true, onClick: () => apiStore.deleteApi(api) },
         ];
     }
 
     function getFolderMenuItems() {
         return [
-            {
-                label: "New request",
-                onClick: createRequestInFolder,
-            },
-            {
-                label: "New folder inside",
-                onClick: async () => {
-                    await folderStore.create("New Folder", folder.id);
-                },
-            },
-            {
-                label: "Rename",
-                onClick: startEditing,
-            },
-            {
-                label: "Delete",
-                danger: true,
-                onClick: () => folderStore.delete(folder.id),
-            },
+            { label: "New request", onClick: createRequestInFolder },
+            { label: "New folder inside", onClick: async () => { await folderStore.create("New Folder", folder.id); } },
+            { label: "Rename", onClick: startEditing },
+            { label: "Delete", danger: true, onClick: () => folderStore.delete(folder.id) },
         ];
     }
 </script>
@@ -171,8 +157,9 @@
         <div
             class="folder-header sidebar-item"
             class:drag-over={showDropHighlight}
-            data-folder-id={folder.id}
-            onmouseup={handleMouseUp}
+            onmouseenter={handleHeaderEnter}
+            onmouseleave={handleHeaderLeave}
+            onmouseup={handleDrop}
             role="button"
             tabindex="0"
         >
@@ -190,11 +177,7 @@
                     onkeydown={handleKeydown}
                 />
             {:else}
-                <button
-                    class="folder-name-btn"
-                    onclick={toggle}
-                    ondblclick={startEditing}
-                >
+                <button class="folder-name-btn" onclick={toggle} ondblclick={startEditing}>
                     {folder.name}
                 </button>
             {/if}
@@ -202,25 +185,27 @@
         </div>
 
         {#if isExpanded}
-            <div class="folder-children">
-                {#each folder.children as child}
+            <div
+                class="folder-children"
+                onmouseup={handleDrop}
+                onmouseleave={handleChildrenLeave}
+                role="list"
+            >
+                {#each folder.children as child (child.id)}
                     <FolderItem folder={child} {apis} {searchQuery} />
                 {/each}
 
-                {#each folderApis as api}
+                {#each folderApis as api, i (api.id)}
                     <button
-                        class="api-item sidebar-item {api.id === apiStore.api?.id
-                            ? 'active'
-                            : ''}"
+                        class="api-item sidebar-item"
+                        class:active={api.id === apiStore.api?.id}
                         class:dragging={dragStore.draggingApiId === api.id}
                         onmousedown={(e) => handleMouseDown(e, api)}
+                        onmousemove={(e) => handleItemMouseMove(e, i)}
                         onclick={() => onSelectApi(api)}
                     >
                         <div class="request-info">
-                            <span
-                                class="method"
-                                style:color={COLORS[api.request.method]}
-                            >
+                            <span class="method" style:color={COLORS[api.request.method]}>
                                 {api.request.method}
                             </span>
                             <span class="name">{api.name}</span>
@@ -262,11 +247,7 @@
     }
 
     .folder-header.drag-over {
-        background: color-mix(
-            in srgb,
-            var(--accent) 15%,
-            transparent
-        ) !important;
+        background: color-mix(in srgb, var(--accent) 15%, transparent) !important;
         border-color: var(--accent) !important;
         border-style: dashed !important;
     }
@@ -329,7 +310,6 @@
         max-width: -webkit-fill-available;
     }
 
-    /* Connector line for nested folders */
     .folder-children > :global(.folder-item) {
         position: relative;
     }
@@ -381,6 +361,13 @@
     .api-item.active,
     .api-item:hover {
         background: var(--hover);
+    }
+
+    /* During drag, suppress hover highlight on non-active items */
+    :global(body.is-dragging) .api-item:hover:not(.active),
+    :global(body.is-dragging) .folder-header:hover:not(.drag-over) {
+        background: transparent;
+        border-color: transparent;
     }
 
     .request-info {

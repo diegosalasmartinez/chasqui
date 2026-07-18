@@ -5,6 +5,7 @@ import {
     updateFolderBridge,
     deleteFolderBridge,
     moveApiBridge,
+    reorderFoldersBridge,
 } from '$lib/infra/tauri'
 
 class FolderService {
@@ -52,6 +53,14 @@ class FolderService {
             return api
         } catch (err) {
             toastStore.error('Error moving API: ' + err)
+        }
+    }
+
+    async reorderFolders(ids: string[]) {
+        try {
+            await reorderFoldersBridge(ids)
+        } catch (err) {
+            toastStore.error('Error reordering folders: ' + err)
         }
     }
 }

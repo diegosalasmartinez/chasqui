@@ -5,6 +5,7 @@ import { environmentStore } from '$lib/stores/environment.svelte'
 import { historyStore } from '$lib/stores/history.svelte'
 import { workspaceStore } from '$lib/stores/workspace.svelte'
 import { apiService } from '$lib/services/api.service'
+import { folderStore } from '$lib/stores/folder.svelte'
 
 const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj))
 
@@ -20,7 +21,9 @@ class ApiStore {
     get savedApis(): Api[] {
         const workspaceId = workspaceStore.currentWorkspaceId
         if (!workspaceId) return []
-        return this.allApis.filter(a => a.workspace_id === workspaceId)
+        return this.allApis
+            .filter(a => a.workspace_id === workspaceId)
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
     }
 
     get api(): Api | null {
@@ -183,6 +186,46 @@ class ApiStore {
     async listApis() {
         const apis = await apiService.listApis()
         this.allApis = apis
+    }
+
+    async reorderApis(ids: string[]) {
+        const posMap = new Map(ids.map((id, i) => [id, i]))
+        this.allApis = this.allApis.map(a =>
+            a.id && posMap.has(a.id) ? { ...a, position: posMap.get(a.id)! } : a
+        )
+        await apiService.reorderApis(ids)
+    }
+
+    async moveAndInsertApi(apiId: string, targetFolderId: string | undefined, zoneIndex: number) {
+        const wid = workspaceStore.currentWorkspaceId
+        const api = this.allApis.find(a => a.id === apiId && a.workspace_id === wid)
+        if (!api) return
+
+        const isSameGroup = api.folder_id === targetFolderId
+
+        const targetGroupApis = this.allApis
+            .filter(a => a.workspace_id === wid && a.folder_id === targetFolderId)
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+
+        let insertIndex: number
+        if (isSameGroup) {
+            const currentIndex = targetGroupApis.findIndex(a => a.id === apiId)
+            insertIndex = zoneIndex > currentIndex ? zoneIndex - 1 : zoneIndex
+            if (insertIndex === currentIndex) return
+        } else {
+            insertIndex = Math.min(zoneIndex, targetGroupApis.length)
+        }
+
+        const filtered = targetGroupApis.filter(a => a.id !== apiId)
+        filtered.splice(insertIndex, 0, { ...api, folder_id: targetFolderId })
+        const newOrder = filtered.map(a => a.id!)
+
+        if (!isSameGroup) {
+            const moved = await folderStore.moveApi(apiId, targetFolderId)
+            if (moved) this.replaceApi(moved)
+        }
+
+        await this.reorderApis(newOrder)
     }
 
     clearSelection() {

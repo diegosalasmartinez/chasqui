@@ -78,6 +78,7 @@ export type Folder = {
     name: string
     parent_id?: string
     workspace_id?: string
+    position?: number
 }
 
 export type Api = {
@@ -86,6 +87,7 @@ export type Api = {
     folder_id?: string
     workspace_id?: string
     request: Request
+    position?: number
 }
 
 export type HistoryEntryRaw = {

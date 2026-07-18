@@ -24,6 +24,10 @@ export async function moveApiBridge(id: string, folderId?: string): Promise<Api>
     return await invoke('move_api', payload) as Api
 }
 
+export async function reorderApisBridge(ids: string[]): Promise<void> {
+    return await invoke('reorder_apis', { ids })
+}
+
 export async function sendRequestBridge(request: Request, workspaceId?: string): Promise<SendRequestResult> {
     return await invoke('send_request', { request, workspaceId }) as SendRequestResult
 }
@@ -43,6 +47,10 @@ export async function updateFolderBridge(id: string, name?: string, parentId?: s
 
 export async function deleteFolderBridge(id: string): Promise<void> {
     return await invoke('delete_folder', { id })
+}
+
+export async function reorderFoldersBridge(ids: string[]): Promise<void> {
+    return await invoke('reorder_folders', { ids })
 }
 
 // Environment bridges

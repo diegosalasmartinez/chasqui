@@ -90,6 +90,8 @@ pub struct Folder {
     pub parent_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace_id: Option<String>,
+    #[serde(default)]
+    pub position: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -101,6 +103,8 @@ pub struct Api {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace_id: Option<String>,
     pub request: Request,
+    #[serde(default)]
+    pub position: i64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

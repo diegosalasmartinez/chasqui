@@ -16,6 +16,7 @@
     import ToastContainer from "$lib/ui/ToastContainer.svelte";
     import ExportModal from "$lib/components/export/ExportModal.svelte";
     import ImportModal from "$lib/components/import/ImportModal.svelte";
+    import DragInsertLine from "$lib/components/DragInsertLine.svelte";
     import LeftPanel from "$lib/layouts/LeftPanel.svelte";
     import Sidebar from "$lib/layouts/Sidebar.svelte";
     import Header from "$lib/layouts/Header.svelte";
@@ -89,6 +90,7 @@
     <ToastContainer />
     <ExportModal />
     <ImportModal />
+    <DragInsertLine />
 </div>
 
 <style>

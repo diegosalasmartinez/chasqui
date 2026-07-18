@@ -21,11 +21,19 @@ pub async fn create_folder(
         }
     }
 
+    let max_position = folders
+        .iter()
+        .filter(|f| f.parent_id == parent_id)
+        .map(|f| f.position)
+        .max()
+        .unwrap_or(-1);
+
     let folder = Folder {
         id: Uuid::new_v4().to_string(),
         name,
         parent_id,
         workspace_id,
+        position: max_position + 1,
     };
 
     folders.push(folder.clone());
@@ -112,4 +120,18 @@ pub async fn delete_folder(app: AppHandle, id: String) -> Result<(), String> {
 #[tauri::command]
 pub fn list_folders(app: AppHandle) -> Result<Vec<Folder>, String> {
     storage::get_list(&app, keys::FOLDERS)
+}
+
+#[tauri::command]
+pub async fn reorder_folders(app: AppHandle, ids: Vec<String>) -> Result<(), String> {
+    let mut folders: Vec<Folder> = storage::get_list(&app, keys::FOLDERS)?;
+
+    for (idx, id) in ids.iter().enumerate() {
+        if let Some(folder) = folders.iter_mut().find(|f| f.id == *id) {
+            folder.position = idx as i64;
+        }
+    }
+
+    storage::set_list_and_save(&app, keys::FOLDERS, &folders)?;
+    Ok(())
 }

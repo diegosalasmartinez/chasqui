@@ -1,6 +1,6 @@
 import type { Request, SendRequestResult } from '$lib/types/http'
 import { toastStore } from '$lib/stores/toast.svelte';
-import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge } from "$lib/infra/tauri";
+import { sendRequestBridge, createApiBridge, updateApiBridge, listApisBridge, deleteApiBridge, reorderApisBridge } from "$lib/infra/tauri";
 
 class ApiService {
     async createApi(name: string, req: Request, folderId?: string, workspaceId?: string) {
@@ -47,6 +47,14 @@ class ApiService {
         } catch (err) {
             toastStore.error("Error loading APIs: " + err)
             return []
+        }
+    }
+
+    async reorderApis(ids: string[]) {
+        try {
+            await reorderApisBridge(ids)
+        } catch (err) {
+            toastStore.error("Error reordering APIs: " + err)
         }
     }
 }

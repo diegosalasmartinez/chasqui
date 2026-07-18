@@ -18,12 +18,20 @@ pub async fn create_api(
 ) -> Result<Api, String> {
     let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
+    let max_position = apis
+        .iter()
+        .filter(|a| a.folder_id == folderId)
+        .map(|a| a.position)
+        .max()
+        .unwrap_or(-1);
+
     let record = Api {
         id: Uuid::new_v4().to_string(),
         name,
         folder_id: folderId,
         workspace_id: workspaceId,
         request,
+        position: max_position + 1,
     };
     apis.push(record.clone());
     storage::set_list_and_save(&app, keys::APIS, &apis)?;
@@ -142,15 +150,38 @@ pub async fn move_api(
 ) -> Result<Api, String> {
     let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
 
+    // Place the moved API at the end of the target group
+    let max_position = apis
+        .iter()
+        .filter(|a| a.folder_id == folderId && a.id != id)
+        .map(|a| a.position)
+        .max()
+        .unwrap_or(-1);
+
     let api = apis
         .iter_mut()
         .find(|a| a.id == id)
         .ok_or_else(|| "API not found".to_string())?;
 
     api.folder_id = folderId;
+    api.position = max_position + 1;
     let updated = api.clone();
 
     storage::set_list_and_save(&app, keys::APIS, &apis)?;
 
     Ok(updated)
+}
+
+#[tauri::command]
+pub async fn reorder_apis(app: AppHandle, ids: Vec<String>) -> Result<(), String> {
+    let mut apis: Vec<Api> = storage::get_list(&app, keys::APIS)?;
+
+    for (idx, id) in ids.iter().enumerate() {
+        if let Some(api) = apis.iter_mut().find(|a| a.id == *id) {
+            api.position = idx as i64;
+        }
+    }
+
+    storage::set_list_and_save(&app, keys::APIS, &apis)?;
+    Ok(())
 }
