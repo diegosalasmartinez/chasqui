@@ -1,7 +1,7 @@
 [package]
 name = "chasqui"
 version = "0.1.0"
-description = "A simple and minimal api client open source alternative"
+description = "A lightweight, open-source API client. No accounts, no cloud, no bloat."
 authors = ["Diego Salas"]
 edition = "2021"
 

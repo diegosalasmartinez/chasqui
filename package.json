@@ -1,7 +1,7 @@
 {
   "name": "chasqui",
   "version": "0.1.0",
-  "description": "",
+  "description": "A lightweight, open-source API client. No accounts, no cloud, no bloat.",
   "type": "module",
   "scripts": {
     "dev": "vite dev",

@@ -17,8 +17,11 @@ Chasqui is that. Nothing more.
 - **Authentication** - Bearer token, Basic auth, API key (header or query)
 - **Environments** - Store variables and switch between dev/staging/prod
 - **Workspaces** - Organize your projects separately
-- **Collections** - Group requests into folders
+- **Collections** - Group requests into folders, drag & drop to reorder
+- **Import** - Paste a curl command, or import Postman / Insomnia exports
+- **Code generation** - Copy any request as curl, fetch, axios, Python, PHP, or Go
 - **History** - See what you sent and when
+- **Keyboard shortcuts** - Send, save, duplicate, and search without touching the mouse
 - **Monaco editor** - Syntax highlighting for JSON bodies
 - **Dark/Light mode** - Easy on the eyes
 
@@ -30,7 +33,7 @@ Chasqui is that. Nothing more.
 
 ### Download
 
-Grab the latest release from the [Releases](https://github.com/YOUR_USERNAME/chasqui/releases) page.
+Grab the latest release from the [Releases](https://github.com/diegosalasmartinez/chasqui/releases) page.
 
 - **macOS**: `.dmg` or `.app`
 - **Windows**: `.msi` or `.exe`
@@ -45,7 +48,7 @@ You'll need:
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/chasqui.git
+git clone https://github.com/diegosalasmartinez/chasqui.git
 cd chasqui
 
 # Install dependencies
@@ -97,13 +100,12 @@ The echo server returns all request details (headers, body, params) as JSON so y
 
 Things I might add if there's interest:
 
-- [ ] Import/export collections (Postman format)
+- [ ] Request tabs
+- [ ] Cookies management
+- [ ] Request scripting (pre-request, tests)
 - [ ] GraphQL support
 - [ ] WebSocket testing
-- [ ] Request scripting (pre-request, tests)
-- [ ] Cookies management
 - [ ] Proxy settings
-- [ ] Code generation (curl, fetch, etc.)
 
 ## Contributing
 
